@@ -1,5 +1,5 @@
 import os,discord,sqlite3,logging,requests,time,threading,re
-from discord.ext import flags,commands
+from discord.ext import commands
 from commands.scripts import nation_data_converter,updater,sheets
 from datetime import datetime,timedelta
 import DiscordUtils
