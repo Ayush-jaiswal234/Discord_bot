@@ -148,7 +148,7 @@ def update_trade_price():
 	fetchdata=requests.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
 	fetchdata=fetchdata.json()['data']['top_trade_info']['resources']
 	fetchdata.pop(-1)
-	insert_text=','.join([f'{price['best_sell_offer']['price']}' for price in fetchdata])
+	insert_text=','.join([f"{price['best_sell_offer']['price']}" for price in fetchdata])
 	print(fetchdata)
 	sql_insert_to_table=f"insert into trade_prices values ({insert_text})"
 	print(sql_insert_to_table)
