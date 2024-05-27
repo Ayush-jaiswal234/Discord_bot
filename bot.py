@@ -944,4 +944,4 @@ async def help(ctx,command_name=None):
 
 
 
-client.run(process.env.DISCORD_TOKEN)		
+client.run(os.environ['DISCORD_TOKEN'])		
