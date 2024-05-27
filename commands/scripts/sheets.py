@@ -6,9 +6,9 @@ SCOPES = [
 'https://www.googleapis.com/auth/spreadsheets',
 'https://www.googleapis.com/auth/drive'
 ]
-credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
-spreadsheet_service = build('sheets', 'v4', credentials=credentials)
-drive_service = build('drive', 'v3', credentials=credentials)
+#credentials = service_account.Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
+#spreadsheet_service = build('sheets', 'v4', credentials=credentials)
+#drive_service = build('drive', 'v3', credentials=credentials)
 
 
 def create(title):
