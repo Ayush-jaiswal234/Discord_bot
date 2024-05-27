@@ -942,6 +942,4 @@ async def help(ctx,command_name=None):
 			embed.description='Usage: ;spysheet <alliance id/alliance link>\n Generates a sheet with the number of spies of every memeber in the target alliance'
 	await ctx.send(embed=embed)					
 
-
-
 client.run(os.environ['DISCORD_TOKEN'])		
