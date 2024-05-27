@@ -7,7 +7,7 @@ SCOPES = [
 'https://www.googleapis.com/auth/spreadsheets',
 'https://www.googleapis.com/auth/drive'
 ]
-credentials = service_account.Credentials.from_service_account_info(json.parse(os.environ['SERVICE_ACCOUNT_INFO']), scopes=SCOPES)
+credentials = service_account.Credentials.from_service_account_info(json.loads(os.environ['SERVICE_ACCOUNT_INFO']), scopes=SCOPES)
 #spreadsheet_service = build('sheets', 'v4', credentials=credentials)
 #drive_service = build('drive', 'v3', credentials=credentials)
 
