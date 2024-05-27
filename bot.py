@@ -86,7 +86,6 @@ def targets(war_range,inactivity_time,aa,beige,applicants,beige_turns):
 	print(targets_list)
 	cursor.execute(targets_list)
 	all_targets=cursor.fetchall()
-	print(all_targets[0])
 	prices=get_prices(cursor)
 	final_list=[]
 	for y in range(0,len(all_targets)):
@@ -945,4 +944,4 @@ async def help(ctx,command_name=None):
 
 
 
-client.run(os.getenv('DISCORD_TOKEN'))		
+client.run(DISCORD_TOKEN)		
