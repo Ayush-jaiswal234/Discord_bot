@@ -4,10 +4,9 @@ from commands.scripts import nation_data_converter,updater,sheets
 from datetime import datetime,timedelta
 import DiscordUtils
 from bs4 import BeautifulSoup 
-from dotenv import load_dotenv
+import aiosqlite,asyncio
 
 logging.basicConfig(level=logging.INFO)
-load_dotenv()
 
 def update_registered_nations(author_id,author_name,nation_id):
 	connection=sqlite3.connect('politics and war.db')
@@ -361,6 +360,11 @@ def logging_in_to_pnw():
 		print('an error occured')	
 pass
 
+async def repeat_every_n_seconds(func_name,interval):
+	func=getattr(updater,func_name)
+	while True:
+		await func()
+		await asyncio.sleep(interval)
 
 graphql_link='https://api.politicsandwar.com/graphql?api_key=10433a4b8a7dec'
 intents = discord.Intents.default()	
@@ -785,13 +789,12 @@ async def treaties(ctx,*,alliance_id):
 @commands.is_owner()	
 @client.command()
 async def update(ctx):
-	connection=sqlite3.connect('politics and war.db')
-	connection.execute('delete from all_nations_data')
-	connection.commit()
-	connection.close()
-	updater.update_nation_data()
-	updater.update_loot_data()
-	updater.update_trade_price()
+	async with aiosqlite.connect('politics and war.db') as db:
+		await db.execute('delete from all_nations_data')
+		await db.commit()
+	asyncio.create_task(repeat_every_n_seconds('update_nation_data',300))
+	asyncio.create_task(repeat_every_n_seconds('update_loot_data',900))
+	asyncio.create_task(repeat_every_n_seconds('update_trade_price',600))	
 	await ctx.send("done")		
 
 @client.command()
