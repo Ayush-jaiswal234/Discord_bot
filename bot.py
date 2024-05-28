@@ -835,8 +835,9 @@ async def help(ctx,command_name=None):
 async def copy_db(ctx):
 	url = 'http://192.168.1.6:5000/'
 	files = {'file': open('politics and war.db', 'rb')}
-	async with httpx.AsyncClient(timeout=20) as client:
-		response = await client.post(url, files=files)
-		print(response)
+	#async with httpx.AsyncClient(timeout=20) as client:
+	#	response = await client.post(url, files=files)
+	response = requests.post(url, files=files)
+	print(response)
 
 client.run(os.environ['DISCORD_TOKEN'])		
