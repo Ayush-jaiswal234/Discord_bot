@@ -1,2 +1,4 @@
 *.env
 service_account.json
+/commands/__pycache__
+/commands/scripts/__pycache__

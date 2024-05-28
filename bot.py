@@ -1,10 +1,10 @@
-import os,discord,sqlite3,logging,requests,time,threading,re
+import os,discord,sqlite3,logging,requests,time,re
 from discord.ext import commands
-from commands.scripts import nation_data_converter,updater,sheets
+from commands.scripts import nation_data_converter,updater#,sheets
 from datetime import datetime,timedelta
 import DiscordUtils
 from bs4 import BeautifulSoup 
-import aiosqlite,asyncio
+import aiosqlite,asyncio,httpx
 
 logging.basicConfig(level=logging.INFO)
 
@@ -76,40 +76,53 @@ def aa_finder(id_or_name):
 	return alliance_id
 pass		
 
-def targets(war_range,inactivity_time,aa,beige,applicants,beige_turns):
-	connection=sqlite3.connect('politics and war.db')
-	cursor=connection.cursor()
-	date=datetime.now().replace(microsecond=0)
-	date = date -timedelta(days=inactivity_time)
-	targets_list= "select * from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where score>%s and score<%s %s and vmode=0 and defensive_wars<>3 %s %s %s and date(last_active)<'%s'" % (war_range[0],war_range[1],beige,aa,applicants,beige_turns,date)
-	print(targets_list)
-	cursor.execute(targets_list)
-	all_targets=cursor.fetchall()
-	prices=get_prices(cursor)
-	final_list=[]
-	for y in range(0,len(all_targets)):
-		amount=all_targets[y][2]
-		for x in range(0,11):
-			amount=amount+(all_targets[y][x+3]*prices[x])
-		data_tuple=(all_targets[y][1],amount,all_targets[y][17],all_targets[y][23],all_targets[y][24],all_targets[y][31],all_targets[y][34],all_targets[y][35],all_targets[y][36],all_targets[y][37],all_targets[y][38],all_targets[y][39])	
-		final_list.insert(y,data_tuple)	
-	cursor.close()
-	connection.close()
+async def targets(war_range,inactivity_time,aa,beige,applicants,beige_turns):
+	async with aiosqlite.connect('politics and war.db') as db:
+		date=datetime.now().replace(microsecond=0)
+		date = date -timedelta(days=inactivity_time)
+		search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum']])
+		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['alliance','beige_turns','soldiers', 'tanks', 'aircraft', 'ships']])
+		targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {applicants} {beige_turns} and date(last_active)<'{date}'"
+		print(targets_list)
+		cursor = await db.execute(targets_list)
+		print([x[0] for x in cursor.description])
+		all_targets= await cursor.fetchall()
+		prices=await get_prices(db)
+		final_list=[]
+		for y in range(0,len(all_targets)):
+			amount=all_targets[y][1]
+			for x in range(0,11):
+				amount=amount+(all_targets[y][x+2]*prices[x])
+			data_list=[all_targets[y][0],amount,all_targets[y][13],all_targets[y][14],all_targets[y][15],all_targets[y][16],all_targets[y][17],all_targets[y][18]]
+			final_list.insert(y,data_list)	
+		await cursor.close()
 	final_list.sort(key=lambda x:x[1],reverse=True)
+	final_list=final_list[:9]
+	print(final_list)
+	for data in final_list:
+		dep_date=await last_bank_rec(data[0])
+		data.append(dep_date)
+	print(final_list)
 	return final_list
 pass
 
-def get_prices(cursor):
-	prices=[]
-	list_of_things_to_find=['Coal','Oil','Uranium','Iron','Bauxite','`Lead`','Gasoline','Munitions','Steel','Aluminum','Food']			
-	for x in range(0,len(list_of_things_to_find),1):
-		things_to_find="select %s from trade_prices" % (list_of_things_to_find[x])
-		cursor.execute(things_to_find)
-		price=cursor.fetchone()
-		price=price[0]
-		prices.append(x)
-		prices[x]=price
-	return prices	
+async def last_bank_rec(nation_id):
+	query=f"""{{
+  	bankrecs(sid:{nation_id},orderBy:[{{column:DATE,order:DESC}}],first:1,rtype:2){{
+    data{{date
+	}}
+  	}}
+	}}"""
+	async with httpx.AsyncClient() as client:
+		fetchdata=await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+		fetchdata=fetchdata.json()['data']['bankrecs']['data'][0]['date']
+	return fetchdata.split('+')[0]
+
+async def get_prices(db):
+	cursor= await db.execute("select * from trade_prices")
+	price= await cursor.fetchone()
+	await cursor.close()
+	return price	
 pass
 
 def inactive_players(alliance_id):
@@ -201,20 +214,6 @@ def check_subscriptions(server_id,command_name):
 	return validity
 pass
 
-def spies_calc(nation_id):
-	fix_value=0
-	for x in range(1,55):
-		url=f'https://politicsandwar.com/war/espionage_get_odds.php?id1=209785&id2={nation_id}&id3=0&id4=1&id5={x}'
-		fetchdata=requests.get(url)	
-		if fetchdata.text=='Greater than 50%' or x==55 :
-			fix_value=x
-			break
-	y=(4*fix_value-1)/3
-	if y>60:
-		y=60
-	return int(y)
-pass
-
 def check_efficency(nation_id):	
 	query="""{
 		nations(id:%s,first:1){
@@ -290,44 +289,6 @@ def check_for_build(nation_id,infra):
 	connection.close()
 	return build
 pass
-
-def sheet_data(alliance_id,sheetID):
-	connection=sqlite3.connect('politics and war.db')
-	cursor=connection.cursor()
-	all_nations=('select nation_id,nation,score from all_nations_data where alliance_id=%s and alliance_position>1') % (alliance_id)
-	cursor.execute(all_nations)
-	nations_tuple=cursor.fetchall()
-	cursor.close()
-	connection.close()
-	time_start=time.time()
-	nations_list=[x[0] for x in nations_tuple]
-	spies_list=[spies_calc(x) for x in nations_list]
-	merged_list=[(f'=HYPERLINK("https://politicsandwar.com/nation/id={nations_list[x]}","{nations_tuple[x][1]}")',f'{int(nations_tuple[x][2]-(nations_tuple[x][2]*0.6))}-{int(nations_tuple[x][2]+(nations_tuple[x][2]*1.50))}',spies_list[x]) for x in range(0,len(nations_list))]
-	values=[
-		['Nation','Spy range','Spies']
-	]
-	for x in range(0,len(merged_list)):
-		values.insert(x+1,merged_list[x])
-	time_end=time.time()	
-	time_taken=[f'Finished execution in {int(time_end-time_start)} seconds']
-	values.insert(len(merged_list)+2,time_taken)
-	range_of_sheet=f'Sheet1!A1:C{len(nations_list)+2}'
-	sheets.write_ranges(sheetID,range_of_sheet,values)
-pass
-
-def sheet_creation(alliance_id):
-	connection=sqlite3.connect('politics and war.db')
-	cursor=connection.cursor()
-	alliance_name=('select alliance from all_nations_data where alliance_id=%s limit 1') % (alliance_id)
-	cursor.execute(alliance_name)
-	alliance_name=cursor.fetchone()
-	cursor.close()
-	connection.close()	
-	sheetID=sheets.create(f'{alliance_name[0]} spies')
-	thread=threading.Thread(target=sheet_data,args=(alliance_id,sheetID))
-	thread.start()
-	return sheetID
-pass	
 
 def get_wars(my_nation_id):
 	query="""{
@@ -588,9 +549,9 @@ async def raid(ctx, *,flags:RaidFlags):
 	print(flags.alliances)
 	if results!=None:
 		today_date=datetime.now().replace(microsecond=0)
-		today_date=time.strptime(str(today_date),"%Y-%m-%d %H:%M:%S")
+		today_date_obj=time.strptime(str(today_date),"%Y-%m-%d %H:%M:%S")
 		end_date=time.strptime(results[2],"%Y-%m-%d %H:%M:%S")
-		if end_date>today_date:
+		if end_date>today_date_obj:
 			score=get('score',ctx.author.id)
 			page1=discord.Embed()
 			if score!=None:
@@ -613,7 +574,7 @@ async def raid(ctx, *,flags:RaidFlags):
 				flags.alliances=(5875,12281,1584,3339,7674,1896,9661,12615,8577,11032,2358,7000,4468)
 				flags.alliances=f'and alliance_id in {flags.alliances}'		
 				war_range=score-score*25/100,score+score*75/100
-				list_of_targets=targets(war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.applicants,flags.beige_turns)
+				list_of_targets=await targets(war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.applicants,flags.beige_turns)
 				page1.title='Targets'
 				x=0
 				while x<len(list_of_targets) and x<3:
@@ -621,15 +582,14 @@ async def raid(ctx, *,flags:RaidFlags):
 					loot='{:,}'.format(loot)
 					loot='Loot:' + loot
 					page1.add_field(name=f'{x+1}.https://politicsandwar.com/nation/id={(list_of_targets[x][0])}',value=f'{loot}',inline=False)
-					page1.add_field(name='Alliance',value=list_of_targets[x][3],inline=True)
-					if list_of_targets[x][4]!=0:
-						page1.add_field(name='Position',value=nation_data_converter.position(list_of_targets[x][4]),inline=True)
-					if list_of_targets[x][5]!=0:
-						page1.add_field(name='Beige',value=f'{list_of_targets[x][5]} turns',inline=True)	
-					page1.add_field(name='Soldiers',value=list_of_targets[x][6],inline=True)
-					page1.add_field(name='Tanks',value=list_of_targets[x][7],inline=True)
-					page1.add_field(name='Aircrafts',value=list_of_targets[x][8],inline=True)
-					page1.add_field(name='Ships',value=list_of_targets[x][9],inline=True)
+					page1.add_field(name='Alliance',value=list_of_targets[x][2],inline=True)
+					if list_of_targets[x][3]!=0:
+						page1.add_field(name='Beige',value=f'{list_of_targets[x][3]} turns',inline=True)	
+					page1.add_field(name='Soldiers',value=list_of_targets[x][4],inline=True)
+					page1.add_field(name='Tanks',value=list_of_targets[x][5],inline=True)
+					page1.add_field(name='Aircrafts',value=list_of_targets[x][6],inline=True)
+					page1.add_field(name='Ships',value=list_of_targets[x][7],inline=True)
+					page1.add_field(name='Last bank deposit',value=today_date-datetime.strptime(list_of_targets[x][8],"%Y-%m-%dT%H:%M:%S"),inline=True)
 					x=x+1
 				pass	
 				if len(list_of_targets)>x:
@@ -641,15 +601,14 @@ async def raid(ctx, *,flags:RaidFlags):
 						loot='{:,}'.format(loot)
 						loot='Loot:' + loot
 						page2.add_field(name=f'{x+1}.https://politicsandwar.com/nation/id={(list_of_targets[x][0])}',value=f'{loot}',inline=False)
-						page2.add_field(name='Alliance',value=list_of_targets[x][3],inline=True)
-						if list_of_targets[x][4]!=0:
-							page2.add_field(name='Position',value=nation_data_converter.position(list_of_targets[x][4]),inline=True)
-						if list_of_targets[x][5]!=0:
-							page2.add_field(name='Beige',value=f'{list_of_targets[x][5]} turns',inline=True)				
-						page2.add_field(name='Soldiers',value=list_of_targets[x][6],inline=True)
-						page2.add_field(name='Tanks',value=list_of_targets[x][7],inline=True)
-						page2.add_field(name='Aircrafts',value=list_of_targets[x][8],inline=True)
-						page2.add_field(name='Ships',value=list_of_targets[x][9],inline=True)		
+						page2.add_field(name='Alliance',value=list_of_targets[x][2],inline=True)
+						if list_of_targets[x][3]!=0:
+							page2.add_field(name='Beige',value=f'{list_of_targets[x][3]} turns',inline=True)				
+						page2.add_field(name='Soldiers',value=list_of_targets[x][4],inline=True)
+						page2.add_field(name='Tanks',value=list_of_targets[x][5],inline=True)
+						page2.add_field(name='Aircrafts',value=list_of_targets[x][6],inline=True)
+						page2.add_field(name='Ships',value=list_of_targets[x][7],inline=True)
+						page2.add_field(name='Last bank deposit',value=today_date-datetime.strptime(list_of_targets[x][8],"%Y-%m-%dT%H:%M:%S"),inline=True)		
 						x=x+1
 					if len(list_of_targets)>x:
 						page3=discord.Embed()
@@ -660,15 +619,14 @@ async def raid(ctx, *,flags:RaidFlags):
 							loot='{:,}'.format(loot)
 							loot='Loot:' + loot
 							page3.add_field(name=f'{x+1}.https://politicsandwar.com/nation/id={(list_of_targets[x][0])}',value=f'{loot}',inline=False)
-							page3.add_field(name='Alliance',value=list_of_targets[x][3],inline=True)
-							if list_of_targets[x][4]!=0:	
-								page3.add_field(name='Position',value=nation_data_converter.position(list_of_targets[x][4]),inline=True)
-							if list_of_targets[x][5]!=0:
-								page3.add_field(name='Beige',value=f'{list_of_targets[x][5]} turns',inline=True)				
-							page3.add_field(name='Soldiers',value=list_of_targets[x][6],inline=True)
-							page3.add_field(name='Tanks',value=list_of_targets[x][7],inline=True)
-							page3.add_field(name='Aircrafts',value=list_of_targets[x][8],inline=True)
-							page3.add_field(name='Ships',value=list_of_targets[x][9],inline=True)
+							page3.add_field(name='Alliance',value=list_of_targets[x][2],inline=True)
+							if list_of_targets[x][3]!=0:
+								page3.add_field(name='Beige',value=f'{list_of_targets[x][3]} turns',inline=True)				
+							page3.add_field(name='Soldiers',value=list_of_targets[x][4],inline=True)
+							page3.add_field(name='Tanks',value=list_of_targets[x][5],inline=True)
+							page3.add_field(name='Aircrafts',value=list_of_targets[x][6],inline=True)
+							page3.add_field(name='Ships',value=list_of_targets[x][7],inline=True)
+							page3.add_field(name='Last bank deposit',value=today_date-datetime.strptime(list_of_targets[x][8],"%Y-%m-%dT%H:%M:%S"),inline=True)
 							x=x+1
 							page3.set_footer(text='Page 3/3')
 					page2.set_footer(text=f'Page 2/{len(embeds)}')	
@@ -729,22 +687,6 @@ async def set_defcon(ctx,values):
 	await ctx.send(f'Defcon for {get("alliance",ctx.author.id)} has been updated')
 
 @client.command()
-async def spies(ctx,nation_id):
-	if nation_id.startswith('http'):
-		nation_id=int(nation_id[37:])
-	number_of_spies=spies_calc(nation_id)
-	await ctx.send(number_of_spies)
-
-@client.command()
-@commands.has_permissions(administrator=True)
-async def spysheet(ctx,alliance_id):
-	if alliance_id.startswith('http'):
-		alliance_id=int(alliance_id[39:])
-		print(alliance_id)
-	sheetID=sheet_creation(alliance_id)	
-	await ctx.send(f'Please allow upto 10 minutes for the sheet to be generated.\nhttps://docs.google.com/spreadsheets/d/{sheetID}')
-
-@client.command()
 async def transfer(ctx,nation_id,*,text):
 	#nation_id=await nation_id_finder(ctx,nation_id)
 	#nation=get_unregistered(nation,nation_id)
@@ -789,12 +731,10 @@ async def treaties(ctx,*,alliance_id):
 @commands.is_owner()	
 @client.command()
 async def update(ctx):
-	async with aiosqlite.connect('politics and war.db') as db:
-		await db.execute('delete from all_nations_data')
-		await db.commit()
+	asyncio.create_task(repeat_every_n_seconds('update_trade_price',7200))
 	asyncio.create_task(repeat_every_n_seconds('update_nation_data',300))
-	asyncio.create_task(repeat_every_n_seconds('update_loot_data',900))
-	asyncio.create_task(repeat_every_n_seconds('update_trade_price',600))	
+	await asyncio.sleep(5)
+	asyncio.create_task(repeat_every_n_seconds('update_loot_data',900))	
 	await ctx.send("done")		
 
 @client.command()
@@ -901,8 +841,6 @@ async def help(ctx,command_name=None):
 		embed.add_field(name='Nation',value='displays your nation registered to the bot')
 		embed.add_field(name='Inactivity',value='inactivity length of members')
 		embed.add_field(name='Check_color',value='checks if all the members have same color bloc as the alliance')
-		embed.add_field(name='Spies',value='gets number of spies your enemey has')
-		embed.add_field(name='Spysheet',value='Generates a sheet with the number of spies of every memeber in the target alliance')
 		embed.add_field(name='Set_defcon',value='Sets defcon for your alliance')
 		embed.add_field(name='Set_build',value='Sets the build required for the particular infra level')
 		embed.add_field(name='Audit',value='Audits your nation on the basis of criteria set by your alliance')
@@ -928,9 +866,6 @@ async def help(ctx,command_name=None):
 		if command_name=='check_color':
 			embed.title='Check_color'
 			embed.description='Usage: ;check_color\n Displays all nations that are not in the correct color trade bloc'
-		if command_name=='spies':
-			embed.title='Spies'
-			embed.description='Usage: ;spies <nation id|nation link>\n Returns the number of spies the target has'
 		if command_name=='set_defcon':
 			embed.title='Set_defcon'
 			embed.description='Usage: ;set_defcon <values>\n Example Usage: ;set_defcon 5/0/0/0 (sets defcon to 5 barracks,0 factory,0 hangar and 0 drydock)'
@@ -940,9 +875,6 @@ async def help(ctx,command_name=None):
 		if command_name=='audit':
 			embed.title='Audit'	
 			embed.description='Usage: ;audit <nation id>\n Defcon and build must be set for your alliance for full functionality'				
-		if command_name==	'spysheet':
-			embed.title='Spysheet'
-			embed.description='Usage: ;spysheet <alliance id/alliance link>\n Generates a sheet with the number of spies of every memeber in the target alliance'
 	await ctx.send(embed=embed)					
 
 client.run(os.environ['DISCORD_TOKEN'])		
