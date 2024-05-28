@@ -3,10 +3,10 @@ from discord.ext import commands
 from commands.scripts import nation_data_converter,updater#,sheets
 from datetime import datetime,timedelta
 import DiscordUtils
-from bs4 import BeautifulSoup 
 import aiosqlite,asyncio,httpx
 
 logging.basicConfig(level=logging.INFO)
+aiosqlite.threadsafety=1
 
 def update_registered_nations(author_id,author_name,nation_id):
 	connection=sqlite3.connect('politics and war.db')
@@ -76,13 +76,13 @@ def aa_finder(id_or_name):
 	return alliance_id
 pass		
 
-async def targets(war_range,inactivity_time,aa,beige,applicants,beige_turns):
+async def targets(war_range,inactivity_time,aa,beige,beige_turns):
 	async with aiosqlite.connect('politics and war.db') as db:
 		date=datetime.now().replace(microsecond=0)
 		date = date -timedelta(days=inactivity_time)
 		search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum']])
 		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['alliance','beige_turns','soldiers', 'tanks', 'aircraft', 'ships']])
-		targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {applicants} {beige_turns} and date(last_active)<'{date}'"
+		targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {beige_turns} and date(last_active)<'{date}'"
 		print(targets_list)
 		cursor = await db.execute(targets_list)
 		print([x[0] for x in cursor.description])
@@ -536,7 +536,6 @@ async def nation(ctx):
 
 
 class RaidFlags(commands.FlagConverter):
-	applicants: bool = False
 	all_nations: bool = False
 	inactivity_days: int = 0
 	alliances: str = '0'
@@ -556,25 +555,22 @@ async def raid(ctx, *,flags:RaidFlags):
 			page1=discord.Embed()
 			if score!=None:
 				flags.alliances=flags.alliances.split(',')
-				flags.beige_turns=f'and beige_turns<{flags.beige_turns}'
 				print(flags.alliances)
-				flags.alliances=tuple(flags.alliances)
-				print(flags.alliances)				
+				if flags.beige:
+					flags.beige_turns=f'and beige_turns<{flags.beige_turns}'
+				else:
+					flags.beige_turns=''			
 				flags.beige='' if flags.beige==True else 'and color<>0'
-				flags.applicants='and (alliance_id=0 or alliance_position=1)' if ((flags.applicants==True) and (flags.alliances=='0')) else ''
-				if flags.applicants==True and flags.alliances[0]=='0':
-					flags.applicants='and (alliance_id=0 or alliance_position=1)'
-					flags.alliances=''	
-				elif len(flags.alliances)==1 and flags.all_nations==False:
-					flags.alliances=f'and alliance_id = {flags.alliances[0]}'
-				elif len(flags.alliances)!=1 and flags.all_nations==False:
+				if flags.alliances=='0' and flags.all_nations==False:
+					flags.alliances='and alliance_id=0'	
+				elif flags.all_nations==False:
+					flags.alliances.append('0')
+					flags.alliances=tuple(flags.alliances)
 					flags.alliances=f'and alliance_id in {flags.alliances}'
 				else:
 					flags.alliances=''		
-				flags.alliances=(5875,12281,1584,3339,7674,1896,9661,12615,8577,11032,2358,7000,4468)
-				flags.alliances=f'and alliance_id in {flags.alliances}'		
 				war_range=score-score*25/100,score+score*75/100
-				list_of_targets=await targets(war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.applicants,flags.beige_turns)
+				list_of_targets=await targets(war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns)
 				page1.title='Targets'
 				x=0
 				while x<len(list_of_targets) and x<3:
@@ -685,48 +681,6 @@ async def set_defcon(ctx,values):
 	cursor.close()
 	connection.close()
 	await ctx.send(f'Defcon for {get("alliance",ctx.author.id)} has been updated')
-
-@client.command()
-async def transfer(ctx,nation_id,*,text):
-	#nation_id=await nation_id_finder(ctx,nation_id)
-	#nation=get_unregistered(nation,nation_id)
-	session=logging_in_to_pnw()
-	get_token=session.get('https://test.politicsandwar.com/alliance/id=1255&display=bank')
-	soup=BeautifulSoup(get_token.content,'html.parser')
-	token=soup.find("input",type="hidden")['value']
-	text=text.split(' ')
-	send_json={f'with{text[x]}':(text[x+1]) for x in range(0,len(text),2)}
-	send_json['withrecipient']=nation_id #change to nation name on main server
-	send_json['withtype']='Nation'
-	send_json['token']=token
-	send_json['withsubmit']='Withdraw'
-	response=session.post(f'https://test.politicsandwar.com/alliance/id=1255&display=bank',data=send_json)
-	await ctx.send('sent')
-
-@client.command()
-async def treaties(ctx,*,alliance_id):
-	alliance_id=aa_finder(alliance_id)
-	if alliance_id==None:
-		await ctx.send('Invalid Alliance')
-	else:	
-		aa_data=requests.get(f'https://politicsandwar.com/alliance/id={alliance_id}')
-		soup=BeautifulSoup(aa_data.content,'html.parser')
-		script=str((soup.find_all("script",type="text/javascript"))[3])
-		start=script.find('var edges')+29
-		end=script.find('// create a network')-9
-		treaties=script[start:end]
-		treaties=treaties.strip('\n')
-		treaties=eval(treaties)
-		print(treaties)
-		embed=discord.Embed()
-		embed.title='Treaties'
-		embed.description=''
-		if type(treaties)!=dict:
-			for x in treaties:
-				embed.description=f"{embed.description}{x['title']}: [{(get_unregistered('alliance',x['from'],'alliance_id'))}](https://politicsandwar.com/alliance/id={x['from']}) > [{(get_unregistered('alliance',x['to'],'alliance_id'))}](https://politicsandwar.com/alliance/id={x['to']})\n"
-		else:
-			embed.description=f"{treaties['title']}: [{(get_unregistered('alliance',treaties['from'],'alliance_id'))}](https://politicsandwar.com/alliance/id={x['from']}) > [{(get_unregistered('alliance',treaties['to'],'alliance_id'))}](https://politicsandwar.com/alliance/id={x['to']})"
-		await ctx.send(embed=embed)
 
 @commands.is_owner()	
 @client.command()
@@ -876,5 +830,13 @@ async def help(ctx,command_name=None):
 			embed.title='Audit'	
 			embed.description='Usage: ;audit <nation id>\n Defcon and build must be set for your alliance for full functionality'				
 	await ctx.send(embed=embed)					
+
+@client.command()
+async def copy_db(ctx):
+	url = 'http://192.168.1.6:5000/'
+	files = {'file': open('politics and war.db', 'rb')}
+	async with httpx.AsyncClient() as client:
+		response = await client.post(url, files=files)
+		print(response)
 
 client.run(os.environ['DISCORD_TOKEN'])		

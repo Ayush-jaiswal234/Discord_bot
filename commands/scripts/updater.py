@@ -1,4 +1,4 @@
-import aiosqlite,httpx,asyncio,time
+import aiosqlite,httpx,time
 
 api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 
