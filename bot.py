@@ -3,7 +3,10 @@ from discord.ext import commands
 from commands.scripts import nation_data_converter,updater#,sheets
 from datetime import datetime,timedelta
 import DiscordUtils
-import aiosqlite,asyncio,httpx
+import aiosqlite,asyncio,httpx,json
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload 
 
 logging.basicConfig(level=logging.INFO)
 aiosqlite.threadsafety=1
@@ -533,9 +536,7 @@ async def nation(ctx):
 		embed.add_field(name='Nukes',value=nation_data[24],inline=True)
 		await ctx.send(embed=embed)	
 
-
-
-class RaidFlags(commands.FlagConverter):
+class RaidFlags(commands.FlagConverter,prefix='-'):
 	all_nations: bool = False
 	inactivity_days: int = 0
 	alliances: str = '0'
@@ -807,7 +808,7 @@ async def help(ctx,command_name=None):
 		if command_name=='raid':
 			embed.title='Raid'
 			embed.description='Usage: ;raid'
-			embed.add_field(name='Filters',value='1. -i <inactivity days in numbers> [Defaults to 3 if filter not used]\n2. -b <True|False> [gets beige targets,defaults to false if filter not used]\n3. -aa <alliance id(s)> [gets targets in the given alliance,defaults to 0 or none if filter not used]\n4. -app <True|False> [gets target applicants from all alliance,defaults to False]\n5. -all_nations <True|False> [looks for targets in none as well as all other alliance, defaults to False]')
+			embed.add_field(name='Filters',value='1. -inactivity_days:`n` [Looks for targets inactive for n days, defaults to 0]\n2. -beige:`True|False` [gets beige targets,defaults to True if filter not used]\n3. -alliances:`alliance id(s)` [gets targets in the given alliance,defaults to 0 or none if filter not used]\n4. -beige_turns:`n` [gets targets with maximum beige of n turns,defaults to 216]\n5. -all_nations:`True|False` [looks for all targets in the games, defaults to False]')
 		if command_name=='who':
 			embed.title='Who'
 			embed.description='Usage: ;who <nation name|@user>\n Takes nation name,leader name,@user and nation id as argument'
@@ -833,11 +834,25 @@ async def help(ctx,command_name=None):
 
 @client.command()
 async def copy_db(ctx):
-	url = 'http://192.168.1.6:5000/'
-	files = {'file': open('politics and war.db', 'rb')}
-	#async with httpx.AsyncClient(timeout=20) as client:
-	#	response = await client.post(url, files=files)
-	response = requests.post(url, files=files)
-	print(response)
+	scopes=['https://www.googleapis.com/auth/drive']
+	credentials = service_account.Credentials.from_service_account_file('service_account.json', scopes=scopes)
+	drive_service = build('drive', 'v3', credentials=credentials)
+	results = drive_service.files().list(pageSize=100, fields="files(id, name)").execute() 
+	items = results.get('files', [])
+	print("Here's a list of files: \n") 
+	print(*items, sep="\n", end="\n\n")
+	for files in items:
+		f = drive_service.files().delete(fileId=files['id']).execute()
+		f = None 
+	file_metadata = {"name": "politics and war.db"}
+	media = MediaFileUpload("politics and war.db", mimetype="application/x-sqlite3")
+	file = (
+        drive_service.files()
+        .create(body=file_metadata, media_body=media, fields="id")
+        .execute()
+    )
+	print(f'File ID: {file.get("id")}')		
+	drive_service.close()
+	await ctx.send('File has been uploaded')		
 
 client.run(os.environ['DISCORD_TOKEN'])		
