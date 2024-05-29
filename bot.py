@@ -832,10 +832,11 @@ async def help(ctx,command_name=None):
 			embed.description='Usage: ;audit <nation id>\n Defcon and build must be set for your alliance for full functionality'				
 	await ctx.send(embed=embed)					
 
+@commands.is_owner()	
 @client.command()
 async def copy_db(ctx):
 	scopes=['https://www.googleapis.com/auth/drive']
-	credentials = service_account.Credentials.from_service_account_file('service_account.json', scopes=scopes)
+	credentials = service_account.Credentials.from_service_account_info(json.loads(os.environ['SERVICE_ACCOUNT_INFO']), scopes=scopes)
 	drive_service = build('drive', 'v3', credentials=credentials)
 	results = drive_service.files().list(pageSize=100, fields="files(id, name)").execute() 
 	items = results.get('files', [])
