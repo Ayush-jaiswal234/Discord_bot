@@ -5,17 +5,17 @@ api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab
 
 async def update_nation_data():
 	start_time=time.time()
+	request_url='https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20'
+	async with httpx.AsyncClient() as client:
+		nationdata= await client.get(request_url,timeout=20)
+		nationdata=nationdata.json()
+	list_of_values=[]
+	for x in nationdata['data']:
+		values =tuple(value if not isinstance(value,str) else f"'{value}'" for value in x.values())
+		list_of_values.append(values)
 	async with aiosqlite.connect('politics and war.db',timeout=20.0) as db:
 		await db.execute('delete from all_nations_data')
-		request_url='https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20'
-		async with httpx.AsyncClient() as client:
-			nationdata= await client.get(request_url,timeout=10)
-			nationdata=nationdata.json()
-			for x in nationdata['data']:
-				values =[value if not isinstance(value,str) else f"'{value}'" for value in x.values()]
-				text=','.join([f'{value}' for value in values])
-				insert_data=f"insert into all_nations_data values ({text})"
-				await db.execute(insert_data)   
+		await db.executemany(f'''INSERT INTO all_nations_data VALUES ({','.join(['?' for x in range(0,len(list_of_values[0]))])})''', list_of_values)   
 		await db.commit()
 	end_time=time.time()
 	print(f'Time nation={end_time-start_time}')
@@ -73,6 +73,7 @@ async def update_loot_data():
 						loot_with_text=','.join([f"{key.split('_')[0]}={value}" if 'lead' not in key else f"`{key.split('_')[0]}`={value}" for key,value in loot_data.items() ])
 						data_to_be_inserted=(f"insert into loot_data values({war['id']},{loser_id},{loot},'{date}') on conflict(nation_id) do update set war_id={war['id']},{loot_with_text},war_end_date='{date}'")
 						await db.execute(data_to_be_inserted)
+		await cursor.close()
 		await db.commit()
 	end_time=time.time()
 	print(f'Time loot={end_time-start_time}')
@@ -80,20 +81,20 @@ pass
 
 async def update_trade_price():
 	start_time=time.time()
-	async with aiosqlite.connect('politics and war.db',timeout=20.0) as db:
-		await db.execute("delete from trade_prices")
-		query="""{
+	query="""{
 			tradeprices(first:1){data{
 				food,coal,oil,uranium,lead,iron,bauxite,gasoline,munitions,steel,aluminum
   			} }
   			}"""
-		async with httpx.AsyncClient() as client:
-			fetchdata=await client.post(api_v3_link,json={'query':query})
-			fetchdata=fetchdata.json()['data']['tradeprices']['data'][0]
-			print(fetchdata)
-			insert_text=','.join([f"{price}" for price in fetchdata.values()])
-		sql_insert_to_table=f"insert into trade_prices values ({insert_text})"
-		print(sql_insert_to_table)
+	async with httpx.AsyncClient() as client:
+		fetchdata=await client.post(api_v3_link,json={'query':query})
+		fetchdata=fetchdata.json()['data']['tradeprices']['data'][0]
+		print(fetchdata)
+	insert_text=','.join([f"{price}" for price in fetchdata.values()])
+	sql_insert_to_table=f"insert into trade_prices values ({insert_text})"
+	print(sql_insert_to_table)
+	async with aiosqlite.connect('politics and war.db',timeout=20.0) as db:
+		await db.execute("delete from trade_prices")
 		await db.execute(sql_insert_to_table)
 		await db.commit()
 	end_time=time.time()

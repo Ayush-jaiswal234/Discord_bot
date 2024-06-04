@@ -1,5 +1,6 @@
 import sqlite3
 from discord.ext import commands
+import aiosqlite
 
 def domestic_policy(number):
 	switcher={
@@ -75,17 +76,12 @@ def position(number):
 	return switcher.get(number)
 pass
 
-def get(search_element,_id,search_using='discord_id'):
-	connection=sqlite3.connect('politics and war.db')
-	cursor=connection.cursor()
-	search="select %s from all_nations_data inner join registered_nations on registered_nations.nation_id =all_nations_data.nation_id where %s='%s'" % (search_element,search_using,_id)
-	cursor.execute(search)
-	score=cursor.fetchone()
-	cursor.close()
-	connection.close()
-	if score !=None and len(score)==1:
-		score=score[0]
-	return score
+async def get(search_element,_id,search_using='discord_id'):
+	async with aiosqlite.connect('politics and war.db') as db:
+		async with db.execute(f'select {search_element} inner join registered_nations on registered_nations.nation_id =all_nations_data.nation_id where {search_using}="{_id}"') as cursor:
+			value = await cursor.fetchone()
+	value = value[0] if value != None else value
+	return value			
 pass
 
 def get_unregistered(search_element,_id,search_using='nation_id',fetchall=False):

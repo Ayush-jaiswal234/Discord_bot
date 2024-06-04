@@ -1,6 +1,6 @@
 import os,discord,sqlite3,logging,requests,time,re
 from discord.ext import commands
-from commands.scripts import nation_data_converter,updater#,sheets
+from commands.scripts import nation_data_converter,updater,sheets,war_stats
 from datetime import datetime,timedelta
 import DiscordUtils
 import aiosqlite,asyncio,httpx,json
@@ -17,19 +17,6 @@ def update_registered_nations(author_id,author_name,nation_id):
 	connection.execute(data_to_be_inserted)
 	connection.commit()
 	connection.close()	
-pass
-
-def get(search_element,_id,search_using='discord_id'):
-	connection=sqlite3.connect('politics and war.db')
-	cursor=connection.cursor()
-	search="select %s from all_nations_data inner join registered_nations on registered_nations.nation_id =all_nations_data.nation_id where %s='%s'" % (search_element,search_using,_id)
-	cursor.execute(search)
-	score=cursor.fetchone()
-	cursor.close()
-	connection.close()
-	if score !=None and len(score)==1:
-		score=score[0]
-	return score
 pass
 
 def get_unregistered(search_element,_id,search_using='nation_id',fetchall=False):
@@ -102,6 +89,7 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns):
 	final_list.sort(key=lambda x:x[1],reverse=True)
 	final_list=final_list[:9]
 	print(final_list)
+	deposit_data_list=await last_bank_rec(final_list)
 	for data in final_list:
 		dep_date=await last_bank_rec(data[0])
 		data.append(dep_date)
@@ -109,16 +97,23 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns):
 	return final_list
 pass
 
-async def last_bank_rec(nation_id):
-	query=f"""{{
-  	bankrecs(sid:{nation_id},orderBy:[{{column:DATE,order:DESC}}],first:1,rtype:2){{
-    data{{date
-	}}
-  	}}
-	}}"""
+async def last_bank_rec(loot_list):
+	nation_id_list=[x[0] for x in loot_list]
+	alias_list=['a','b','c','d','e','f','g','h','i']
+	query=''
+	for i in range(0,loot_list):
+		nation_text=f"""{alias_list[i]}:bankrecs(sid:{nation_id_list[i][0]},orderBy:[{{column:DATE,order:DESC}}],first:1,rtype:2){{
+   					data{{date
+					}}
+  					}}"""
+		query=f'{query}\n{nation_text}'
+	query=f"{{ {query} }}"	
+	print(query)
 	async with httpx.AsyncClient() as client:
 		fetchdata=await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
-		fetchdata=fetchdata.json()['data']['bankrecs']['data'][0]['date']
+		fetchdata=fetchdata.json()['data']
+	for alias in alias_list:	
+		fetchdata=fetchdata[alias]['data'][0]['date']
 	return fetchdata.split('+')[0]
 
 async def get_prices(db):
@@ -188,7 +183,7 @@ def update_subscriptions(server_id,command_name,date_time):
 	if mins!=-1:
 		mins=date_time[hours+1:mins]
 	else:
-	 	mins=0	
+		mins=0	
 	if hours!=-1:
 		hours=date_time[days+1:hours]
 	else:
@@ -311,18 +306,6 @@ def get_wars(my_nation_id):
 	print(fetchdata)
 	return fetchdata
 pass		
-
-def logging_in_to_pnw():
-	try:
-		session=requests.session()
-		login_url='https://test.politicsandwar.com/login/'
-		login_data={'password':'3duq3NjyLQ7B@ir','email':'jaiswalayush833@gmail.com','loginform':'login'}
-		login=session.post(f"{login_url}",login_data)
-		print('logged in successfully')
-		return session
-	except:
-		print('an error occured')	
-pass
 
 async def repeat_every_n_seconds(func_name,interval):
 	func=getattr(updater,func_name)
@@ -552,7 +535,7 @@ async def raid(ctx, *,flags:RaidFlags):
 		today_date_obj=time.strptime(str(today_date),"%Y-%m-%d %H:%M:%S")
 		end_date=time.strptime(results[2],"%Y-%m-%d %H:%M:%S")
 		if end_date>today_date_obj:
-			score=get('score',ctx.author.id)
+			score=nation_data_converter.get('score',ctx.author.id)
 			page1=discord.Embed()
 			if score!=None:
 				flags.alliances=flags.alliances.split(',')
@@ -686,10 +669,11 @@ async def set_defcon(ctx,values):
 @commands.is_owner()	
 @client.command()
 async def update(ctx):
+	asyncio.create_task(repeat_every_n_seconds('update_nation_data',300))	
 	asyncio.create_task(repeat_every_n_seconds('update_trade_price',7200))
-	asyncio.create_task(repeat_every_n_seconds('update_nation_data',300))
-	await asyncio.sleep(5)
-	asyncio.create_task(repeat_every_n_seconds('update_loot_data',900))	
+	await asyncio.sleep(10)
+	asyncio.create_task(repeat_every_n_seconds('update_loot_data',90))
+
 	await ctx.send("done")		
 
 @client.command()
@@ -843,7 +827,8 @@ async def copy_db(ctx):
 	print("Here's a list of files: \n") 
 	print(*items, sep="\n", end="\n\n")
 	for files in items:
-		f = drive_service.files().delete(fileId=files['id']).execute()
+		if files['name']=='politics and war.db':
+			f = drive_service.files().delete(fileId=files['id']).execute()
 		f = None 
 	file_metadata = {"name": "politics and war.db"}
 	media = MediaFileUpload("politics and war.db", mimetype="application/x-sqlite3")
@@ -855,5 +840,21 @@ async def copy_db(ctx):
 	print(f'File ID: {file.get("id")}')		
 	drive_service.close()
 	await ctx.send('File has been uploaded')		
+
+@client.tree.command(name='war_vis',description="Provides a sheet")
+async def war_vis(interaction: discord.Interaction, allies:str,enemies:str):
+	await interaction.response.defer(thinking='Calculating the statistics')
+	allies=tuple(allies.split(','))
+	enemies=tuple(enemies.split(','))
+	sheetID=sheets.create('War Visualizer',[{"properties":{"sheetId":0,'title':'Overview'}},{"properties":{"sheetId":1,'title':'Allies'}},{"properties":{"sheetId":2,'title':'Enemies'}}])
+	asyncio.create_task(war_stats.war_vis_sheet(allies,enemies,sheets,sheetID))
+	await interaction.followup.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
+
+
+@commands.is_owner()
+@client.command()
+async def sync_slash(ctx):
+	await client.tree.sync()
+	await ctx.send('slash commands updated')
 
 client.run(os.environ['DISCORD_TOKEN'])		

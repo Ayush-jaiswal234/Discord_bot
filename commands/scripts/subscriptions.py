@@ -10,7 +10,7 @@ def update_subscriptions(server_id,command_name,date_time):
 	if mins!=-1:
 		mins=date_time[hours+1:mins]
 	else:
-	 	mins=0	
+		mins=0	
 	if hours!=-1:
 		hours=date_time[days+1:hours]
 	else:

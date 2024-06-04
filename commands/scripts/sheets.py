@@ -7,16 +7,17 @@ SCOPES = [
 'https://www.googleapis.com/auth/spreadsheets',
 'https://www.googleapis.com/auth/drive'
 ]
-credentials = service_account.Credentials.from_service_account_info(json.loads(os.environ['SERVICE_ACCOUNT_INFO']), scopes=SCOPES)
-#spreadsheet_service = build('sheets', 'v4', credentials=credentials)
-#drive_service = build('drive', 'v3', credentials=credentials)
+credentials = service_account.Credentials.from_service_account_file('service_account.json', scopes=SCOPES)
+spreadsheet_service = build('sheets', 'v4', credentials=credentials)
+drive_service = build('drive', 'v3', credentials=credentials)
+sheet_data=[{"properties":{'title':'Sheet1'}}]
 
-
-def create(title):
+def create(title,sheet_data=sheet_data):
     spreadsheet_details = {
     'properties': {
         'title': title
-        }
+        },
+    'sheets':sheet_data
     }
     sheet = spreadsheet_service.spreadsheets().create(body=spreadsheet_details,
                                     fields='spreadsheetId').execute()
@@ -25,7 +26,7 @@ def create(title):
     'type': 'anyone',
     'role': 'reader',
     }
-    drive_service.permissions().create(fileId=sheetId, body=permission1).execute()
+    drive_service.permissions().create(fileId=sheetId, body=permission1).execute()  
     return sheetId
 
 def write_ranges(spreadsheet_id,range_of_sheet,values):
@@ -36,3 +37,12 @@ def write_ranges(spreadsheet_id,range_of_sheet,values):
     result = spreadsheet_service.spreadsheets().values().update(
         spreadsheetId=spreadsheet_id, range=range_of_sheet,
         valueInputOption=value_input_option, body=body).execute()
+    
+def conditional_formatting(spreadsheet_id,condition_rules):
+    body = {"requests": condition_rules}
+    response = (
+        spreadsheet_service.spreadsheets()
+        .batchUpdate(spreadsheetId=spreadsheet_id, body=body)
+        .execute()
+    )
+    print(f"{(len(response.get('replies')))} rules updated.")
