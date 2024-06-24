@@ -1,6 +1,7 @@
 import sqlite3
 from discord.ext import commands
 import aiosqlite
+import datetime
 
 def domestic_policy(number):
 	switcher={
@@ -77,15 +78,15 @@ def position(number):
 pass
 
 async def get(search_element,_id,search_using='discord_id'):
-	async with aiosqlite.connect('politics and war.db') as db:
-		async with db.execute(f'select {search_element} inner join registered_nations on registered_nations.nation_id =all_nations_data.nation_id where {search_using}="{_id}"') as cursor:
+	async with aiosqlite.connect('pnw.db') as db:
+		async with db.execute(f'select {search_element} from all_nations_data inner join registered_nations on registered_nations.nation_id =all_nations_data.nation_id where {search_using}="{_id}"') as cursor:
 			value = await cursor.fetchone()
 	value = value[0] if value != None else value
 	return value			
 pass
 
 def get_unregistered(search_element,_id,search_using='nation_id',fetchall=False):
-	connection=sqlite3.connect('politics and war.db')
+	connection=sqlite3.connect('pnw.db')
 	cursor=connection.cursor()
 	search=f"select {search_element} from all_nations_data where {search_using}='{_id}'"
 	cursor.execute(search)
@@ -106,7 +107,7 @@ async def nation_id_finder(ctx,id_or_name):
 	try:
 		discord_id= await commands.converter.MemberConverter().convert(ctx,id_or_name)
 		nation_id=get('registered_nations.nation_id',discord_id.id)
-	except commands.BadArgument:
+	except:
 		if id_or_name.isdigit():
 				nation_id=int(id_or_name)
 		elif id_or_name.startswith('https://politicsandwar.com/nation'):
@@ -130,3 +131,19 @@ def aa_finder(id_or_name):
 		alliance_id=get_unregistered('alliance_id',id_or_name,'alliance')
 	return alliance_id
 pass	
+
+def time_converter(war_time,seconds:bool = True):
+	now_time = datetime.datetime.now(datetime.UTC)
+	difference=now_time.replace(tzinfo=None)-war_time
+	minutes,hours=0,0
+	seconds=int(str(difference.seconds))
+	if seconds>60:
+		minutes=int(seconds/60)
+		seconds=seconds-(minutes*60)
+		if minutes>60:
+			hours=int(minutes/60)
+			minutes=minutes-hours*60
+	if seconds==True:
+		return f"{difference.days}d {hours}h {minutes}m {seconds}s ago"
+	else:
+		return f"{difference.days}d {hours}h {minutes}m ago"		

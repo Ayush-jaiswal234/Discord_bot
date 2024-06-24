@@ -1,7 +1,7 @@
 from __future__ import print_function
 from googleapiclient.discovery import build 
 from google.oauth2 import service_account
-import os,json
+import logging
 
 SCOPES = [
 'https://www.googleapis.com/auth/spreadsheets',
@@ -45,4 +45,4 @@ def conditional_formatting(spreadsheet_id,condition_rules):
         .batchUpdate(spreadsheetId=spreadsheet_id, body=body)
         .execute()
     )
-    print(f"{(len(response.get('replies')))} rules updated.")
+    logging.info(f"{(len(response.get('replies')))} rules updated.")

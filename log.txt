@@ -1,0 +1,1282 @@
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID 0 has connected to Gateway (Session ID: bed866fe129ef185eea1fbc0e86c9675).
+INFO:root:Bot is ready
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 128, 'coal': 3929, 'oil': 3835, 'uranium': 3192, 'lead': 4109, 'iron': 4123, 'bauxite': 4018, 'gasoline': 3738, 'munitions': 1980, 'steel': 3998, 'aluminum': 2772}
+INFO:root:insert into trade_prices values (128,3929,3835,3192,4109,4123,4018,3738,1980,3998,2772)
+INFO:root:Time trade=0.9297888278961182
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=3.995018243789673
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.77824091911316
+INFO:root:[[195561, 4, 1252962648174362674], [255354, 24, 1252962648174362674], [525496, 22, 1252962648174362674], [437648, 35, 1252962648174362674], [397040, 15, 1252962648174362674], [611886, 67, 1252962648174362674], [555367, 6, 1252962648174362674], [451304, 47, 1252962648174362674], [285991, 5, 1252962648174362674], [457426, 21, 1252962648174362674], [234425, 30, 1252962648174362674], [551880, 15, 1252962648174362674], [334539, 20, 1252962648174362674], [607395, 66, 1252962648174362674], [545487, 31, 1252962648174362674], [110666, 42, 1252962648174362674], [564189, 24, 1252962648174362674], [549759, 23, 1252962648174362674], [522608, 26, 1252962648174362674], [295256, 3, 1252962648174362674], [594837, 30, 1252962648174362674], [593434, 19, 1252962648174362674], [283217, 40, 1252962648174362674], [351205, 35, 1252962648174362674], [69979, 23, 1252962648174362674], [445855, 35, 1252962648174362674], [346048, 29, 1252962648174362674], [420627, 7, 1252962648174362674], [536881, 74, 1252962648174362674], [598975, 40, 1252962648174362674], [590190, 4, 1252962648174362674], [208425, 6, 1252962648174362674], [505972, 15, 1252962648174362674], [271226, 1, 1252962648174362674], [563160, 11, 1252962648174362674], [491073, 64, 1252962648174362674], [519880, 84, 1252962648174362674], [555172, 38, 1252962648174362674], [586535, 20, 1252962648174362674], [567237, 24, 1252962648174362674], [348788, 10, 1252962648174362674], [364184, 63, 1252962648174362674], [605384, 48, 1252962648174362674], [42079, 34, 1252962648174362674], [573288, 17, 1252962648174362674], [547973, 42, 1252962648174362674], [112101, 24, 1252962648174362674], [599435, 25, 1252962648174362674], [587116, 104, 1252962648174362674], [499320, 103, 1252962648174362674], [581975, 13, 1252962648174362674], [560093, 11, 1252962648174362674], [296355, 17, 1252962648174362674], [44288, 124, 1252962648174362674], [863, 7, 1252962648174362674], [604847, 89, 1252962648174362674], [591553, 12, 1252962648174362674], [264718, 42, 1252962648174362674], [441799, 1, 1252962648174362674], [530390, 7, 1252962648174362674], [597447, 13, 1252962648174362674], [275754, 5, 1252962648174362674], [570755, 50, 1252962648174362674], [548092, 58, 1252962648174362674], [506340, 37, 1252962648174362674], [188494, 38, 1252962648174362674], [222265, 13, 1252962648174362674], [611176, 6, 1252962648174362674], [472604, 13, 1252962648174362674], [345820, 61, 1252962648174362674], [316906, 41, 1252962648174362674], [431904, 28, 1252962648174362674], [313259, 79, 1252962648174362674], [334649, 64, 1252962648174362674], [418563, 15, 1252962648174362674], [593238, 10, 1252962648174362674], [460400, 17, 1252962648174362674], [457077, 7, 1252962648174362674], [290904, 50, 1252962648174362674], [159618, 39, 1252962648174362674], [239386, 21, 1252962648174362674], [356594, 13, 1252962648174362674], [472169, 45, 1252962648174362674], [598692, 79, 1252962648174362674], [373792, 20, 1252962648174362674], [245343, 21, 1252962648174362674], [333836, 65, 1252962648174362674], [358291, 34, 1252962648174362674], [518083, 15, 1252962648174362674], [599094, 25, 1252962648174362674], [282607, 54, 1252962648174362674], [585096, 7, 1252962648174362674], [538130, 42, 1252962648174362674], [603364, 58, 1252962648174362674], [583460, 38, 1252962648174362674], [586408, 30, 1252962648174362674], [448282, 44, 1252962648174362674], [355182, 58, 1252962648174362674], [205068, 26, 1252962648174362674], [151156, 39, 1252962648174362674], [407377, 41, 1252962648174362674], [588524, 55, 1252962648174362674], [313927, 16, 1252962648174362674], [333405, 14, 1252962648174362674], [597745, 34, 1252962648174362674], [410364, 25, 1252962648174362674], [241077, 11, 1252962648174362674], [573821, 14, 1252962648174362674], [399544, 40, 1252962648174362674], [258070, 24, 1252962648174362674], [533217, 4, 1252962648174362674], [549844, 18, 1252962648174362674], [268780, 24, 1252962648174362674], [248604, 14, 1252962648174362674], [529653, 57, 1252962648174362674], [553785, 33, 1252962648174362674], [202466, 9, 1252962648174362674], [224472, 8, 1252962648174362674], [581866, 30, 1252962648174362674], [429732, 45, 1252962648174362674], [207876, 47, 1252962648174362674], [518145, 7, 1252962648174362674], [579657, 53, 1252962648174362674], [409866, 44, 1252962648174362674], [151863, 39, 1252962648174362674], [558422, 64, 1252962648174362674], [191840, 33, 1252962648174362674], [134582, 35, 1252962648174362674], [617331, 9, 1252962648174362674], [100027, 16, 1252962648174362674], [593131, 36, 1252962648174362674], [329665, 22, 1252962648174362674], [237144, 6, 1252962648174362674], [412197, 49, 1252962648174362674], [235829, 13, 1252962648174362674], [287939, 48, 1252962648174362674], [438111, 27, 1252962648174362674], [428761, 8, 1252962648174362674], [310674, 11, 1252962648174362674], [115388, 38, 1252962648174362674], [188000, 7, 1252962648174362674], [542321, 28, 1252962648174362674], [280143, 5, 1252962648174362674], [395637, 47, 1252962648174362674], [558646, 13, 1252962648174362674], [339570, 43, 1252962648174362674], [286420, 12, 1252962648174362674], [595110, 57, 1252962648174362674], [281215, 10, 1252962648174362674], [596192, 35, 1252962648174362674], [526322, 18, 1252962648174362674], [381514, 7, 1252962648174362674], [143478, 12, 1252962648174362674], [448511, 27, 1252962648174362674], [323517, 30, 1252962648174362674], [390400, 9, 1252962648174362674], [536688, 30, 1252962648174362674], [524559, 4, 1252962648174362674], [553673, 15, 1252962648174362674], [168686, 94, 1252962648174362674], [428580, 94, 1252962648174362674], [597585, 29, 1252962648174362674], [120661, 52, 1252962648174362674], [554501, 3, 1252962648174362674], [372662, 34, 1252962648174362674], [143021, 44, 1252962648174362674], [282706, 38, 1252962648174362674], [424248, 31, 1252962648174362674], [536744, 8, 1252962648174362674], [594180, 23, 1252962648174362674], [583170, 52, 1252962648174362674], [318267, 56, 1252962648174362674], [421439, 3, 1252962648174362674], [599059, 65, 1252962648174362674], [293628, 72, 1252962648174362674], [405633, 29, 1252962648174362674], [175874, 8, 1252962648174362674], [324997, 10, 1252962648174362674], [169280, 6, 1252962648174362674], [210990, 23, 1252962648174362674], [542089, 35, 1252962648174362674], [466000, 24, 1252962648174362674], [525579, 32, 1252962648174362674], [471849, 83, 1252962648174362674], [259457, 94, 1252962648174362674], [272576, 70, 1252962648174362674], [587213, 28, 1252962648174362674], [405394, 48, 1252962648174362674], [577965, 22, 1252962648174362674], [596040, 41, 1252962648174362674], [546078, 31, 1252962648174362674], [233567, 51, 1252962648174362674], [390650, 159, 1252962648174362674], [492692, 74, 1252962648174362674], [128556, 45, 1252962648174362674], [543066, 24, 1252962648174362674], [563733, 57, 1252962648174362674], [60633, 20, 1252962648174362674], [563760, 68, 1252962648174362674], [309829, 5, 1252962648174362674], [355089, 133, 1252962648174362674], [19635, 29, 1252962648174362674], [595845, 59, 1252962648174362674], [472967, 54, 1252962648174362674], [505547, 15, 1252962648174362674], [567301, 26, 1252962648174362674], [463589, 74, 1252962648174362674], [401885, 11, 1252962648174362674], [308675, 77, 1252962648174362674], [163371, 17, 1252962648174362674], [545269, 70, 1252962648174362674], [349171, 39, 1252962648174362674], [211206, 1, 1252962648174362674], [222043, 59, 1252962648174362674], [228065, 14, 1252962648174362674], [351062, 23, 1252962648174362674], [17297, 29, 1252962648174362674], [312436, 36, 1252962648174362674], [268425, 3, 1252962648174362674], [257171, 55, 1252962648174362674], [575939, 22, 1252962648174362674], [604222, 82, 1252962648174362674], [216681, 32, 1252962648174362674], [6649, 19, 1252962648174362674], [143935, 95, 1252962648174362674], [290689, 22, 1252962648174362674], [350178, 115, 1252962648174362674], [87742, 30, 1252962648174362674], [468887, 132, 1252962648174362674], [53493, 47, 1252962648174362674], [521270, 45, 1252962648174362674], [558675, 19, 1252962648174362674], [492924, 4, 1252962648174362674], [252248, 27, 1252962648174362674], [230815, 23, 1252962648174362674], [447564, 52, 1252962648174362674], [562119, 9, 1252962648174362674], [315037, 57, 1252962648174362674], [294035, 5, 1252962648174362674], [415921, 37, 1252962648174362674], [575416, 34, 1252962648174362674], [426161, 42, 1252962648174362674], [509233, 21, 1252962648174362674], [409690, 58, 1252962648174362674], [501424, 50, 1252962648174362674], [141803, 42, 1252962648174362674], [390056, 88, 1252962648174362674], [488898, 68, 1252962648174362674], [353792, 46, 1252962648174362674], [351919, 29, 1252962648174362674], [457471, 57, 1252962648174362674], [423079, 2, 1252962648174362674], [412047, 28, 1252962648174362674], [33885, 12, 1252962648174362674], [90216, 70, 1252962648174362674], [484195, 30, 1252962648174362674], [302467, 68, 1252962648174362674], [580873, 5, 1252962648174362674], [114296, 16, 1252962648174362674], [558414, 51, 1252962648174362674], [416674, 61, 1252962648174362674], [538200, 70, 1252962648174362674], [99130, 49, 1252962648174362674], [476756, 73, 1252962648174362674], [134903, 22, 1252962648174362674], [542228, 106, 1252962648174362674], [539079, 28, 1252962648174362674], [568529, 51, 1252962648174362674], [315117, 18, 1252962648174362674], [183140, 64, 1252962648174362674], [556473, 10, 1252962648174362674], [120099, 25, 1252962648174362674], [560016, 15, 1252962648174362674], [240342, 48, 1252962648174362674], [299951, 64, 1252962648174362674], [575016, 4, 1252962648174362674], [178548, 64, 1252962648174362674], [556058, 20, 1252962648174362674], [340874, 150, 1252962648174362674], [65827, 81, 1252962648174362674], [109318, 25, 1252962648174362674], [222566, 171, 1252962648174362674], [484468, 77, 1252962648174362674], [43118, 24, 1252962648174362674], [429591, 64, 1252962648174362674], [521024, 5, 1252962648174362674], [354618, 80, 1252962648174362674], [81123, 104, 1252962648174362674], [34205, 43, 1252962648174362674], [235149, 22, 1252962648174362674], [34065, 54, 1252962648174362674], [470988, 22, 1252962648174362674], [44758, 37, 1252962648174362674], [541399, 23, 1252962648174362674], [338956, 50, 1252962648174362674], [337406, 61, 1252962648174362674], [196989, 9, 1252962648174362674], [122831, 26, 1252962648174362674], [502731, 151, 1252962648174362674], [454884, 17, 1252962648174362674], [11399, 77, 1252962648174362674], [274541, 3, 1252962648174362674], [282775, 113, 1252962648174362674], [249256, 22, 1252962648174362674], [389196, 71, 1252962648174362674], [202607, 5, 1252962648174362674], [15994, 29, 1252962648174362674], [21423, 18, 1252962648174362674], [214732, 32, 1252962648174362674], [455669, 3, 1252962648174362674], [100623, 23, 1252962648174362674], [219404, 2, 1252962648174362674], [283289, 39, 1252962648174362674], [256738, 82, 1252962648174362674], [245251, 11, 1252962648174362674], [200598, 13, 1252962648174362674], [155408, 18, 1252962648174362674], [223806, 76, 1252962648174362674], [187079, 12, 1252962648174362674], [491546, 86, 1252962648174362674], [349795, 84, 1252962648174362674], [479797, 22, 1252962648174362674], [180807, 82, 1252962648174362674], [27718, 137, 1252962648174362674], [16132, 34, 1252962648174362674], [296119, 14, 1252962648174362674], [449807, 24, 1252962648174362674], [340153, 54, 1252962648174362674], [337281, 22, 1252962648174362674], [2327, 14, 1252962648174362674], [261430, 27, 1252962648174362674], [262094, 64, 1252962648174362674], [195199, 51, 1252962648174362674], [221174, 89, 1252962648174362674], [103141, 22, 1252962648174362674], [194279, 83, 1252962648174362674], [390020, 12, 1252962648174362674], [65886, 101, 1252962648174362674], [501776, 89, 1252962648174362674], [434474, 19, 1252962648174362674], [443009, 76, 1252962648174362674], [504245, 47, 1252962648174362674], [292916, 39, 1252962648174362674], [107543, 54, 1252962648174362674], [520583, 30, 1252962648174362674], [457741, 47, 1252962648174362674], [157915, 58, 1252962648174362674], [36009, 56, 1252962648174362674], [149295, 54, 1252962648174362674], [459698, 1, 1252962648174362674], [553986, 27, 1252962648174362674], [189035, 35, 1252962648174362674], [179910, 39, 1252962648174362674], [148915, 4, 1252962648174362674], [314937, 13, 1252962648174362674], [507262, 78, 1252962648174362674], [261468, 141, 1252962648174362674], [248807, 33, 1252962648174362674], [411919, 71, 1252962648174362674], [323403, 28, 1252962648174362674], [439613, 19, 1252962648174362674], [62982, 102, 1252962648174362674], [202264, 43, 1252962648174362674], [235074, 12, 1252962648174362674], [372816, 73, 1252962648174362674], [194472, 76, 1252962648174362674], [461629, 41, 1252962648174362674], [113933, 38, 1252962648174362674], [296826, 57, 1252962648174362674], [221435, 20, 1252962648174362674], [49689, 11, 1252962648174362674], [572137, 49, 1252962648174362674], [223243, 18, 1252962648174362674], [28470, 41, 1252962648174362674], [400144, 85, 1252962648174362674], [394253, 53, 1252962648174362674], [383788, 32, 1252962648174362674], [229617, 10, 1252962648174362674], [493892, 10, 1252962648174362674], [174227, 54, 1252962648174362674], [443470, 10, 1252962648174362674], [241617, 53, 1252962648174362674], [362776, 11, 1252962648174362674], [30953, 47, 1252962648174362674], [192526, 13, 1252962648174362674], [241944, 76, 1252962648174362674], [354607, 116, 1252962648174362674], [220275, 12, 1252962648174362674], [530682, 35, 1252962648174362674], [185695, 19, 1252962648174362674], [203834, 34, 1252962648174362674], [416223, 39, 1252962648174362674], [163020, 66, 1252962648174362674], [187583, 29, 1252962648174362674], [177001, 18, 1252962648174362674], [155390, 22, 1252962648174362674], [186485, 22, 1252962648174362674], [344464, 5, 1252962648174362674], [192640, 15, 1252962648174362674], [199003, 112, 1252962648174362674], [200131, 16, 1252962648174362674], [198889, 31, 1252962648174362674], [255045, 12, 1252962648174362674], [280953, 52, 1252962648174362674], [216837, 22, 1252962648174362674], [200647, 48, 1252962648174362674], [217405, 22, 1252962648174362674], [37934, 7, 1252962648174362674], [286443, 24, 1252962648174362674], [394774, 25, 1252962648174362674], [164193, 28, 1252962648174362674], [455879, 95, 1252962648174362674], [343522, 16, 1252962648174362674], [532962, 11, 1252962648174362674], [301170, 5, 1252962648174362674], [545991, 48, 1252962648174362674], [308980, 48, 1252962648174362674], [33898, 137, 1252962648174362674], [314692, 23, 1252962648174362674], [270981, 11, 1252962648174362674], [360350, 10, 1252962648174362674], [35035, 15, 1252962648174362674], [91879, 32, 1252962648174362674], [57389, 59, 1252962648174362674], [259657, 29, 1252962648174362674], [203750, 6, 1252962648174362674], [103158, 17, 1252962648174362674], [198949, 16, 1252962648174362674], [654, 12, 1252962648174362674]]
+INFO:root:test
+INFO:root:17:42:55.292062
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=2.059170722961426
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.281773090362549
+INFO:root:17:45:25.300717
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=1.8630430698394775
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.031555414199829
+INFO:root:17:47:55.298959
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=2.246466875076294
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.522855758666992
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=1.9005310535430908
+INFO:root:17:50:25.294745
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=2.2149605751037598
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.136951923370361
+INFO:root:17:52:55.311315
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=1.616516351699829
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.780503511428833
+INFO:root:17:55:25.294804
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=3.0493428707122803
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.37530779838562
+INFO:root:17:57:55.316622
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=3.4647297859191895
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.315134763717651
+INFO:root:18:00:25.295957
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=4.457111597061157
+ERROR:discord.ext.tasks:Unhandled exception in internal background task 'update_loot_data'.
+Traceback (most recent call last):
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpx/_transports/default.py", line 69, in map_httpcore_exceptions
+    yield
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpx/_transports/default.py", line 373, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 216, in handle_async_request
+    raise exc from None
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpcore/_async/connection_pool.py", line 196, in handle_async_request
+    response = await connection.handle_async_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpcore/_async/connection.py", line 101, in handle_async_request
+    return await self._connection.handle_async_request(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpcore/_async/http11.py", line 143, in handle_async_request
+    raise exc
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpcore/_async/http11.py", line 113, in handle_async_request
+    ) = await self._receive_response_headers(**kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpcore/_async/http11.py", line 186, in _receive_response_headers
+    event = await self._receive_event(timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpcore/_async/http11.py", line 224, in _receive_event
+    data = await self._network_stream.read(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpcore/_backends/anyio.py", line 32, in read
+    with map_exceptions(exc_map):
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ReadTimeout
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/discord/ext/tasks/__init__.py", line 239, in _loop
+    await self.coro(*args, **kwargs)
+  File "/home/mastermind/discord_bot/commands/scripts/updater.py", line 41, in update_loot_data
+    fetchdata=await client.post(api_v3_link,json={'query':query})
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpx/_client.py", line 1892, in post
+    return await self.request(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpx/_client.py", line 1574, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpx/_client.py", line 1661, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpx/_client.py", line 1689, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpx/_client.py", line 1726, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpx/_client.py", line 1763, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpx/_transports/default.py", line 372, in handle_async_request
+    with map_httpcore_exceptions():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/home/mastermind/discord_bot/lib/python3.11/site-packages/httpx/_transports/default.py", line 86, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadTimeout
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.478342533111572
+INFO:root:18:02:55.313514
+INFO:root:(2031063, 271226, 17764326.0, 8905, 0, 0, 386, 0, 0, 3088, 2316, 1461, 0, 55, '2024-06-15T18:11:31')
+INFO:root:(2032988, 441799, 816434.0, 51108, 12, 0, 165, 921, 12, 6, 0, 15977, 4687, 1087, '2024-06-17T18:50:17')
+INFO:root:(2029145, 211206, 2277834.0, 38064, 0, 429, 975, 0, 0, 0, 5694, 2262, 0, 1365, '2024-06-14T05:05:21')
+INFO:root:None
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.024997234344482
+INFO:root:18:05:25.303915
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.081473350524902
+INFO:root:18:07:55.302081
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.976888179779053
+INFO:root:18:10:25.315597
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.323713779449463
+INFO:root:18:12:55.313954
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.334054470062256
+INFO:root:18:15:25.299742
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.866300344467163
+INFO:root:18:17:55.316240
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.39999771118164
+INFO:root:18:20:25.311909
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.97079849243164
+INFO:root:18:22:55.295004
+INFO:root:(2030005, 493892, 840462.0, 92851, 137, 38, 16453, 0, 170, 6152, 3405, 2790, 813, 29066, '2024-06-14T16:12:22')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.102798461914062
+INFO:root:18:25:25.318826
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.352560997009277
+INFO:root:18:27:55.305805
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.779112815856934
+INFO:root:18:30:25.316023
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.173909425735474
+INFO:root:18:32:55.315395
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.04988718032837
+INFO:root:18:35:25.302537
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.209722995758057
+INFO:root:18:37:55.316428
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.253955602645874
+INFO:root:18:40:25.300844
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.373767614364624
+INFO:root:18:42:55.298785
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.443955421447754
+INFO:root:18:45:25.316822
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.848168849945068
+INFO:root:18:47:55.310181
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.757389307022095
+INFO:root:18:50:25.295317
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.429937601089478
+INFO:root:18:52:55.318166
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.537205934524536
+INFO:root:18:55:25.306006
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.045622825622559
+INFO:root:18:57:55.317129
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.633586406707764
+INFO:root:19:00:25.300160
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.258764743804932
+INFO:root:19:02:55.302945
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.13173532485962
+INFO:root:19:05:25.317604
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.071820259094238
+INFO:root:19:07:55.313847
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.669151544570923
+INFO:root:19:10:25.299083
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.070750951766968
+INFO:root:19:12:55.316171
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.82523798942566
+INFO:root:19:15:25.300458
+INFO:root:(2023178, 222043, 2692589.0, 20890, 32, 16, 2055, 16, 80, 258, 7111, 6998, 6181, 8050, '2024-06-08T06:01:12')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.153208494186401
+INFO:root:19:17:55.294764
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.225366592407227
+INFO:root:19:20:25.316447
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.544945001602173
+INFO:root:19:22:55.306120
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.971334457397461
+INFO:root:19:25:25.303838
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.202088594436646
+INFO:root:19:27:55.316302
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.643783807754517
+INFO:root:19:30:25.302304
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.014048337936401
+INFO:root:19:32:55.316043
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.118712186813354
+INFO:root:19:35:25.299952
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.388116836547852
+INFO:root:19:37:55.298870
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.15066409111023
+INFO:root:19:40:25.316042
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 128, 'coal': 3933, 'oil': 3831, 'uranium': 3138, 'lead': 4126, 'iron': 4134, 'bauxite': 4095, 'gasoline': 3733, 'munitions': 1984, 'steel': 4011, 'aluminum': 2770}
+INFO:root:insert into trade_prices values (128,3933,3831,3138,4126,4134,4095,3733,1984,4011,2770)
+INFO:root:Time trade=0.7697579860687256
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.413216352462769
+INFO:root:19:42:55.310673
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.736473798751831
+INFO:root:19:45:25.294810
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.803293943405151
+INFO:root:19:47:55.315751
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.086267471313477
+INFO:root:19:50:25.306198
+INFO:discord.gateway:Shard ID 0 has successfully RESUMED session bed866fe129ef185eea1fbc0e86c9675.
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.324140787124634
+INFO:root:19:52:55.316158
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.702429056167603
+INFO:root:19:55:25.316117
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.155150890350342
+INFO:root:19:57:55.302952
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.251984596252441
+INFO:root:20:00:25.316310
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.554468870162964
+INFO:root:20:02:55.314900
+INFO:root:(2029401, 423079, 15052414.0, 0, 6, 0, 288, 49, 0, 0, 2623, 2297, 3243, 2573, '2024-06-14T02:01:27')
+INFO:root:(2029167, 219404, 0.0, 0, 6201, 0, 0, 0, 0, 0, 156, 0, 117, 39, '2024-06-13T21:27:53')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.109609365463257
+INFO:root:20:05:25.298556
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.48730754852295
+INFO:root:20:07:55.316181
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.793737411499023
+INFO:root:20:10:25.309836
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.753806829452515
+INFO:root:20:12:55.295431
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.706594228744507
+INFO:root:20:15:25.314898
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.636541366577148
+INFO:root:20:17:55.306294
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.286856412887573
+INFO:root:20:20:25.316809
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.85741138458252
+INFO:root:20:22:55.301183
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.917019367218018
+INFO:root:20:25:25.293642
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.00541377067566
+INFO:root:20:27:55.316975
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.083491563796997
+INFO:root:20:30:25.314124
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.308067798614502
+INFO:root:20:32:55.299275
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.415502786636353
+INFO:root:20:35:25.300193
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.351017236709595
+INFO:root:20:37:55.311879
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.53792953491211
+INFO:root:20:40:25.294322
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.57542896270752
+INFO:root:20:42:55.315958
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.270941257476807
+INFO:root:20:45:25.306756
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.525917768478394
+INFO:root:20:47:55.316716
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.13731074333191
+INFO:root:20:50:25.296046
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.063501358032227
+INFO:root:20:52:55.302484
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.358117818832397
+INFO:root:20:55:25.293008
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=8.863500356674194
+INFO:root:20:57:55.314972
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.97190237045288
+INFO:root:21:00:25.298364
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.415546417236328
+INFO:root:21:02:55.318476
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.568927764892578
+INFO:root:21:05:25.309673
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.759034395217896
+INFO:root:21:07:55.295421
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.049718379974365
+INFO:root:21:10:25.317487
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.226833581924438
+INFO:root:21:12:55.306500
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.958046913146973
+INFO:root:21:15:25.316092
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.104426383972168
+INFO:root:21:17:55.316373
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.206174850463867
+INFO:root:21:20:25.299969
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.036403179168701
+INFO:root:21:22:55.317799
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.18458867073059
+INFO:root:21:25:25.300218
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.020697116851807
+INFO:root:21:27:55.298051
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.137648820877075
+INFO:root:21:30:25.315944
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.172997951507568
+INFO:root:21:32:55.310704
+INFO:discord.gateway:Shard ID 0 has successfully RESUMED session bed866fe129ef185eea1fbc0e86c9675.
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.662945032119751
+INFO:root:21:35:25.318431
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.960408449172974
+INFO:root:21:37:55.305441
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.22530460357666
+INFO:root:21:40:25.307329
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 128, 'coal': 3931, 'oil': 3820, 'uranium': 3159, 'lead': 4139, 'iron': 4141, 'bauxite': 4086, 'gasoline': 3704, 'munitions': 1990, 'steel': 3978, 'aluminum': 2739}
+INFO:root:insert into trade_prices values (128,3931,3820,3159,4139,4141,4086,3704,1990,3978,2739)
+INFO:root:Time trade=0.7223086357116699
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.069669246673584
+INFO:root:21:42:55.316438
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.178569316864014
+INFO:root:21:45:25.301952
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.884794235229492
+INFO:root:21:47:55.316821
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.594828605651855
+INFO:root:21:50:25.313538
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.346620321273804
+INFO:root:21:52:55.298350
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.703508853912354
+INFO:root:21:55:25.300246
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.4334237575531
+INFO:root:21:57:55.308754
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.333220958709717
+INFO:root:22:00:25.293639
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.666927814483643
+INFO:root:22:02:55.314844
+INFO:root:None
+INFO:root:(2032714, 554501, 398169.0, 64485, 0, 0, 1782, 0, 315, 108, 756, 0, 0, 279, '2024-06-17T23:03:21')
+INFO:root:(2030169, 421439, 761093.0, 60789, 208, 36, 841, 6, 454, 0, 2064, 1412, 1824, 141, '2024-06-14T20:03:37')
+INFO:root:(2029390, 268425, 2225133.0, 35597, 4312, 0, 24, 0, 1462, 337, 1449, 3433, 2893, 1087, '2024-06-14T10:54:17')
+INFO:root:(2024333, 274541, 2200955.0, 77756, 18, 0, 442, 12, 9736, 141, 7905, 11462, 6941, 7144, '2024-06-09T05:07:06')
+INFO:root:(2031010, 455669, 989000.0, 1474, 0, 116, 0, 24, 847, 141, 2604, 11382, 4195, 5823, '2024-06-15T22:06:17')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.869774341583252
+INFO:root:22:05:25.305889
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.947216749191284
+INFO:root:22:07:55.316440
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.749061107635498
+INFO:root:22:10:25.316014
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.349147319793701
+INFO:root:22:12:55.301825
+INFO:discord.gateway:Shard ID 0 has successfully RESUMED session bed866fe129ef185eea1fbc0e86c9675.
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.10792851448059
+INFO:root:22:15:25.300542
+INFO:root:(2034680, 240342, 1329259.0, 9690, 0, 209, 5567, 76, 0, 114, 11210, 2432, 2926, 11647, '2024-06-19T16:29:36')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.064027786254883
+INFO:root:22:17:55.316708
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.126107215881348
+INFO:root:22:20:25.312458
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.313688516616821
+INFO:root:22:22:55.298028
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.04033350944519
+INFO:root:22:25:25.317108
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.360782623291016
+INFO:root:22:27:55.308748
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.02307415008545
+INFO:root:22:30:25.294530
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.443002700805664
+INFO:root:22:32:55.316856
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.142335414886475
+INFO:root:22:35:25.300106
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.08603310585022
+INFO:root:22:37:55.316114
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=8.624071598052979
+INFO:root:22:40:25.300379
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.843025922775269
+INFO:root:22:42:55.300770
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.003976821899414
+INFO:root:22:45:25.317030
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.30322265625
+INFO:root:22:47:55.312297
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.26969027519226
+INFO:root:22:50:25.297243
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.13538384437561
+INFO:root:22:52:55.318321
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.17264175415039
+INFO:root:22:55:25.308375
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.98956561088562
+INFO:root:22:57:55.292823
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.090555191040039
+INFO:root:23:00:25.316357
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.838343620300293
+INFO:root:23:02:55.305463
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.98279094696045
+INFO:root:23:05:25.306185
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.231404542922974
+INFO:root:23:07:55.315750
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.078564882278442
+INFO:root:23:10:25.301152
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.349125623703003
+INFO:root:23:12:55.316335
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.621570348739624
+INFO:root:23:15:25.312390
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.02588438987732
+INFO:root:23:17:55.297201
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.67979383468628
+INFO:root:23:20:25.317053
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.612991571426392
+INFO:root:23:22:55.307969
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.502426385879517
+INFO:root:23:25:25.293300
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.915764808654785
+INFO:root:23:27:55.314855
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=13.006250858306885
+INFO:root:23:30:25.304820
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=14.666853666305542
+INFO:root:23:32:55.312489
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=15.949094772338867
+INFO:root:23:35:25.311015
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=15.618226528167725
+INFO:root:23:37:55.301216
+INFO:root:(2029638, 175874, 896595.0, 0, 0, 0, 0, 0, 0, 0, 944, 230, 5, 0, '2024-06-14T15:15:35')
+INFO:root:(2032221, 308675, 1235000.0, 33649, 38, 6156, 0, 0, 0, 0, 26049, 836, 2223, 2717, '2024-06-17T15:54:58')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=16.45578908920288
+INFO:root:23:40:25.310376
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 128, 'coal': 3943, 'oil': 3813, 'uranium': 3186, 'lead': 4140, 'iron': 4141, 'bauxite': 4118, 'gasoline': 3696, 'munitions': 1992, 'steel': 4022, 'aluminum': 2720}
+INFO:root:insert into trade_prices values (128,3943,3813,3186,4140,4141,4118,3696,1992,4022,2720)
+INFO:root:Time trade=0.7488365173339844
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=16.594778776168823
+INFO:root:23:42:55.310343
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=17.1134614944458
+INFO:root:23:45:25.298694
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=14.718388557434082
+INFO:root:23:47:55.311874
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=15.130058288574219
+INFO:root:23:50:25.308295
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.20706295967102
+INFO:root:23:52:55.292828
+INFO:root:(2029902, 282775, 1158212.0, 4041, 64, 97, 582, 32, 32, 194, 388, 452, 32, 549, '2024-06-15T12:55:27')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.54232144355774
+INFO:root:23:55:25.299292
+INFO:root:(2023943, 187079, 1333000.0, 63081, 24, 12, 2678, 24, 6, 0, 4312, 423, 1818, 1971, '2024-06-07T14:42:11')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.292646646499634
+INFO:root:23:57:55.304918
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.599828004837036
+INFO:root:00:00:25.316441
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.960910081863403
+INFO:root:00:02:55.315036
+INFO:root:(2029353, 195561, 0.0, 0, 5669, 0, 0, 0, 5894, 0, 0, 0, 0, 0, '2024-06-14T09:46:35')
+INFO:root:(2032895, 590190, 688000.0, 356, 0, 417, 362, 0, 0, 0, 30, 0, 559, 0, '2024-06-18T00:26:33')
+INFO:root:(2026197, 533217, 2683893.0, 86652, 0, 793, 1207, 0, 115, 598, 3139, 4473, 0, 0, '2024-06-10T12:01:57')
+INFO:root:(2025080, 524559, 2800672.0, 0, 0, 0, 236, 0, 181, 0, 769, 0, 0, 395, '2024-06-09T07:35:51')
+INFO:root:(2029230, 492924, 1123205.0, 64894, 0, 92, 1081, 1541, 23, 2162, 805, 19136, 6555, 15042, '2024-06-14T07:15:00')
+INFO:root:(2024234, 575016, 1051378.0, 90954, 0, 1009, 305, 1647, 0, 0, 8928, 9924, 6337, 4065, '2024-06-09T14:27:33')
+INFO:root:None
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=8.940083026885986
+INFO:root:00:05:25.300432
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.891210317611694
+INFO:root:00:07:55.316603
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.02810025215149
+INFO:root:00:10:25.312056
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.537601947784424
+INFO:root:00:12:55.296749
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.794490575790405
+INFO:root:00:15:25.301092
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.369664669036865
+INFO:root:00:17:55.308308
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.730617046356201
+INFO:root:00:20:25.293484
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.494346380233765
+INFO:root:00:22:55.293873
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.525394201278687
+INFO:root:00:25:25.304371
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.37244987487793
+INFO:root:00:27:55.316974
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.109638452529907
+INFO:root:00:30:25.315901
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.78371262550354
+INFO:root:00:32:55.300605
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.823917388916016
+INFO:root:00:35:25.299962
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.719638109207153
+INFO:root:00:37:55.312282
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.595958709716797
+INFO:root:00:40:25.297041
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.296964168548584
+INFO:root:00:42:55.317658
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.081018924713135
+INFO:root:00:45:25.308016
+INFO:root:(2030651, 470988, 1174173.0, 129597, 4095, 273, 2613, 858, 2730, 0, 0, 0, 0, 3588, '2024-06-15T15:18:21')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.66880750656128
+INFO:root:00:47:55.292546
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.29762601852417
+INFO:root:00:50:25.316021
+INFO:root:(2032695, 151156, 865200.0, 8497, 1413, 0, 318, 0, 0, 0, 1338, 421, 650, 163, '2024-06-17T12:08:56')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.856083869934082
+INFO:root:00:52:55.304098
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.208752155303955
+INFO:root:00:55:25.300188
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.990328073501587
+INFO:root:00:57:55.316381
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.070927619934082
+INFO:root:01:00:25.301028
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.968906164169312
+INFO:root:01:02:55.315214
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.624647378921509
+INFO:root:01:05:25.295744
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.120813846588135
+INFO:root:01:07:55.297143
+INFO:discord.gateway:Shard ID 0 has successfully RESUMED session bed866fe129ef185eea1fbc0e86c9675.
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.949573516845703
+INFO:root:01:10:25.316581
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.018944263458252
+INFO:root:01:12:55.308261
+INFO:root:(2032827, 259457, 1048370.0, 9404, 147, 67, 2739, 30, 165, 810, 2463, 3212, 1830, 5964, '2024-06-18T09:47:16')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.385335683822632
+INFO:root:01:15:25.293630
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.913168907165527
+INFO:root:01:17:55.314642
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.117715120315552
+INFO:root:01:20:25.303888
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.373536586761475
+INFO:root:01:22:55.315735
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.751031637191772
+INFO:root:01:25:25.315543
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.111129760742188
+INFO:root:01:27:55.300931
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.107362270355225
+INFO:root:01:30:25.315960
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.52592921257019
+INFO:root:01:32:55.311975
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.44310712814331
+INFO:root:01:35:25.296250
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.77984881401062
+INFO:root:01:37:55.314255
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=13.835023641586304
+INFO:root:01:40:25.307801
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 129, 'coal': 3932, 'oil': 3836, 'uranium': 3238, 'lead': 4156, 'iron': 4158, 'bauxite': 4124, 'gasoline': 3697, 'munitions': 2003, 'steel': 4009, 'aluminum': 2726}
+INFO:root:insert into trade_prices values (129,3932,3836,3238,4156,4158,4124,3697,2003,4009,2726)
+INFO:root:Time trade=0.8394505977630615
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.441431045532227
+INFO:root:01:42:55.293855
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.736921787261963
+INFO:root:01:45:25.316252
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.998902797698975
+INFO:root:01:47:55.304164
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.279760360717773
+INFO:root:01:50:25.316227
+INFO:root:(2032343, 558646, 1312919.0, 25612, 646, 1368, 2869, 399, 437, 779, 9785, 5662, 5985, 4161, '2024-06-16T20:07:13')
+INFO:root:(2032387, 390650, 1032000.0, 19687, 30, 509, 2371, 30, 6, 1480, 1167, 417, 43, 1554, '2024-06-18T12:19:03')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.434756517410278
+INFO:root:01:52:55.312434
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.680297374725342
+INFO:root:01:55:25.300481
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.597984075546265
+INFO:root:01:57:55.316861
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.640811920166016
+INFO:root:02:00:25.311583
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.347408294677734
+INFO:root:02:02:55.296544
+INFO:root:(2032674, 285991, 0.0, 0, 0, 6, 0, 233, 0, 0, 104, 110, 61, 153, '2024-06-18T03:55:54')
+INFO:root:(2029413, 275754, 0.0, 0, 0, 4674, 0, 0, 0, 0, 0, 0, 0, 0, '2024-06-14T19:37:24')
+INFO:root:(2033204, 280143, 30366262.0, 37680, 9662, 552, 18041, 270, 755, 190, 3372, 0, 5074, 1529, '2024-06-18T02:00:41')
+INFO:root:(2029441, 309829, 26405184.0, 87890, 66, 3131, 13317, 0, 0, 22, 5734, 4957, 2273, 3102, '2024-06-14T04:17:01')
+INFO:root:(2028018, 294035, 1662960.0, 104403, 156, 4407, 234, 546, 156, 468, 6630, 4329, 6630, 6201, '2024-06-12T16:01:34')
+INFO:root:(2026625, 580873, 72101932.0, 0, 490, 98, 147, 9016, 98, 49, 7056, 490, 5292, 980, '2024-06-12T07:35:40')
+INFO:root:(2029687, 521024, 2597525.0, 0, 44, 0, 7091, 0, 0, 0, 0, 0, 0, 0, '2024-06-15T07:09:53')
+INFO:root:(2029461, 202607, 4763688.0, 0, 71, 5, 0, 21, 71, 0, 1225, 2158, 1219, 12245, '2024-06-14T18:27:13')
+INFO:root:(2005858, 344464, 5680449.0, 80427, 0, 19, 323, 494, 0, 95, 2223, 1957, 2432, 1197, '2024-05-21T14:01:38')
+INFO:root:(2029429, 301170, 8687394.0, 25185, 0, 110, 270, 92, 0, 55, 3581, 3378, 2911, 2420, '2024-06-15T10:37:34')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.488724946975708
+INFO:root:02:05:25.307301
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.23021912574768
+INFO:root:02:07:55.307267
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.925821781158447
+INFO:root:02:10:25.300660
+INFO:discord.gateway:Shard ID 0 has successfully RESUMED session bed866fe129ef185eea1fbc0e86c9675.
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.216924667358398
+INFO:root:02:12:55.313736
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.310158252716064
+INFO:root:02:15:25.294271
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.527250051498413
+INFO:root:02:17:55.312718
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.799241065979004
+INFO:root:02:20:25.315000
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.38738489151001
+INFO:root:02:22:55.300780
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.842115879058838
+INFO:root:02:25:25.314529
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.376057863235474
+INFO:root:02:27:55.294076
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.566643238067627
+INFO:root:02:30:25.297222
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.43531084060669
+INFO:root:02:32:55.315857
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.414946794509888
+INFO:root:02:35:25.307726
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.96921181678772
+INFO:root:02:37:55.315682
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.565334796905518
+INFO:root:02:40:25.300430
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.456255912780762
+INFO:root:02:42:55.304166
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.950045108795166
+INFO:root:02:45:25.302282
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.700401306152344
+INFO:root:02:47:55.315377
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.150768756866455
+INFO:root:02:50:25.300966
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.566792964935303
+INFO:root:02:52:55.316818
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.763252019882202
+INFO:root:02:55:25.312593
+INFO:root:(2032451, 33898, 397461.0, 40356, 19, 57, 1653, 95, 0, 551, 1254, 2698, 3078, 6251, '2024-06-18T07:21:02')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.466418743133545
+INFO:root:02:57:55.296651
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.926347255706787
+INFO:root:03:00:25.316701
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.741370677947998
+INFO:root:03:02:55.307484
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.242301940917969
+INFO:root:03:05:25.309826
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.875616788864136
+INFO:root:03:07:55.315315
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.32504916191101
+INFO:root:03:10:25.303406
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.977320671081543
+INFO:root:03:12:55.316421
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.356475114822388
+INFO:root:03:15:25.314609
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.353148460388184
+INFO:root:03:17:55.300344
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.187399625778198
+INFO:root:03:20:25.315936
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.046655893325806
+INFO:root:03:22:55.311351
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.094466209411621
+INFO:root:03:25:25.296222
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.158794164657593
+INFO:root:03:27:55.317019
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.998819828033447
+INFO:root:03:30:25.307041
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.32961893081665
+INFO:root:03:32:55.315328
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.015201091766357
+INFO:root:03:35:25.298467
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.37257719039917
+INFO:root:03:37:55.303567
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.895357131958008
+INFO:root:03:40:25.315117
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 129, 'coal': 3933, 'oil': 3836, 'uranium': 3268, 'lead': 4165, 'iron': 4161, 'bauxite': 4121, 'gasoline': 3694, 'munitions': 1996, 'steel': 3980, 'aluminum': 2731}
+INFO:root:insert into trade_prices values (129,3933,3836,3268,4165,4161,4121,3694,1996,3980,2731)
+INFO:root:Time trade=0.3524179458618164
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.410144805908203
+INFO:root:03:42:55.314493
+INFO:root:(2024696, 235074, 47938111.0, 93312, 65, 853, 1116, 0, 0, 0, 16088, 7157, 2692, 7289, '2024-06-09T00:28:01')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.97130298614502
+INFO:root:03:45:25.299624
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.608668565750122
+INFO:root:03:47:55.316775
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.678815364837646
+INFO:root:03:50:25.311327
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.093734741210938
+INFO:root:03:52:55.296796
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.056664943695068
+INFO:root:03:55:25.316411
+INFO:root:(2025810, 11399, 1156343.0, 43559, 98, 245, 0, 79, 135, 135, 4361, 4226, 5153, 3698, '2024-06-10T04:11:14')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.549529314041138
+INFO:root:03:57:55.307275
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.939303398132324
+INFO:root:04:00:25.316393
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.797484159469604
+INFO:root:04:02:55.314801
+INFO:root:(2032375, 555367, 1386506.0, 1076, 851, 906, 153, 1499, 115, 175, 2268, 24737, 0, 1027, '2024-06-17T08:55:36')
+INFO:root:(2029086, 208425, 21155547.0, 4052, 199, 372, 106, 13, 0, 7267, 1567, 0, 265, 0, '2024-06-15T00:33:27')
+INFO:root:(2029621, 237144, 10393.0, 0, 0, 6, 0, 0, 9582, 12, 675, 645, 1658, 909, '2024-06-14T06:07:17')
+INFO:root:(2029710, 169280, 6158173.0, 12348, 0, 0, 49, 0, 0, 14210, 1764, 5096, 1323, 1029, '2024-06-15T02:55:33')
+INFO:root:None
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.601704359054565
+INFO:root:04:05:25.303408
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.24239993095398
+INFO:root:04:07:55.316873
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.699957847595215
+INFO:root:04:10:25.315223
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.477588176727295
+INFO:root:04:12:55.300443
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.182675838470459
+INFO:root:04:15:25.316557
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.44091510772705
+INFO:root:04:17:55.310546
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.576023578643799
+INFO:root:04:20:25.296256
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.098279237747192
+INFO:root:04:22:55.315032
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.753799438476562
+INFO:root:04:25:25.304986
+INFO:root:(2029423, 536744, 1036800.0, 44184, 624, 504, 0, 360, 5832, 216, 6984, 6024, 936, 5064, '2024-06-15T11:32:46')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.203314065933228
+INFO:root:04:27:55.315599
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.909823894500732
+INFO:discord.gateway:Shard ID 0 has successfully RESUMED session bed866fe129ef185eea1fbc0e86c9675.
+INFO:root:04:30:25.315597
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.624207496643066
+INFO:root:04:32:55.299357
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.19012713432312
+INFO:root:04:35:25.295843
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.741050720214844
+INFO:root:04:37:55.310725
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.397245645523071
+INFO:root:04:40:25.295684
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.606391191482544
+INFO:root:04:42:55.317427
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.023000001907349
+INFO:root:04:45:25.307444
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.051957845687866
+INFO:root:04:47:55.316669
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.020312309265137
+INFO:root:04:50:25.316430
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.273586988449097
+INFO:root:04:52:55.303565
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.273659706115723
+INFO:root:04:55:25.307728
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.621920347213745
+INFO:root:04:57:55.314578
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.4546639919281
+INFO:root:05:00:25.299726
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.521907329559326
+INFO:root:05:02:55.317070
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.762797355651855
+INFO:root:05:05:25.300466
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.200147151947021
+INFO:root:05:07:55.295978
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.326129674911499
+INFO:root:05:10:25.316286
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.807408809661865
+INFO:root:05:12:55.307152
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.464214324951172
+INFO:root:05:15:25.300217
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.380965232849121
+INFO:root:05:17:55.316996
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.289923906326294
+INFO:root:05:20:25.302985
+INFO:root:(2030167, 491546, 1799164.0, 1023, 1979, 0, 0, 3122, 1740, 0, 146, 146, 7041, 39, '2024-06-15T21:05:48')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.100018739700317
+INFO:root:05:22:55.316246
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.238476991653442
+INFO:root:05:25:25.314212
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.536766052246094
+INFO:root:05:27:55.300929
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.855940103530884
+INFO:root:05:30:25.300526
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.676185607910156
+INFO:root:05:32:55.312109
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.4224271774292
+INFO:root:05:35:25.295865
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.639698028564453
+INFO:root:05:37:55.317493
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.378180503845215
+INFO:root:05:40:25.307366
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 129, 'coal': 3933, 'oil': 3830, 'uranium': 3266, 'lead': 4126, 'iron': 4163, 'bauxite': 4097, 'gasoline': 3679, 'munitions': 1970, 'steel': 3971, 'aluminum': 2728}
+INFO:root:insert into trade_prices values (129,3933,3830,3266,4126,4163,4097,3679,1970,3971,2728)
+INFO:root:Time trade=0.3899044990539551
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.634034395217896
+INFO:root:05:42:55.316844
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.44711947441101
+INFO:root:05:45:25.300062
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.730518817901611
+INFO:root:05:47:55.303515
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.165892362594604
+INFO:root:05:50:25.315387
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.510969161987305
+INFO:root:05:52:55.314257
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.243009090423584
+INFO:root:05:55:25.299827
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.607997417449951
+INFO:root:05:57:55.316775
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.774589776992798
+INFO:root:06:00:25.311233
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.11650037765503
+INFO:root:06:02:55.295562
+INFO:root:(2029701, 420627, 5878296.0, 11934, 666, 675, 360, 63, 504, 4437, 720, 0, 108, 3861, '2024-06-14T10:04:15')
+INFO:root:(2029628, 863, 0.0, 0, 0, 11487, 5712, 0, 0, 0, 454, 0, 0, 0, '2024-06-14T18:23:26')
+INFO:root:(2033372, 530390, 3462370.0, 13471, 0, 0, 209, 551, 0, 0, 722, 1577, 836, 0, '2024-06-18T07:01:49')
+INFO:root:(2029304, 457077, 110054.0, 7105, 294, 147, 882, 0, 490, 0, 1176, 0, 3528, 1862, '2024-06-14T01:10:41')
+INFO:root:(2029632, 585096, 0.0, 0, 0, 6, 0, 12599, 0, 0, 43, 301, 18, 12, '2024-06-14T18:22:16')
+INFO:root:(2022406, 518145, 4407741.0, 27573, 3627, 0, 468, 3549, 0, 0, 0, 0, 0, 0, '2024-06-08T08:01:02')
+INFO:root:(2029626, 188000, 4656033.0, 11592, 5166, 0, 0, 828, 3231, 81, 279, 1053, 3798, 0, '2024-06-14T08:04:14')
+INFO:root:(2029593, 381514, 243350532.0, 141470, 0, 5080, 12156, 5559, 1161, 5055, 282, 0, 4717, 2426, '2024-06-14T12:23:02')
+INFO:root:(2024960, 37934, 8443904.0, 12293, 494, 76, 551, 19, 57, 19, 3610, 2565, 3762, 76, '2024-06-10T03:27:46')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.81052565574646
+INFO:root:06:05:25.309272
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.21797513961792
+INFO:root:06:07:55.306768
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.612999439239502
+INFO:root:06:10:25.316974
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.421569347381592
+INFO:root:06:12:55.316378
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.81537938117981
+INFO:root:06:15:25.303221
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.47587251663208
+INFO:root:06:17:55.297995
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.955328226089478
+INFO:root:06:20:25.314787
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.49940538406372
+INFO:root:06:22:55.299541
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.08522915840149
+INFO:root:06:25:25.297981
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.385264158248901
+INFO:root:06:27:55.310718
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.683927297592163
+INFO:root:06:30:25.295354
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.446447610855103
+INFO:root:06:32:55.317662
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.0517897605896
+INFO:root:06:35:25.307290
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.277573108673096
+INFO:root:06:37:55.315834
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.724830627441406
+INFO:root:06:40:25.315433
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.458693265914917
+INFO:root:06:42:55.302893
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.80137014389038
+INFO:root:06:45:25.315902
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.688046216964722
+INFO:root:06:47:55.299233
+INFO:root:(2028153, 416223, 1296000.0, 171552, 2568, 144, 504, 1272, 0, 3792, 8784, 8640, 8520, 6816, '2024-06-13T05:27:54')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.735193967819214
+INFO:root:06:50:25.298961
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.161354541778564
+INFO:root:06:52:55.317307
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.423554420471191
+INFO:root:06:55:25.310616
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.957525968551636
+INFO:root:06:57:55.295583
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.949693441390991
+INFO:root:07:00:25.317522
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.562426328659058
+INFO:root:07:02:55.307095
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.302500247955322
+INFO:root:07:05:25.301949
+INFO:root:(2032720, 549844, 402039.0, 19899, 0, 693, 1188, 0, 297, 0, 1485, 2772, 0, 1386, '2024-06-18T13:09:54')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.542274475097656
+INFO:root:07:07:55.315947
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.572913408279419
+INFO:root:07:10:25.302859
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.094561100006104
+INFO:root:07:12:55.316823
+INFO:root:(2033378, 179910, 1520000.0, 80009, 703, 0, 760, 3097, 0, 0, 4769, 4408, 7657, 437, '2024-06-19T11:42:37')
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.53024172782898
+INFO:root:07:15:25.314744
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.378479719161987
+INFO:root:07:17:55.299600
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.133102655410767
+INFO:root:07:20:25.315250
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.43683910369873
+INFO:root:07:22:55.310589
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.950391292572021
+INFO:root:07:25:25.295555
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=8.88490891456604
+INFO:root:07:27:55.316891
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.660913944244385
+INFO:root:07:30:25.306395
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.739708185195923
+INFO:root:07:32:55.318091
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.92235517501831
+INFO:root:07:35:25.316669
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.705179929733276
+INFO:root:07:37:55.303513
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.250771045684814
+INFO:root:07:40:25.315893
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 129, 'coal': 3933, 'oil': 3829, 'uranium': 3269, 'lead': 4127, 'iron': 4169, 'bauxite': 4093, 'gasoline': 3675, 'munitions': 1973, 'steel': 3968, 'aluminum': 2735}
+INFO:root:insert into trade_prices values (129,3933,3829,3269,4127,4169,4093,3675,1973,3968,2735)
+INFO:root:Time trade=0.7455766201019287
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.086819887161255
+INFO:root:07:42:55.314753
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=9.104965448379517
+INFO:root:07:45:25.300547
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 429 Too Many Requests"
+INFO:root:Time loot=28.81513738632202

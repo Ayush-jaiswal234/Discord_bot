@@ -1,24 +1,29 @@
 import sqlite3,requests
 import pandas as pd
 import re
+from commands.scripts.nation_data_converter import time_converter
 
-def get_slots_data(allies_data,enemies_data):
+
+async def get_slots_data(allies_data,enemies_data):
     query=''
     results=[]
     for rows in allies_data[['nation_id','nation']].itertuples():
         if len(query)<9900:
-            query=f"{query} {re.sub("[- 0-9]","_",rows[2])}:wars(defid:{rows[1]}){{data{{att_id}}}}"
+            query=f"""{query} {re.sub("[- 0-9]","_",rows[2])}:wars(defid:{rows[1]}){{data{{att_id}}}}"""
         else:
            query=f"{{ {query} }}"
            fetchdata=requests.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
            results.append(fetchdata.json()['data'])
            query=''
-           query=f"{query} {re.sub("[- 0-9]","_",rows[2])}:wars(defid:{rows[1]}){{data{{att_id}}}}"     
+           query=f"""{query} {re.sub("[- 0-9]","_",rows[2])}:wars(defid:{rows[1]}){{data{{att_id}}}}"""     
     query=f"{{ {query} }}"
     fetchdata=requests.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
     results.append(fetchdata.json()['data'])
+    
     fetchdata= {key:values for d in results for key,values in d.items()}
     values=[]
+    connection=sqlite3.connect('politics and war.db')
+    cursor=connection.cursor()
     for index, row in allies_data.iterrows():
         nation_key=re.sub("[- 0-9]","_",row['nation'])
         if len(fetchdata[nation_key]['data']) != 0:
@@ -33,8 +38,18 @@ def get_slots_data(allies_data,enemies_data):
                     allies_data.at[index, f'tanks_{i}'] = attacker_data['tanks']
                     allies_data.at[index, f'aircraft_{i}'] = attacker_data['aircraft']
                     allies_data.at[index, f'ships_{i}'] = attacker_data['ships']         
-                    i += 1
+                    
+                else:    
+                    attacker_data = cursor.execute(f'select soldiers,tanks,aircraft,ships from all_nations_data where nation_id={data["att_id"]}')
+
+                    attacker_data = attacker_data.fetchone()
+                    allies_data.at[index, f'soldiers_{i}'] = attacker_data[0]
+                    allies_data.at[index, f'tanks_{i}'] = attacker_data[1]
+                    allies_data.at[index, f'aircraft_{i}'] = attacker_data[2]
+                    allies_data.at[index, f'ships_{i}'] = attacker_data[3] 
+                i += 1    
         values.append(f'=HYPERLINK("https://politicsandwar.com/nation/id={row["nation_id"]}","{row["nation"]}")')
+    connection.close()    
     allies_data.insert(0,column='nation_link',value=values)                 
     allies_data.drop(['nation_id','nation'],axis=1,inplace=True)
     allies_data.fillna('',inplace=True) 
@@ -53,7 +68,9 @@ async def war_vis_sheet(allies,enemies,spreadsheets,sheetID):
         enemies_search_text = f'{search_text} in {enemies}'	
     connection=sqlite3.connect('politics and war.db')
     allies_data=pd.read_sql_query(allies_search_text,connection)
+    allies_data['nation']=allies_data['nation'].apply(lambda x: x.strip("'"))
     enemies_data=pd.read_sql_query(enemies_search_text,connection)
+    enemies_data['nation']=enemies_data['nation'].apply(lambda x: x.strip("'"))
     connection.close()
     len_allies,len_enemies=	len(allies_data),len(enemies_data)
     values=[('Category','Allies','Enemies','Difference')]
@@ -64,14 +81,21 @@ async def war_vis_sheet(allies,enemies,spreadsheets,sheetID):
             values.append((f'Average {x}',sum(allies_data[x])/len_allies,sum(enemies_data[x])/len_enemies,sum(allies_data[x])/len_allies-sum(enemies_data[x])/len_enemies))
     range_of_sheet=f'Overview!A1:D16'
     spreadsheets.write_ranges(sheetID,range_of_sheet,values)
-    updated_allies=get_slots_data(allies_data.copy(),enemies_data.copy())
-    updated_enemies=get_slots_data(enemies_data,allies_data)
+    updated_allies=await get_slots_data(allies_data.copy(),enemies_data.copy())
+    updated_allies['last_active'] = pd.to_datetime(updated_allies['last_active'],format="%Y-%m-%d %H:%M:%S")
+    updated_allies['last_active'] = updated_allies['last_active'].apply(time_converter,args=(False,))
+
+    updated_enemies=await get_slots_data(enemies_data,allies_data)
+    updated_enemies['last_active'] = pd.to_datetime(updated_enemies['last_active'],format="%Y-%m-%d %H:%M:%S")
+    updated_enemies['last_active'] = updated_enemies['last_active'].apply(time_converter,args=(False,))
 
     updated_allies_values = list(updated_allies.itertuples(index=False))
     updated_allies_values.insert(0,tuple(updated_allies.columns))
+    
 
     updated_enemies_values = list(updated_enemies.itertuples(index=False))
     updated_enemies_values.insert(0,tuple(updated_enemies.columns))
+    
 
     spreadsheets.write_ranges(sheetID,f'Allies!A1:X{len(updated_allies_values)}',updated_allies_values)
     spreadsheets.write_ranges(sheetID,f'Enemies!A1:X{len(updated_enemies_values)}',updated_enemies_values)

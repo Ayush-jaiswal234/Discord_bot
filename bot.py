@@ -1,18 +1,27 @@
 import os,discord,sqlite3,logging,requests,time,re
-from discord.ext import commands
-from commands.scripts import nation_data_converter,updater,sheets,war_stats
-from datetime import datetime,timedelta
+from discord.ext import commands,tasks
+import typing
+from commands.scripts import nation_data_converter,updater,sheets,war_stats	
+from commands.scripts.pagination import Pagination
+from datetime import datetime,timedelta,timezone
 import DiscordUtils
 import aiosqlite,asyncio,httpx,json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload 
+import numpy as np
+import matplotlib.pyplot as plt
+from itertools import combinations_with_replacement
+import pnwkit
+from dotenv import load_dotenv
 
-logging.basicConfig(level=logging.INFO)
+#logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.basicConfig(level=logging.INFO) #filename='log.txt',	
 aiosqlite.threadsafety=1
+load_dotenv()
 
 def update_registered_nations(author_id,author_name,nation_id):
-	connection=sqlite3.connect('politics and war.db')
+	connection=sqlite3.connect('pnw.db')
 	data_to_be_inserted=("insert into registered_nations values(%s,'%s',%s) on conflict(discord_id) do update set user_name='%s',nation_id=%s") % (author_id,author_name,nation_id,author_name,nation_id)
 	connection.execute(data_to_be_inserted)
 	connection.commit()
@@ -20,7 +29,7 @@ def update_registered_nations(author_id,author_name,nation_id):
 pass
 
 def get_unregistered(search_element,_id,search_using='nation_id',fetchall=False):
-	connection=sqlite3.connect('politics and war.db')
+	connection=sqlite3.connect('pnw.db')
 	cursor=connection.cursor()
 	search=f"select {search_element} from all_nations_data where {search_using}='{_id}'"
 	cursor.execute(search)
@@ -39,14 +48,14 @@ pass
 
 async def nation_id_finder(ctx,id_or_name):
 	try:
-		discord_id= await commands.converter.MemberConverter().convert(ctx,id_or_name)
-		nation_id=get('registered_nations.nation_id',discord_id.id)
+		discord_id= await commands.MemberConverter().convert(ctx,id_or_name)
+		nation_id=await nation_data_converter.get('registered_nations.nation_id',discord_id.id)
 	except commands.BadArgument:
 		if id_or_name.isdigit():
 				nation_id=int(id_or_name)
 		elif id_or_name.startswith('https://politicsandwar.com/nation'):
-			nation_id=int(id_or_name[-6:])	
-		else:
+			nation_id=int(id_or_name.split('=')[1])
+		else:	
 			finder=['nation','leader']
 			x=0
 			nation_id=id_or_name
@@ -66,55 +75,65 @@ def aa_finder(id_or_name):
 	return alliance_id
 pass		
 
-async def targets(war_range,inactivity_time,aa,beige,beige_turns):
-	async with aiosqlite.connect('politics and war.db') as db:
+async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=None):	
+	async with aiosqlite.connect('pnw.db') as db:
 		date=datetime.now().replace(microsecond=0)
 		date = date -timedelta(days=inactivity_time)
-		search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum']])
-		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['alliance','beige_turns','soldiers', 'tanks', 'aircraft', 'ships']])
+		search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
+		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','last_active']])
 		targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {beige_turns} and date(last_active)<'{date}'"
-		print(targets_list)
+		logging.info(targets_list)
 		cursor = await db.execute(targets_list)
-		print([x[0] for x in cursor.description])
+		logging.info([x[0] for x in cursor.description])
 		all_targets= await cursor.fetchall()
 		prices=await get_prices(db)
 		final_list=[]
-		for y in range(0,len(all_targets)):
-			amount=all_targets[y][1]
-			for x in range(0,11):
-				amount=amount+(all_targets[y][x+2]*prices[x])
-			data_list=[all_targets[y][0],amount,all_targets[y][13],all_targets[y][14],all_targets[y][15],all_targets[y][16],all_targets[y][17],all_targets[y][18]]
-			final_list.insert(y,data_list)	
+		for target_nation in all_targets:
+			beige_amount = target_nation[1]*0.14
+			for count,beige_loot in enumerate(target_nation[2:13]):
+				beige_amount += beige_loot*0.14*prices[count]
+			data_list=[target_nation[0],int(beige_amount)]
+			data_list.extend(target_nation[13:])
+			final_list.append(data_list)	
 		await cursor.close()
 	final_list.sort(key=lambda x:x[1],reverse=True)
-	final_list=final_list[:9]
-	print(final_list)
-	deposit_data_list=await last_bank_rec(final_list)
-	for data in final_list:
-		dep_date=await last_bank_rec(data[0])
-		data.append(dep_date)
-	print(final_list)
+	final_list=final_list[:result_size]
+	logging.info(final_list)
+	deposit_data_list=await last_bank_rec([[x[0],x[3]] for x in final_list])
+	print(deposit_data_list)
+	for x in range(len(final_list)):
+		final_list[x].append(deposit_data_list[x])
+	logging.info(final_list)
 	return final_list
 pass
 
-async def last_bank_rec(loot_list):
-	nation_id_list=[x[0] for x in loot_list]
-	alias_list=['a','b','c','d','e','f','g','h','i']
+async def last_bank_rec(nation_list):
 	query=''
-	for i in range(0,loot_list):
-		nation_text=f"""{alias_list[i]}:bankrecs(sid:{nation_id_list[i][0]},orderBy:[{{column:DATE,order:DESC}}],first:1,rtype:2){{
-   					data{{date
-					}}
-  					}}"""
-		query=f'{query}\n{nation_text}'
-	query=f"{{ {query} }}"	
-	print(query)
+	results=[]
 	async with httpx.AsyncClient() as client:
-		fetchdata=await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
-		fetchdata=fetchdata.json()['data']
-	for alias in alias_list:	
-		fetchdata=fetchdata[alias]['data'][0]['date']
-	return fetchdata.split('+')[0]
+		for nation in nation_list:
+			if len(query)<9900:
+				query=f"""{query} {re.sub("[- 0-9]","_",nation[1])}:bankrecs(sid:{nation[0]},orderBy:[{{column:DATE,order:DESC}}],first:1,rtype:2){{data{{date}}}}"""
+			else:
+				query=f"{{ {query} }}"
+				fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+				results.append(fetchdata.json()['data'])
+				query=''
+				query=f"""{query} {re.sub("[- 0-9]","_",nation[1])}:bankrecs(sid:{nation[0]},orderBy:[{{column:DATE,order:DESC}}],first:1,rtype:2){{data{{date}}}}"""
+		query=f"{{ {query} }}"
+		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+		results.append(fetchdata.json()['data'])	
+	fetchdata= {key:values for d in results for key,values in d.items()}
+	logging.info(fetchdata)
+	print(fetchdata)
+	bankdata=[]	
+	for i in range(len(fetchdata)):	
+		nation_data = fetchdata[re.sub("[- 0-9]","_",nation_list[i][1])]['data']
+		if not nation_data:
+			bankdata.append('0001-01-01T0:0:0')
+		else:
+			bankdata.append((nation_data[0]['date']).split('+')[0])	
+	return bankdata
 
 async def get_prices(db):
 	cursor= await db.execute("select * from trade_prices")
@@ -175,7 +194,7 @@ def aa_color_compare(alliance_id):
 pass
 
 def update_subscriptions(server_id,command_name,date_time):
-	connection=sqlite3.connect('politics and war.db')
+	connection=sqlite3.connect('pnw.db')
 	cursor=connection.cursor()
 	days=date_time.find('d')
 	hours=date_time.find('h')
@@ -202,7 +221,7 @@ def update_subscriptions(server_id,command_name,date_time):
 pass
 
 def check_subscriptions(server_id,command_name):
-	connection=sqlite3.connect('politics and war.db')
+	connection=sqlite3.connect('pnw.db')
 	cursor=connection.cursor()
 	search_subs=("select * from subscriptions where server_id=%s and command_name='%s'") %(server_id,command_name)
 	cursor.execute(search_subs)
@@ -267,7 +286,7 @@ def check_efficency(nation_id):
 pass
 
 def check_for_defcon(nation_id):
-	connection=sqlite3.connect('politics and war.db')
+	connection=sqlite3.connect('pnw.db')
 	cursor=connection.cursor()
 	data="select barracks,factory,hangar,drydock,all_nations_data.soldiers,all_nations_data.tanks,all_nations_data.aircraft,all_nations_data.ships from defcon inner join all_nations_data on all_nations_data.alliance_id = defcon.alliance_id where all_nations_data.nation_id=%s" % (nation_id)
 	cursor.execute(data)
@@ -278,7 +297,7 @@ def check_for_defcon(nation_id):
 pass
 
 def check_for_build(nation_id,infra):
-	connection=sqlite3.connect('politics and war.db')
+	connection=sqlite3.connect('pnw.db')
 	cursor=connection.cursor()
 	data="select build_details from build inner join all_nations_data on all_nations_data.alliance_id = build.alliance_id where (all_nations_data.nation_id=%s and build.min_infra<=%s) order by build.min_infra desc limit 1 " % (nation_id,infra)
 	cursor.execute(data)
@@ -303,7 +322,7 @@ def get_wars(my_nation_id):
 	fetchdata=requests.get(graphql_link,json={'query':query})
 	fetchdata=fetchdata.json()
 	fetchdata=fetchdata['data']['wars']
-	print(fetchdata)
+	logging.info(fetchdata)
 	return fetchdata
 pass		
 
@@ -313,46 +332,159 @@ async def repeat_every_n_seconds(func_name,interval):
 		await func()
 		await asyncio.sleep(interval)
 
-graphql_link='https://api.politicsandwar.com/graphql?api_key=10433a4b8a7dec'
+async def trade_watcher(bot):
+	channel=bot.get_channel(715222394318356541)
+	api_key='2b2db3a2636488'
+	query = "{top_trade_info {resources {resource best_buy_offer {price offer_amount}best_sell_offer {price offer_amount sender{nation_name}}}}}"
+	async with httpx.AsyncClient() as client:
+		fetchdata =await client.post(f'https://api.politicsandwar.com/graphql?api_key={api_key}',json={'query':query})
+		fetchdata=fetchdata.json()['data']['top_trade_info']['resources']
+		last_result=fetchdata
+		while True:
+			fetchdata = await client.post(f'https://api.politicsandwar.com/graphql?api_key={api_key}',json={'query':query})
+			fetchdata=fetchdata.json()['data']['top_trade_info']['resources']
+			resource_no=-1
+			for rss in fetchdata:
+				resource_no+=1
+				condition1 = ((last_result[resource_no]['best_sell_offer']['price']-rss['best_sell_offer']['price'])*rss['best_sell_offer']['offer_amount'])>500000
+				condition2 = (last_result[resource_no]['best_sell_offer']['price']-rss['best_sell_offer']['price'])/last_result[resource_no]['best_sell_offer']['price']>=0.02
+
+				if condition1 and condition2:
+					link=f'https://politicsandwar.com/index.php?id=26&display=world&resource1={rss["resource"]}&buysell=sell&ob=price&od=DEF&maximum=15&minimum=0&search=Go'
+					await channel.send(f"""<@&1248240780502630482> 
+**{rss['best_sell_offer']['sender']['nation_name']} sells {rss['best_sell_offer']['offer_amount']} {rss['resource']} for ${rss['best_sell_offer']['price']}**
+Last Sell price: ${last_result[resource_no]['best_sell_offer']['price']}
+Last Buy price: ${rss['best_buy_offer']['price']}
+**Minimum Profit: ${(last_result[resource_no]['best_sell_offer']['price']-rss['best_sell_offer']['price'])*rss['best_sell_offer']['offer_amount']}**
+{link}""")
+			last_result=fetchdata
+			await asyncio.sleep(3)
+
+async def beige_calculator(params,resistance,reverse):
+	cost_dict = {10:(3,'Gd'),12:(4,'Ar'),14:(4,'Nv')}
+	if params !=None:
+		params = params.split(' ')
+		for param in params:
+			if param =="+m":
+				cost_dict[18]=(8,'Ms')
+			elif param=="+nu":
+				cost_dict[25]=(12,'Nu')
+			elif param=="-g":
+				cost_dict.pop(10)
+			elif param=="-a":
+				cost_dict.pop(12)
+			elif param=="-nv":
+				cost_dict.pop(14)	
+	comb = []
+	for x in cost_dict.keys():
+		comb += list(combinations_with_replacement(cost_dict.keys(),int(resistance/x +1)))
+
+	results=[]
+	for values in comb:
+		if sum(values)>=resistance and sum(values[:-1])<resistance:
+			cost = 0
+			for damage in values:
+				cost += cost_dict[damage][0]
+			results.append((comb.index(values),cost))
+	results = list(set(results))
+	results.sort(key=lambda x:x[1],reverse=reverse)
+	text_first_line = '\t'.join([x[1] for x in cost_dict.values()])
+	text = f"{text_first_line}\tTurns"
+	
+	for x in range(5):
+		if x<len(results):
+			text += "\n"
+			for attacks in cost_dict.keys():
+				text += f"{comb[results[x][0]].count(attacks)} \t"
+
+			text +=	f"{results[x][1]}"
+
+	return text	
+
+
+	kit = pnwkit.QueryKit("YOUR_API_KEY_HERE")
+	subscription = await kit.subscribe("nation", "update")
+	async for nation in subscription:
+		logging.info(nation)
+
+def simulate_casualities(attacker,defender,multiplier):
+	size=(10000,3)
+	att_roll = np.random.randint(0.4*attacker*multiplier,(attacker+1)*multiplier,size=size)
+	def_roll = np.random.randint(0.4*defender*multiplier,(defender+1)*multiplier,size=size)
+	att_casualties=np.round(np.average(np.sum(def_roll*0.01,axis=1)),2)
+	def_casualties=np.round(np.average(np.sum(att_roll*0.018337,axis=1)),2)
+
+	return att_casualties,def_casualties
+
+def simulate_war(attacker,defender,multiplier):
+	size=(10000,3)
+	attacker = attacker**0.75
+	defender = defender**0.75
+	att_roll = np.random.randint(0.4*attacker*multiplier,(attacker+1)*multiplier,size=size)
+	def_roll = np.random.randint(0.4*defender*multiplier,(defender+1)*multiplier,size=size)
+
+	win_outcomes=np.greater(att_roll,def_roll)
+
+	wins = np.round(np.bincount(np.sum(win_outcomes,axis=1))/size[0]*100,2)
+
+	return wins
+
+async def loot_from_text(message,length_of_param):
+	find_stuffs_orig = ['food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum']
+	find_stuffs = [f"[,.0-9]{{{length_of_param},}} {x}" for x in find_stuffs_orig]
+	find_stuffs.insert(0,f'\$[,.0-9]{{{length_of_param},}} ')
+	actual_loot =[]
+	for loot in find_stuffs:
+		loot_info = re.findall(loot,message,flags=re.IGNORECASE)	
+		if len(loot_info)!=0:
+			actual_loot.append(loot_info[0].split(' ')[0].replace(',','').replace('$',''))
+		else:
+			actual_loot.append(0)  
+	async with aiosqlite.connect('pnw.db') as db:
+		prices = await get_prices(db)
+
+	return actual_loot,prices
+
+async def loot_calculator(nation_id):
+	async with aiosqlite.connect('pnw.db') as db:
+		async with db.execute(f'select * from loot_data where nation_id={nation_id}') as cursor:
+			loot = await cursor.fetchone()
+		prices = await get_prices(db)	
+	logging.info(loot)
+	if loot!=None:
+		total_worth = loot[2]*0.14
+		for x in range(0,len(prices)):
+			total_worth+= (int(loot[x+3]*0.14)*prices[x])	
+		return (total_worth,loot)
+	else:
+		return None 
+
+def is_guild(ctx):
+	if ctx.guild is None:
+		return False
+
+graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 intents = discord.Intents.default()	
 intents.message_content = True
 client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=intents)
-game = discord.Game("I am noob")
+activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
+client.add_check(is_guild)
 
 @client.event
 async def on_ready():
-	print('Bot is ready')
-	await client.change_presence(status=discord.Status.online, activity=game)
+	logging.info('Bot is ready')
+	updater.update_trade_price.start()
+	updater.update_nation_data.start()
+	updater.update_loot_data.start()
+	await client.change_presence(status=discord.Status.online, activity=activity)
 
-@client.listen('on_message')
-async def spy_reports(message):
-	x=re.match("You successfully gathered intelligence about [A-Za-z]+[A-z a-z]*. Your spies discovered that [A-Za-z]+[A-z a-z]* has [0-9]+ spies, [$.,0-9]{2,}, [,.0-9]+ coal, [,.0-9]+ oil, [,.0-9]+ uranium, [,.0-9]+ lead, [,.0-9]+ iron, [,.0-9]+ bauxite, [,.0-9]+ gasoline, [,.0-9]+ munitions, [,.0-9]+ steel, [,.0-9]+ aluminum, and [,.0-9]+ food. Your agents were [\w '-]{26,}. The operation cost you [$,.0-9]{2,} and [0-9]+ of your spies were captured and executed.",message.content)
-	if bool(x):
-		full_stop=message.content.find('.')
-		nation=(message.content)[45:full_stop]
-		nation_id=get_unregistered('nation_id',nation,'nation')
-		if nation_id!=None and (message.content.count(nation)==2 or message.content.count(nation)==3):
-			problem_part=message.content.find('Your agents were ')+17
-			full_stop=message.content.find('.',problem_part+17,400)
-			compare_text1='able to operate undetected'
-			compare_text2=f"caught and identified by {nation}'s counter-intelligence forces"
-			if (message.content)[problem_part:full_stop]==compare_text1 or (message.content)[problem_part:full_stop]==compare_text2:
-				#connection=sqlite3.connect('politics and war.db')
-				#cursor=connection.cursor()
-				#loot_info=re.findall('[,.0-9]{3,}',message.content)
-				#actual_loot=[loot_info[x].replace(',','') for x in range(0,len(loot_info)-1)]
-				#actual_loot=[str(int(0.14*float(x))) for x in actual_loot]
-				#text=', '.join(actual_loot)
-				#prices=get_prices(cursor)
-				#insert_data=f"insert into loot_data(defender_nation_id,money_looted,coal,oil,uranium,iron,bauxite,`lead`,gasoline,munitions,steel,aluminum,food,war_end_date) values ({nation_id},{text},'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}') on conflict(defender_nation_id) do update set money_looted={actual_loot[0]},coal={actual_loot[1]},oil={actual_loot[2]},uranium={actual_loot[3]} ,iron={actual_loot[4]} ,bauxite={actual_loot[5]} ,`lead`={actual_loot[6]} ,gasoline={actual_loot[7]} ,munitions={actual_loot[8]} ,steel={actual_loot[9]} ,aluminum={actual_loot[10]} ,food={actual_loot[11]} ,war_end_date='{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}'"
-				#cursor.execute(insert_data)
-				#connection.commit()
-				#cursor.close()
-				#connection.close()
-				loot_worth=int(actual_loot[0])
-				for x in range(0,len(prices)):
-					loot_worth= loot_worth+(int(actual_loot[x+1])*prices[x])
-				await message.channel.send(f'You can loot worth ${"{:,}".format(loot_worth)}')
+@client.event
+async def on_command_error(ctx, error):
+	if isinstance(error, commands.CheckFailure):
+		await ctx.send("Greetings Outsider,\nAll commands can only be used in the WAP server\nNOOT NOOT")
+	else:
+		raise error
+
 
 @commands.is_owner()
 @client.command()
@@ -373,7 +505,7 @@ async def audit(ctx,nation_id=None):
 		if results[x]!=0:
 			embed1.add_field(name=embed_name[x],value=results[x],inline=True)
 	defcon=check_for_defcon(nation_id)
-	print(defcon)
+	logging.info(defcon)
 	embed2=	discord.Embed()
 	embed2.title='Defcon'
 	text=''
@@ -430,12 +562,11 @@ async def check_color(ctx):
 @commands.is_owner()
 @client.command()
 async def guilds(ctx):
-	guilds= await client.fetch_guilds().flatten()
 	embed=discord.Embed()
 	embed.title='Servers'
 	embed.description='The list of the alliances the bot is present in:'
 	counter=1
-	for guild in client.guilds:
+	async for guild in client.fetch_guilds(limit=150):
 		embed.add_field(name=f'{counter}.{guild.name}',value=f'Server ID:{guild.id}',inline=False)
 		counter=counter+1
 	await ctx.send(embed=embed)	
@@ -456,38 +587,26 @@ async def inactivity(ctx):
 		y=y+1
 	await ctx.send(embed=embed)	
 
-@client.command()
-async def loot(ctx,*,nation_id):
+@client.hybrid_command(name="loot",with_app_command=True,description="Amount of loot you would get from the target nation considering a raid war and pirate war policy")
+async def loot(ctx:commands.Context,*,nation_id:str):
 	nation_id=await nation_id_finder(ctx,nation_id)
-	connection=sqlite3.connect('politics and war.db')
-	cursor=connection.cursor()
-	cursor.execute(f'select * from loot_data where nation_id={nation_id}')
-	loot=cursor.fetchone()
-	cursor.close()
-	connection.close()
-	print(loot)
-	embed=discord.Embed()
-	embed.title=f'Loot info for {get_unregistered("nation",nation_id)}'
-	list_of_things_to_find=['Money','Coal','Oil','Uranium','Iron','Bauxite','Lead','Gasoline','Munitions','Steel','Aluminum','Food']
-	for x in range(0,len(list_of_things_to_find)):
-		embed.add_field(name=list_of_things_to_find[x],value=loot[x+3],inline=True)
-	today_date=datetime.now()
-	loss_date=datetime(int(loot[15][:4]),int(loot[15][5:7]),int(loot[15][8:10]),int(loot[15][11:13]),int(loot[15][14:16]),int(loot[15][17:19]))	
-	difference=today_date-loss_date
-	minutes,hours=0,0
-	seconds=int(str(difference.seconds))
-	if seconds>60:
-		minutes=int(seconds/60)
-		seconds=seconds-(minutes*60)
-		if minutes>60:
-			hours=int(minutes/60)
-			minutes=minutes-hours*60
-	add='war loss'
-	print(loot[0])
-	if loot[0]==None:
-		add='spy op'		
-	embed.set_footer(text=f'Based on {add} from {difference.days}d{hours}h{minutes}m{seconds}s ago')	
-	await ctx.send(embed=embed)	
+	result = await loot_calculator(nation_id)	
+	if result!=None:
+		logging.info(result)
+		embed=discord.Embed()
+		embed.title=f'Loot info for {get_unregistered("nation",nation_id)}'
+		list_of_things_to_find=['Money','Food','Coal','Oil','Uranium','Lead','Iron','Bauxite','Gasoline','Munitions','Steel','Aluminum']
+		for x in range(0,len(list_of_things_to_find)):
+			embed.add_field(name=list_of_things_to_find[x],value='{:,}'.format(int(result[1][x+2]*0.14)),inline=True)
+		embed.add_field(name="Total monetary value",value=f'${result[0]:,}',inline=True)	
+		time_diff = nation_data_converter.time_converter(datetime.strptime(result[1][-1],"%Y-%m-%dT%H:%M:%S"))	
+		add='war loss'
+		if result[1][0]==0:
+			add='spy op'		
+		embed.set_footer(text=f'Based on {add} from {time_diff}\nAssuming raid war and pirate war policy')	
+		await ctx.send(embed=embed)
+	else:
+		await ctx.send("No recent spy or war loss data found")		
 
 @client.command()
 async def nation(ctx):
@@ -525,146 +644,89 @@ class RaidFlags(commands.FlagConverter,prefix='-'):
 	alliances: str = '0'
 	beige: bool = True
 	beige_turns: int = 216
+	result: str = 'embed'
 
-@client.command()
-async def raid(ctx, *,flags:RaidFlags):
-	results=check_subscriptions(ctx.guild.id,'raid')
-	print(flags.alliances)
-	if results!=None:
-		today_date=datetime.now().replace(microsecond=0)
-		today_date_obj=time.strptime(str(today_date),"%Y-%m-%d %H:%M:%S")
-		end_date=time.strptime(results[2],"%Y-%m-%d %H:%M:%S")
-		if end_date>today_date_obj:
-			score=nation_data_converter.get('score',ctx.author.id)
-			page1=discord.Embed()
-			if score!=None:
-				flags.alliances=flags.alliances.split(',')
-				print(flags.alliances)
-				if flags.beige:
-					flags.beige_turns=f'and beige_turns<{flags.beige_turns}'
-				else:
-					flags.beige_turns=''			
-				flags.beige='' if flags.beige==True else 'and color<>0'
-				if flags.alliances=='0' and flags.all_nations==False:
-					flags.alliances='and alliance_id=0'	
-				elif flags.all_nations==False:
-					flags.alliances.append('0')
-					flags.alliances=tuple(flags.alliances)
-					flags.alliances=f'and alliance_id in {flags.alliances}'
-				else:
-					flags.alliances=''		
-				war_range=score-score*25/100,score+score*75/100
-				list_of_targets=await targets(war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns)
-				page1.title='Targets'
-				x=0
-				while x<len(list_of_targets) and x<3:
-					loot=(list_of_targets[x][1])
-					loot='{:,}'.format(loot)
-					loot='Loot:' + loot
-					page1.add_field(name=f'{x+1}.https://politicsandwar.com/nation/id={(list_of_targets[x][0])}',value=f'{loot}',inline=False)
-					page1.add_field(name='Alliance',value=list_of_targets[x][2],inline=True)
-					if list_of_targets[x][3]!=0:
-						page1.add_field(name='Beige',value=f'{list_of_targets[x][3]} turns',inline=True)	
-					page1.add_field(name='Soldiers',value=list_of_targets[x][4],inline=True)
-					page1.add_field(name='Tanks',value=list_of_targets[x][5],inline=True)
-					page1.add_field(name='Aircrafts',value=list_of_targets[x][6],inline=True)
-					page1.add_field(name='Ships',value=list_of_targets[x][7],inline=True)
-					page1.add_field(name='Last bank deposit',value=today_date-datetime.strptime(list_of_targets[x][8],"%Y-%m-%dT%H:%M:%S"),inline=True)
-					x=x+1
-				pass	
-				if len(list_of_targets)>x:
-					page2=discord.Embed()
-					embeds=[page1,page2]
-					page2.title='Targets'	
-					while x<len(list_of_targets) and x<6:
-						loot=(list_of_targets[x][1])
-						loot='{:,}'.format(loot)
-						loot='Loot:' + loot
-						page2.add_field(name=f'{x+1}.https://politicsandwar.com/nation/id={(list_of_targets[x][0])}',value=f'{loot}',inline=False)
-						page2.add_field(name='Alliance',value=list_of_targets[x][2],inline=True)
-						if list_of_targets[x][3]!=0:
-							page2.add_field(name='Beige',value=f'{list_of_targets[x][3]} turns',inline=True)				
-						page2.add_field(name='Soldiers',value=list_of_targets[x][4],inline=True)
-						page2.add_field(name='Tanks',value=list_of_targets[x][5],inline=True)
-						page2.add_field(name='Aircrafts',value=list_of_targets[x][6],inline=True)
-						page2.add_field(name='Ships',value=list_of_targets[x][7],inline=True)
-						page2.add_field(name='Last bank deposit',value=today_date-datetime.strptime(list_of_targets[x][8],"%Y-%m-%dT%H:%M:%S"),inline=True)		
-						x=x+1
-					if len(list_of_targets)>x:
-						page3=discord.Embed()
-						embeds=[page1,page2,page3]
-						page3.title='Targets'
-						while x<len(list_of_targets) and x<9:	
-							loot=(list_of_targets[x][1])
-							loot='{:,}'.format(loot)
-							loot='Loot:' + loot
-							page3.add_field(name=f'{x+1}.https://politicsandwar.com/nation/id={(list_of_targets[x][0])}',value=f'{loot}',inline=False)
-							page3.add_field(name='Alliance',value=list_of_targets[x][2],inline=True)
-							if list_of_targets[x][3]!=0:
-								page3.add_field(name='Beige',value=f'{list_of_targets[x][3]} turns',inline=True)				
-							page3.add_field(name='Soldiers',value=list_of_targets[x][4],inline=True)
-							page3.add_field(name='Tanks',value=list_of_targets[x][5],inline=True)
-							page3.add_field(name='Aircrafts',value=list_of_targets[x][6],inline=True)
-							page3.add_field(name='Ships',value=list_of_targets[x][7],inline=True)
-							page3.add_field(name='Last bank deposit',value=today_date-datetime.strptime(list_of_targets[x][8],"%Y-%m-%dT%H:%M:%S"),inline=True)
-							x=x+1
-							page3.set_footer(text='Page 3/3')
-					page2.set_footer(text=f'Page 2/{len(embeds)}')	
-					page1.set_footer(text=f'Page 1/{len(embeds)}')	
-					paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
-					paginator.add_reaction('⏮️', "back")
-					paginator.add_reaction('⏹️', "lock")
-					paginator.add_reaction('⏭️', "next")
-					await paginator.run(embeds)
-				else:
-						page1.set_footer(text='Page 1/1')
-						if len(list_of_targets)==0:
-							page1.description='Looks like there are no targets in your range, try out other filters to see if you can get any targets.\nFor more info on filters use ;help raid'
-						await ctx.send(embed=page1)
-			else:
-				page1.title='Register'
-				page1.description='Usage : `;register <nation id|nation link>`'
-				await ctx.send(content="You must be registered to use this command",embed=page1)	
+@client.hybrid_command(name="raid",with_app_command=True,description="Finds the best raiding targets")
+async def raid(ctx:commands.Context, *,flags:RaidFlags):
+
+	logging.info(flags.alliances)
+	score= await nation_data_converter.get('score',ctx.author.id)
+	logging.info(score)
+	page1=discord.Embed()
+	if score!=None:
+		flags.alliances=flags.alliances.split(',')
+		logging.info(flags.alliances)
+		if flags.beige:
+			flags.beige_turns=f'and beige_turns<{flags.beige_turns}'
 		else:
-			await ctx.send('Your subscription has expired, please renew your subscription to keep using the bot')
-	else:
-		await ctx.send('Your server needs a subscription to use this feature')				
+			flags.beige_turns=''			
+		flags.beige='' if flags.beige==True else 'and color<>0'
+		if flags.alliances=='0' and flags.all_nations==False:
+			flags.alliances='and alliance_id=0'	
+		elif flags.all_nations==False:
+			flags.alliances.append('0')
+			flags.alliances=tuple(flags.alliances)
+			flags.alliances=f'and alliance_id in {flags.alliances}'
+		else:
+			flags.alliances=''		
+		war_range=score*0.75,score*2.5
+		if flags.result =="embed":
+			list_of_targets=await targets(war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns,result_size=9)
+			async def get_page(page: int):
+				L=3
+				emb = discord.Embed(title="Targets", description="")
+				offset = (page-1) * L
+				i=1
+				for target in list_of_targets[offset:offset+L]:
+					loot = f"Loot: ${target[1]:,}"
+					emb.add_field(name=f'{i}. https://politicsandwar.com/nation/id={(target[0])}',value=f'{loot}',inline=False)
+					emb.add_field(name='Alliance',value=target[4],inline=True)
+					if target[3]!=0:
+						emb.add_field(name='Beige',value=f'{target[6]} turns',inline=True)	
+					emb.add_field(name='Soldiers',value=target[7],inline=True)
+					emb.add_field(name='Tanks',value=target[8],inline=True)
+					emb.add_field(name='Aircrafts',value=target[9],inline=True)
+					emb.add_field(name='Ships',value=target[10],inline=True)
+					emb.add_field(name='Last bank deposit',value=nation_data_converter.time_converter(datetime.strptime(target[12],"%Y-%m-%dT%H:%M:%S")),inline=True)
+					i+=1
+				emb.set_author(name=f"Requested by {ctx.author}")
+				n = Pagination.compute_total_pages(len(list_of_targets), L)
+				emb.set_footer(text=f"Page {page} from {n}")
+				return emb, n
 
-@client.command()
+			await Pagination(ctx.interaction, get_page).navigate()
+		elif flags.result=='sheets':
+			if ctx.interaction:
+				await ctx.interaction.response.defer(thinking='Calculating')
+			list_of_targets=await targets(war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns)
+			for i in range(len(list_of_targets)):
+				recreate_target = [f'=HYPERLINK("https://politicsandwar.com/nation/id={list_of_targets[i][0]}","{list_of_targets[i][3]}")',f"${list_of_targets[i][1]:,}",nation_data_converter.time_converter(datetime.strptime(list_of_targets[i][2],"%Y-%m-%dT%H:%M:%S"))]
+				recreate_target.extend(list_of_targets[i][4:11])
+				recreate_target.append(nation_data_converter.time_converter(datetime.strptime(list_of_targets[i][11],"%Y-%m-%d %H:%M:%S")))
+				recreate_target.append(nation_data_converter.time_converter(datetime.strptime(list_of_targets[i][12],"%Y-%m-%dT%H:%M:%S")))
+				list_of_targets[i] = recreate_target
+			list_of_targets.insert(0,['Nation','Loot','War loss date','Alliance','Cities','Beige Turns','Soldiers','Tanks','Aircrafts','Ships','Last Active','Last Bank Deposit'])
+			sheetID=sheets.create('Raid Targets',[{"properties":{"sheetId":0,'title':'Targets'}}])
+			sheets.write_ranges(sheetID,f'Targets!A1:L{len(list_of_targets)}',list_of_targets)
+			if ctx.interaction:
+				await ctx.interaction.followup.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
+			else:	
+				await ctx.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
+		
+	else:
+		page1.title='Register'
+		page1.description='Usage : `;register <nation id|nation link>`'
+		await ctx.send(content="You must be registered to use this command",embed=page1)	
+			
+
+@client.hybrid_command(name="register",with_app_command=True,description="Finds the best raiding targets")
 async def register(ctx,link):
 	if link.startswith('http'):
 		nation_id=int(link[37:])
 	else:
 		nation_id=link
 	update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
-	await ctx.send("Successfully registered")
-		
-@client.command()
-async def set_build(ctx,*,values):
-	alliance_id=get('alliance_id',ctx.author.id)
-	values=eval(values)
-	min_infra=values['infra_needed']
-	for x in ['infra_needed','imp_total','imp_barracks','imp_factory','imp_hangars','imp_drydock']:
-		values.pop(x)
-	values=str(values)
-	connection=sqlite3.connect('politics and war.db')
-	value_to_insert='insert into build values(%s,%s,"%s") on conflict(alliance_id,min_infra) do update set build_details="%s"'	% (alliance_id,min_infra,values,values)
-	connection.execute(value_to_insert)
-	connection.commit()
-	connection.close()
-	await ctx.send(f'Build stored for minimum infra {min_infra}')
-
-@client.command()
-async def set_defcon(ctx,values):
-	alliance_id=get('alliance_id',ctx.author.id)
-	connection=sqlite3.connect('politics and war.db')
-	cursor=connection.cursor()
-	value_to_insert="insert into defcon values (%s,%s,%s,%s,%s) on conflict(alliance_id) do update set barracks=%s,factory=%s,hangar=%s,drydock=%s" % (alliance_id,values[:1],values[2:3],values[4:5],values[6:7],values[:1],values[2:3],values[4:5],values[6:7])
-	cursor.execute(value_to_insert)
-	connection.commit()
-	cursor.close()
-	connection.close()
-	await ctx.send(f'Defcon for {get("alliance",ctx.author.id)} has been updated')
+	await ctx.send("Successfully registered")		
 
 @commands.is_owner()	
 @client.command()
@@ -824,20 +886,20 @@ async def copy_db(ctx):
 	drive_service = build('drive', 'v3', credentials=credentials)
 	results = drive_service.files().list(pageSize=100, fields="files(id, name)").execute() 
 	items = results.get('files', [])
-	print("Here's a list of files: \n") 
-	print(*items, sep="\n", end="\n\n")
+	logging.info("Here's a list of files: \n") 
+	logging.info(*items, sep="\n", end="\n\n")
 	for files in items:
-		if files['name']=='politics and war.db':
+		if files['name']=='pnw.db':
 			f = drive_service.files().delete(fileId=files['id']).execute()
 		f = None 
-	file_metadata = {"name": "politics and war.db"}
-	media = MediaFileUpload("politics and war.db", mimetype="application/x-sqlite3")
+	file_metadata = {"name": "pnw.db"}
+	media = MediaFileUpload("pnw.db", mimetype="application/x-sqlite3")
 	file = (
         drive_service.files()
         .create(body=file_metadata, media_body=media, fields="id")
         .execute()
     )
-	print(f'File ID: {file.get("id")}')		
+	logging.info(f'File ID: {file.get("id")}')		
 	drive_service.close()
 	await ctx.send('File has been uploaded')		
 
@@ -850,6 +912,385 @@ async def war_vis(interaction: discord.Interaction, allies:str,enemies:str):
 	asyncio.create_task(war_stats.war_vis_sheet(allies,enemies,sheets,sheetID))
 	await interaction.followup.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
 
+@client.hybrid_command(name='ground', with_app_command=True,description="Simulate a ground attack")
+async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldiers:int,def_tanks:int,att_use_munitions:bool= True,def_use_munitions:bool= True):
+	att_soldiers_multiplier=1.75 if att_use_munitions else 1
+	def_soldiers_multiplier=1.75 if def_use_munitions else 1
+	size=(10000,3)
+	atsr = np.random.randint(0.4*att_soldiers*att_soldiers_multiplier,(att_soldiers+1)*att_soldiers_multiplier,size=size)
+	attr = np.random.randint(0.4*att_tanks*40,(att_tanks+1)*40,size=size)
+
+	dfsr = np.random.randint(0.4*def_soldiers*def_soldiers_multiplier,(def_soldiers+1)*def_soldiers_multiplier,size=size)
+	dftr = np.random.randint(0.4*def_tanks*40,(def_tanks+1)*40,size=size)
+
+	att_army_value=atsr+attr
+	def_army_value=dfsr+dftr
+	outcomes=np.greater(att_army_value,def_army_value)
+
+	ats_causalities=np.round(np.average(np.sum(dfsr*0.0084+dftr*0.0092,axis=1)),2)
+	dfs_causalities=np.round(np.average(np.sum(atsr*0.0084+attr*0.0092,axis=1)),2)
+
+	att_causalities=np.round(np.average(np.sum(np.where(outcomes,dfsr*0.0004060606+dftr*0.00066666666,dfsr*0.00043225806+dftr*0.00070967741),axis=1)),2)
+	dft_causalities=np.round(np.average(np.sum(np.where(outcomes,atsr*0.00043225806+attr*0.00070967741,atsr*0.0004060606+attr*0.00066666666),axis=1)),2)
+	
+	att_soldiers_modified = att_soldiers ** (3/4)
+	att_tanks_modified = att_tanks ** (3/4)
+	def_soldiers_modified = def_soldiers ** (3/4)
+	def_tanks_modified = def_tanks ** (3/4)
+
+	atsr = np.random.randint(int(0.4 * att_soldiers_modified * att_soldiers_multiplier), int((att_soldiers_modified + 1) * att_soldiers_multiplier), size=size)
+	attr = np.random.randint(int(0.4 * att_tanks_modified * 40), int((att_tanks_modified + 1) * 40), size=size)
+
+	dfsr = np.random.randint(int(0.4 * def_soldiers_modified * def_soldiers_multiplier), int((def_soldiers_modified + 1) * def_soldiers_multiplier), size=size)
+	dftr = np.random.randint(int(0.4 * def_tanks_modified * 40), int((def_tanks_modified + 1) * 40), size=size)
+
+	att_army_value = atsr + attr
+	def_army_value = dfsr + dftr
+
+	win_outcomes=np.greater(att_army_value,def_army_value)
+	wins = np.round(np.bincount(np.sum(win_outcomes,axis=1))/size[0]*100,2)
+	
+	await ctx.send(f"""**Simulating {att_soldiers:,} soldiers and {att_tanks:,} tanks vs {def_soldiers:,} soldiers and {def_tanks:,} tanks:**
+```Immense triumph: {wins[3]}%\nModerate Victory: {wins[2]}%\nPyrrhic Victory: {wins[1]}%\nUtter Failure: {wins[0]}%```
+**Casualties:**
+```Attacker:\n\t-{ats_causalities:,} soldiers\n\t-{att_causalities:,} tanks \n\nDefender:\n\t-{dfs_causalities:,} soldiers\n\t-{dft_causalities:,} tanks```""")
+	
+@client.hybrid_command(name='air',with_app_command=True,description='Simulate a air attack')
+async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,*,options:str =None):
+	options = options.split(' ')
+	size=(10000,3)
+	att_roll = np.random.randint(0.4*att_aircraft*3,(att_aircraft+1)*3,size=size)
+	def_roll = np.random.randint(0.4*def_aircraft*3,(def_aircraft+1)*3,size=size)
+	max_num = 1000000
+	def_troops_casualties = None
+	logging.info(options)
+	if "-soldiers" in options:
+		att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
+		def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
+		def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+1000),((att_roll/3-def_roll/3)*0.5)*35*np.random.uniform(0.85,1.05,size=size)]),0)
+		def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
+
+	elif "-tanks" in options:
+		att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
+		def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
+		def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+10),((att_roll/3-def_roll/3)*0.5)*1.25*np.random.uniform(0.85,1.05,size=size)]),0)
+		def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
+
+	elif "-ships" in options:
+		att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
+		def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
+		def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+4),((att_roll/3-def_roll/3)*0.5)*0.0285*np.random.uniform(0.85,1.05,size=size)]),0)
+		def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
+
+	else:
+		att_casualties=np.round(np.average(np.sum(def_roll*0.01,axis=1)),2)
+		def_casualties=np.round(np.average(np.sum(att_roll*0.018337,axis=1)),2)
+
+
+	if "-b" in options:
+		def_casualties = def_casualties*1.1
+	
+	if "-f" in options:
+		att_casualties = att_casualties*1.25
+
+	wins = simulate_war(att_aircraft,def_aircraft,3)
+	
+	result = f"""**Simulating {att_aircraft:,} planes vs {def_aircraft:,} planes:**
+```Immense triumph: {wins[3]}%\nModerate Victory: {wins[2]}%\nPyrrhic Victory: {wins[1]}%\nUtter Failure: {wins[0]}%```
+**Casualties:** 
+```Attacker:\n\t-{att_casualties:,} planes\n\nDefender:\n\t-{def_casualties:,} planes"""
+	if options not in [None,'-b','-f']:
+		result = f"{result}\n\t-{def_troops_casualties} {options.strip('-')}```"
+	else:
+		result =f"{result}```"	
+	await ctx.send(result)
+
+@air.autocomplete('options')
+async def air_autocomplete(interaction:discord.Interaction,current_val:str) -> typing.List[discord.app_commands.Choice[str]]:
+	options = ['-soldiers ','-tanks ','-ships ','-b ','-f ']
+	if current_val.lower() not in options:
+		return [
+			discord.app_commands.Choice(name=option, value=option)
+			for option in options if current_val.lower() in option.lower()
+		]
+	else:
+		options.remove(current_val)
+		return [
+			discord.app_commands.Choice(name=option, value=option)
+			for option in options if current_val.lower() in option.lower()
+		]
+
+@client.hybrid_command(name='naval',with_app_command=True,description='Simulate a naval battle')
+async def naval(ctx: commands.Context,att_ships:int,def_ships:int,*,modifiers:typing.Optional[typing.Literal['-b','-f']]):
+	att_casualties,def_casualties = simulate_casualities(att_ships,def_ships,4)
+	wins = simulate_war(att_ships,def_ships,4)
+	modifiers = modifiers.split(' ')
+	if "-b" in modifiers:
+		def_casualties = def_casualties*1.1
+	
+	if "-f" in modifiers:
+		att_casualties = att_casualties*1.25
+
+	await ctx.send(f"""**Simulating {att_ships:,} ships vs {def_ships:,} ships:**
+```Immense triumph: {wins[3]}%\nModerate Victory: {wins[2]}%\nPyrrhic Victory: {wins[1]}%\nUtter Failure: {wins[0]}%```
+**Casualties:**
+```Attacker:\n\t{att_casualties:,} ships\n\nDefender:\n\t{def_casualties:,} ships```""")			
+
+@client.hybrid_command(name='pricehistory',with_app_command=True,description='Price history of the resource')
+async def pricehistory(ctx:commands.Context,resource:str,days:int):
+	query=f"{{tradeprices(first:{days}){{data{{date {resource}}}}}}}"
+	async with httpx.AsyncClient() as client:
+		fetchdata=await client.post(graphql_link,json={'query':query})
+		fetchdata=fetchdata.json()['data']['tradeprices']['data']
+		fetchdata.reverse()
+		date=[datetime.strptime(x['date'],'%Y-%m-%d') for x in fetchdata]
+		price=[x[f'{resource}'] for x in fetchdata]
+        
+		plt.figure(figsize=(8,7))
+		plt.plot(date,price)
+		plt.title(f'Price history of {resource}')
+		plt.xticks(rotation=45)
+		plt.savefig("test.png")
+		plt.close()
+		image = discord.File("test.png")
+		await ctx.send(file=image)
+
+@client.hybrid_command(name='fastbeige',with_app_command=True,description='Fastest attack pattern to reach beige')
+async def fastbeige(ctx:commands.Context,resistance:commands.Range[int, 1,100],*,params:typing.Optional[str]):
+	text = await beige_calculator(params,resistance,reverse=False)
+	await ctx.send(f"```js\n{text}```")
+
+@client.hybrid_command(name='slowbeige',with_app_command=True,description='Slowest attack pattern to reach beige')
+async def slowbeige(ctx:commands.Context,resistance:commands.Range[int, 1,100],*,params:typing.Optional[str]):		
+	text = await beige_calculator(params,resistance,reverse=True)
+	await ctx.send(f"```js\n{text}```")
+
+@client.hybrid_command(name='spyopval',with_app_command=True,description='Amount that can be looted from the target')
+async def spyopval(ctx:commands.Context, *,message:str):
+	x=re.match("You successfully gathered intelligence about [A-Za-z]+[A-z a-z]*. Your spies discovered that [A-z a-z]+ has [\w $'-.]{26,}. Your agents were [\w '-]{26,}. The operation cost you [$,.0-9]{2,} and [0-9]+ of your spies were captured and executed.",message)
+
+	logging.info(message,bool(x))
+	if bool(x):
+		full_stop=message.find('.')
+		nation=(message)[45:full_stop]
+		logging.info(nation)
+		nation_id=get_unregistered('nation_id',nation,'nation')
+		if nation_id!=None and (message.count(nation)==2 or message.count(nation)==3):
+			find_stuffs_orig = ['food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum']
+			actual_loot,prices = await loot_from_text(message,2)    
+			logging.info(actual_loot)
+			text=', '.join(actual_loot)
+			conflict_text=', '.join(f"{find_stuffs_orig[x]}={actual_loot[x+1]}" for x in range(len(find_stuffs_orig)))
+			now_time = str(datetime.now().replace(microsecond=0)).replace(' ','T')
+			async with aiosqlite.connect('pnw.db') as db:
+				await db.execute(f"insert into loot_data values (0,{nation_id},{text},'{now_time}') on conflict (nation_id) do update set war_id=0,money={actual_loot[0]},{conflict_text},war_end_date='{now_time}'")
+				await db.commit()
+			actual_loot=[str(int(0.14*float(x))) for x in actual_loot]
+			loot_worth=int(actual_loot[0])
+			for x in range(0,len(prices)):
+				loot_worth= loot_worth+(int(actual_loot[x+1])*prices[x])
+			await ctx.send(f'You can loot worth **${loot_worth:,}** assuming raid war type and pirate war policy.')
+	else:
+		await ctx.send("Please copy the result completely and run the command again.")		
+
+@client.hybrid_command(name='banklootval',with_app_command=True,description='Estimated bank resources based on the beige')
+async def banklootval(ctx:commands.Context,*,message:str):
+	x = re.match("[A-Za-z]+[A-z a-z]* looted [0-9 .]{4,}% of [A-Za-z]+[A-z a-z]*'s alliance bank, taking: [\w $'-.]{26,}",message)
+    
+	if bool(x):
+		actual_loot,prices = await loot_from_text(message,1) 
+		percentage = re.findall('[0-9 .]{4,}%',message)[0][:-1]
+		total_loot = [(int(loot)*100/float(percentage)) for loot in actual_loot]
+		beige_worth = int(actual_loot[0])
+		for x in range(0,len(prices)):
+			beige_worth= beige_worth+(int(actual_loot[x+1])*prices[x])
+		bank_worth = total_loot[0]
+		for x in range(0,len(prices)):
+			bank_worth= bank_worth+(int(total_loot[x+1])*prices[x])	
+		await ctx.send(f'The beige was worth **${beige_worth:,}**. As {percentage}% of the bank was looted, the total estimated bank value is **${bank_worth:,}**')	
+	else:
+		await ctx.send("Please copy the result completely and run the command again.")	
+
+@client.hybrid_command(name='lootval',with_app_command=True,description='Beige worth based on beige text provided')
+async def lootval(ctx:commands.Context,*,message:str):
+	x = re.match("[A-Za-z]+[A-z a-z]* crushed [A-Za-z]+[A-z a-z]*'s resistance to 0, resulting in their immediate surrender. [A-Za-z]+[A-z a-z]* looted [\w $'-.]{26,}",message)
+	y = re.match("You have defeated your opponent by decreasing their Resistance to 0! You looted [\w $'-.]{26,}",message)
+	if bool(x) or bool(y):
+		actual_loot,prices = await loot_from_text(message,1) 
+		beige_worth = float(actual_loot[0])
+		for x in range(0,len(prices)):
+			beige_worth= beige_worth+(float(actual_loot[x+1])*prices[x])
+		await ctx.send(f'The beige was worth **${beige_worth:,}**.')	
+	else:
+		await ctx.send("Please copy the result completely and run the command again.")
+	
+@client.hybrid_command(name='beigealerts',with_app_command=True,description='Alerts about the targets leaving beige')
+async def beigealerts(ctx:commands.Context,city_range:str,alliance_id:typing.Optional[str]):
+	channel = ctx.channel
+	logging.info(channel.id)
+	if alliance_id == None:
+		alliance_search = ''
+	else:
+		alliance_id = tuple(alliance_id.split(','))
+		alliance_search = f"and alliance_id in {alliance_id}" if len(alliance_id)>1 else f"alliance_id = {alliance_id[0]}"
+    
+	city_range = city_range.split('-')
+	city_text = f"and cities>{city_range[0]} and cities<{city_range[1]}"
+
+	async with aiosqlite.connect('pnw.db') as db:
+		db.row_factory = lambda cursor,row: list(row)
+		async with db.execute(f'select nation_id,beige_turns from all_nations_data where vmode=0 and defensive_wars<>3 and color=0 {city_text} {alliance_search}') as cursor:
+			beige_nations = await cursor.fetchall()
+		[nations.append(channel.id) for nations in beige_nations]
+		await db.executemany("insert into beige_alerts values (?,?,?)",beige_nations)
+		await db.commit()
+	await ctx.send(f"Alerts have been registered for {len(beige_nations)} nations with cities {city_range[0]}-{city_range[1]}.")
+	logging.info(beige_nations)			
+	updater.update_nation_data.change_interval(minutes=2.5)
+	logging.info("test")
+	check_for_beigealerts.start()
+
+@tasks.loop(minutes=2.5)
+async def check_for_beigealerts():
+	now_time = datetime.now(timezone.utc).time()
+	logging.info(now_time)
+	async with aiosqlite.connect("pnw.db") as db:
+		if now_time.hour%2==1 and now_time.minute>=51 and (now_time.minute+now_time.second/60)<53.5:
+			logging.info("we are inside")
+			await db.execute(f"UPDATE beige_alerts SET beige_turns = beige_turns-1")
+			await db.commit()
+		async with db.execute("select beige_alerts.nation_id, all_nations_data.beige_turns, beige_alerts.beige_turns, beige_alerts.channel_id, all_nations_data.nation, all_nations_data.alliance, all_nations_data.alliance_id, all_nations_data.score, all_nations_data.cities, all_nations_data.last_active, all_nations_data.soldiers, all_nations_data.tanks, all_nations_data.aircraft, all_nations_data.ships from beige_alerts inner join all_nations_data on  all_nations_data.nation_id = beige_alerts.nation_id") as cursor:
+			beige_data = await cursor.fetchall()	
+		if beige_data !=[]:
+			channel = client.get_channel(beige_data[0][3])
+			for data in beige_data:
+
+				if data[1] ==0 or data[2]==0:
+					channel = client.get_channel(data[3])
+					
+					embed = discord.Embed()
+					embed.title = f"Target: {data[4]}"
+					result = await loot_calculator(data[0])
+					if result!= None:
+						embed.description = f"Total loot: ${result[0]:,.2f}"
+					else:
+						embed.description = "No loot info for this nation"
+
+					embed.add_field(name="Nation info",
+					 				value=f"Target: [{data[4]}](https://politicsandwar.com/nation/war/declare/id={data[0]})\n"
+										f"Alliance: [{data[5]}](https://politicsandwar.com/alliance/id={data[6]})\n"
+										"```js\n"
+										f"War Range: {data[7]*0.75:,.2f}-{data[7]*2.5:,.2f} " 
+										f" Cities: {data[8]} \n"
+										f"Last Active: {nation_data_converter.time_converter(datetime.strptime(data[9],'%Y-%m-%d %H:%M:%S'))}```",
+										inline=False)
+					embed.add_field(name="Military info",
+									value=f"```js\n"
+										f"Soldiers: {data[10]:<8,}"
+										f"Tanks: {data[11]:<8,}\n"
+										f"Aircraft: {data[12]:<8,}"
+										f"Ships: {data[13]:<8,}```",
+										inline=False)	
+					await channel.send(embed=embed)
+					if data[2]>0:
+						await channel.send("This nation came out of beige prematurely.")
+								
+					await db.execute(f'delete from beige_alerts where nation_id={data[0]}')
+	
+		else:
+			updater.update_nation_data.change_interval(minutes=5)
+			check_for_beigealerts.stop()			
+		await db.commit()				
+
+@client.hybrid_command(name="war",with_app_command=True,description="Finds the highest infra targets")
+async def war(ctx:commands.Context, *,flags:RaidFlags):
+	score= await nation_data_converter.get('score',ctx.author.id)
+	if score!=None:
+		if ctx. interaction:
+			await ctx.interaction.response.defer(thinking='Calculating')
+		war_range = score*0.75,score*2.5
+		page_query =f"""{{nations(min_score:{war_range[0]},max_score:{war_range[1]},vmode:false,first:500){{
+		paginatorInfo{{
+			lastPage
+			total
+		}}
+			data{{
+		id
+		nation_name
+		alliance_id
+		alliance{{
+			name
+		}}
+		num_cities
+		cities{{
+			infrastructure
+		}}    
+		soldiers
+		tanks
+		aircraft
+		ships
+		}}
+		}} }}"""
+		results=[]
+		async with httpx.AsyncClient() as client:
+			fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':page_query})
+			fetchdata =fetchdata.json()['data']['nations']
+			results.extend(fetchdata['data'])
+			page_size = fetchdata['paginatorInfo']['lastPage']
+			if page_size>1:
+				for x in range(2,page_size+1):
+					query =f"""{{nations(min_score:{war_range[0]},max_score:{war_range[1]},vmode:false,page:{x},first:500){{
+							data{{
+							id
+							nation_name
+							alliance_id
+							alliance{{
+							name
+							}}
+							num_cities
+							cities{{
+							infrastructure
+							}}
+							soldiers
+							tanks
+							aircraft
+							ships
+						}}
+							}} }}"""
+					fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+					results.extend(fetchdata.json()['data']['nations']['data'])
+		sheets_data = []
+		for nations in results:
+			nation_link = f'=HYPERLINK("https://politicsandwar.com/nation/id={nations["id"]}","{nations["nation_name"]}")'
+			if nations['alliance_id']!='0':
+				alliance_link = f'=HYPERLINK("https://politicsandwar.com/nation/id={nations["alliance_id"]}","{nations["alliance"]["name"]}")'
+			else:
+				alliance_link = 'None'
+			infra = [city['infrastructure'] for city in nations['cities']]    
+			avg_infra = sum(infra)/len(infra)
+			max_infra = max(infra)
+			sheets_data.append([nation_link,alliance_link,nations['num_cities'],max_infra,avg_infra,nations['soldiers'],nations['tanks'],nations['aircraft'],nations['ships']])
+		sheets_data.sort(key=lambda x:x[3],reverse=True)
+		sheets_data.insert(0,['Nation','Alliance','Cities','Max Infra','Average Infra','Soldiers','Tanks','Aircrafts','Ships'])    
+		sheetID=sheets.create('War Targets',[{"properties":{"sheetId":0,'title':'Targets'}}])
+		sheets.write_ranges(sheetID,f'Targets!A1:I{len(sheets_data)}',sheets_data)
+		if ctx.interaction:
+			await ctx.interaction.followup.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
+		else:
+			await ctx.send(f"https://docs.google.com/spreadsheets/d/{sheetID}")	
+	else:
+		emb = discord.Embed()
+		emb.title='Register'
+		emb.description='Usage : `;register <nation id|nation link>`'
+		await ctx.send(content="You must be registered to use this command",embed=emb)
+
+@commands.is_owner()
+@client.command()
+async def leave(ctx,guild_id):
+	guild = await client.fetch_guild(guild_id)
+	await ctx.send(f"{guild} found")
+	await guild.leave()
+	await ctx.send(f"Left the guild {guild.name}")
 
 @commands.is_owner()
 @client.command()
@@ -857,4 +1298,5 @@ async def sync_slash(ctx):
 	await client.tree.sync()
 	await ctx.send('slash commands updated')
 
-client.run(os.environ['DISCORD_TOKEN'])		
+
+client.run(os.getenv('DISCORD_TOKEN'))		
