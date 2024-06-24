@@ -16,7 +16,7 @@ import pnwkit
 from dotenv import load_dotenv
 
 #logging.getLogger("httpx").setLevel(logging.WARNING)
-logging.basicConfig(level=logging.INFO) #filename='log.txt',	
+logging.basicConfig(filename='log.txt',level=logging.INFO) #	
 aiosqlite.threadsafety=1
 load_dotenv()
 
@@ -100,7 +100,7 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=Non
 	final_list=final_list[:result_size]
 	logging.info(final_list)
 	deposit_data_list=await last_bank_rec([[x[0],x[3]] for x in final_list])
-	print(deposit_data_list)
+	logging.info(deposit_data_list)
 	for x in range(len(final_list)):
 		final_list[x].append(deposit_data_list[x])
 	logging.info(final_list)
@@ -125,7 +125,7 @@ async def last_bank_rec(nation_list):
 		results.append(fetchdata.json()['data'])	
 	fetchdata= {key:values for d in results for key,values in d.items()}
 	logging.info(fetchdata)
-	print(fetchdata)
+	logging.info(fetchdata)
 	bankdata=[]	
 	for i in range(len(fetchdata)):	
 		nation_data = fetchdata[re.sub("[- 0-9]","_",nation_list[i][1])]['data']
