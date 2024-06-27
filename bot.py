@@ -472,7 +472,7 @@ async def setup_hook():
 	for view in views:
 		guild = await client.fetch_guild(view[0])
 		role =  guild.get_role(view[1])	
-		client.add_view(MyPersistentView(role),message_id= view[3])
+		client.add_view(MyPersistentView(role),message_id= view[2])
 	
 
 graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'

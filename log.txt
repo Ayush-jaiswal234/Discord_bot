@@ -4625,3 +4625,5 @@ INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819
 INFO:root:Time loot=4.06726336479187
 INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
 INFO:root:Time nation=12.17131519317627
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token

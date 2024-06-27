@@ -6,6 +6,7 @@ import httpx
 
 async def check_the_rss(subscribe_data):
     subscribe_data = subscribe_data.to_dict()
+    print(subscribe_data)
     if subscribe_data['buy_or_sell']=='sell' and subscribe_data['accepted']==0:
         profit = (result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']-subscribe_data['price'])*subscribe_data['offer_amount']
         condition1 = profit>=500000
