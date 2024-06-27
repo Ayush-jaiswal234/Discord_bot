@@ -4503,3 +4503,5 @@ INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819
 INFO:root:Time loot=5.89750075340271
 INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
 INFO:root:Time nation=12.614389419555664
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=4.010185480117798
