@@ -21,10 +21,10 @@ Last Buy price: ${result[f'{subscribe_data["offer_resource"]}']['best_buy_offer'
             print(subscribe_data["id"])
             check_if_bought = await kit.subscribe("trade","update",{"original_trade_id":subscribe_data["id"],"id":subscribe_data["id"]},check_bought) 
             check_if_deleted = await kit.subscribe("trade","delete",{"id":subscribe_data["id"]},check_delete)
-            print(check_if_bought,check_if_deleted)
-            if check_if_bought or check_if_deleted:
-                await check_if_bought.unsubscribe()
-                await check_if_deleted.unsubscribe()
+            #print(check_if_bought,check_if_deleted)
+            #if check_if_bought or check_if_deleted:
+            #    await check_if_bought.unsubscribe()
+            #    await check_if_deleted.unsubscribe()
 
 async def check_bought(bought_data):
     print(bought_data.to_dict())
