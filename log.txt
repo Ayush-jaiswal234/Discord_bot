@@ -4505,3 +4505,123 @@ INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fd
 INFO:root:Time nation=12.614389419555664
 INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
 INFO:root:Time loot=4.010185480117798
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=2.341688394546509
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=15.360085487365723
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=4.381293296813965
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=3.2702295780181885
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 117, 'coal': 3852, 'oil': 3692, 'uranium': 3183, 'lead': 3906, 'iron': 3820, 'bauxite': 3836, 'gasoline': 3139, 'munitions': 1785, 'steel': 3721, 'aluminum': 2443}
+INFO:root:insert into trade_prices values (117,3852,3692,3183,3906,3820,3836,3139,1785,3721,2443)
+INFO:root:Time trade=0.7187552452087402
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=2.8136167526245117
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=10.424188375473022
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=4.754027843475342
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=2.463974952697754
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.54097032546997
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=2.145782947540283
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=4.183568716049194
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=2.2302706241607666
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.725812196731567
+INFO:discord.gateway:Shard ID 0 has successfully RESUMED session 54cb014370568b124f2725792a5b8246.
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=2.4805424213409424
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=1.8738837242126465
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.339181900024414
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID 0 has connected to Gateway (Session ID: a5584146555463e43977c53f9bc892e6).
+INFO:root:Bot is ready
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 117, 'coal': 3854, 'oil': 3691, 'uranium': 3183, 'lead': 3907, 'iron': 3819, 'bauxite': 3836, 'gasoline': 3139, 'munitions': 1785, 'steel': 3720, 'aluminum': 2442}
+INFO:root:insert into trade_prices values (117,3854,3691,3183,3907,3819,3836,3139,1785,3720,2442)
+INFO:root:Time trade=0.899369478225708
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=5.204090118408203
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.658631801605225
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID 0 has connected to Gateway (Session ID: 1895f7ae259888a88046f3ed816421f7).
+INFO:root:Bot is ready
+ERROR:discord.ui.view:Ignoring exception in view <MyPersistentView timeout=None children=2> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Get Role' emoji=None row=None>
+Traceback (most recent call last):
+  File "c:\Old folders\discord_bot\.venv\Lib\site-packages\discord\ui\view.py", line 427, in _scheduled_task
+    await item.callback(interaction)
+  File "c:\Old folders\discord_bot\commands\role_view.py", line 11, in get_role_callback
+    await interaction.user.add_roles(self.role)
+  File "c:\Old folders\discord_bot\.venv\Lib\site-packages\discord\member.py", line 1051, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+                                 ^^^^^^^
+AttributeError: 'int' object has no attribute 'id'
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 117, 'coal': 3854, 'oil': 3691, 'uranium': 3183, 'lead': 3907, 'iron': 3819, 'bauxite': 3836, 'gasoline': 3139, 'munitions': 1785, 'steel': 3720, 'aluminum': 2442}
+INFO:root:insert into trade_prices values (117,3854,3691,3183,3907,3819,3836,3139,1785,3720,2442)
+INFO:root:Time trade=0.9047389030456543
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=1.9286675453186035
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=11.636673212051392
+WARNING:discord.client:PyNaCl is not installed, voice will NOT be supported
+INFO:discord.client:logging in using static token
+INFO:discord.gateway:Shard ID 0 has connected to Gateway (Session ID: 22fa8962e9b14471770c9ec3d1af349e).
+INFO:root:Bot is ready
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:{'food': 117, 'coal': 3854, 'oil': 3691, 'uranium': 3183, 'lead': 3907, 'iron': 3819, 'bauxite': 3836, 'gasoline': 3139, 'munitions': 1785, 'steel': 3720, 'aluminum': 2442}
+INFO:root:insert into trade_prices values (117,3854,3691,3183,3907,3819,3836,3139,1785,3720,2442)
+INFO:root:Time trade=0.9082047939300537
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab "HTTP/1.1 200 OK"
+INFO:root:Time loot=4.06726336479187
+INFO:httpx:HTTP Request: GET https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20 "HTTP/1.1 200 OK"
+INFO:root:Time nation=12.17131519317627

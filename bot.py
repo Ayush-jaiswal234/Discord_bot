@@ -470,7 +470,6 @@ async def setup_hook():
 		async with db.execute('select * from persistent_views') as cursor:
 			views = await cursor.fetchall()
 	for view in views:
-		print(view)
 		guild = await client.fetch_guild(view[0])
 		role =  guild.get_role(view[1])	
 		client.add_view(MyPersistentView(role),message_id= view[3])
@@ -1310,9 +1309,8 @@ async def create_view(ctx:commands.Context,role:discord.Role):
 	emb.color = discord.Color.blue()
 	view = MyPersistentView(role)
 	message = await ctx.send(embed=emb,view=view)
-	print(message.id)
 	async with aiosqlite.connect('pnw.db') as db:
-		await db.execute(f"insert into persistent_views values ({ctx.guild.id},{role.id},{ctx.channel.id},{message.id})")
+		await db.execute(f"insert into persistent_views values ({ctx.guild.id},{role.id},{message.id})")
 		await db.commit()
 
 @commands.is_owner()
