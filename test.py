@@ -47,9 +47,6 @@ async def on_ready():
     global channel
     update_trades.start()
     subscription = await kit.subscribe("trade","create",{"type":"Global","accepted":0},check_the_rss)
-   # async for trade in subscription:
-    #    trades= trade.to_dict()
-     #   print(trades)
     channel=client.get_channel(715222394318356541) # wap channel:  1254619896290213888,715222394318356541
     print(channel)
 

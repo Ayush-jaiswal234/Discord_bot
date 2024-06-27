@@ -4,3 +4,4 @@ service_account.json
 /commands/scripts/__pycache__
 test.png
 /__pycache__
+log.txt
