@@ -1,10 +1,9 @@
-import os,discord,sqlite3,logging,requests,time,re
+import os,discord,sqlite3,logging,requests,re
 from discord.ext import commands,tasks
 import typing
 from commands.scripts import nation_data_converter,updater,sheets,war_stats	
 from commands.scripts.pagination import Pagination
 from datetime import datetime,timedelta,timezone
-import DiscordUtils
 import aiosqlite,asyncio,httpx,json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -12,11 +11,12 @@ from googleapiclient.http import MediaFileUpload
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations_with_replacement
+from commands.role_view import MyPersistentView
 import pnwkit
 from dotenv import load_dotenv
 
 #logging.getLogger("httpx").setLevel(logging.WARNING)
-logging.basicConfig(filename='log.txt',level=logging.INFO) #	
+logging.basicConfig(filename='log.txt',	level=logging.INFO) #	
 aiosqlite.threadsafety=1
 load_dotenv()
 
@@ -462,6 +462,19 @@ async def loot_calculator(nation_id):
 def is_guild(ctx):
 	if ctx.guild is None:
 		return False
+	else: 
+		return ctx.guild
+
+async def setup_hook():
+	async with aiosqlite.connect('pnw.db') as db:
+		async with db.execute('select * from persistent_views') as cursor:
+			views = await cursor.fetchall()
+	for view in views:
+		print(view)
+		guild = await client.fetch_guild(view[0])
+		role =  guild.get_role(view[1])	
+		client.add_view(MyPersistentView(role),message_id= view[3])
+	
 
 graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 intents = discord.Intents.default()	
@@ -469,6 +482,7 @@ intents.message_content = True
 client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=intents)
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
+client.setup_hook = setup_hook
 
 @client.event
 async def on_ready():
@@ -638,7 +652,7 @@ async def nation(ctx):
 		embed.add_field(name='Nukes',value=nation_data[24],inline=True)
 		await ctx.send(embed=embed)	
 
-class RaidFlags(commands.FlagConverter,prefix='-'):
+class RaidFlags(commands.FlagConverter,delimiter= " ",prefix='-'):
 	all_nations: bool = False
 	inactivity_days: int = 0
 	alliances: str = '0'
@@ -649,13 +663,12 @@ class RaidFlags(commands.FlagConverter,prefix='-'):
 @client.hybrid_command(name="raid",with_app_command=True,description="Finds the best raiding targets")
 async def raid(ctx:commands.Context, *,flags:RaidFlags):
 
-	logging.info(flags.alliances)
 	score= await nation_data_converter.get('score',ctx.author.id)
 	logging.info(score)
 	page1=discord.Embed()
 	if score!=None:
 		flags.alliances=flags.alliances.split(',')
-		logging.info(flags.alliances)
+		logging.info(flags)
 		if flags.beige:
 			flags.beige_turns=f'and beige_turns<{flags.beige_turns}'
 		else:
@@ -957,41 +970,44 @@ async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldi
 	
 @client.hybrid_command(name='air',with_app_command=True,description='Simulate a air attack')
 async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,*,options:str =None):
-	options = options.split(' ')
+	
 	size=(10000,3)
 	att_roll = np.random.randint(0.4*att_aircraft*3,(att_aircraft+1)*3,size=size)
 	def_roll = np.random.randint(0.4*def_aircraft*3,(def_aircraft+1)*3,size=size)
 	max_num = 1000000
 	def_troops_casualties = None
 	logging.info(options)
-	if "-soldiers" in options:
-		att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
-		def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
-		def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+1000),((att_roll/3-def_roll/3)*0.5)*35*np.random.uniform(0.85,1.05,size=size)]),0)
-		def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
-
-	elif "-tanks" in options:
-		att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
-		def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
-		def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+10),((att_roll/3-def_roll/3)*0.5)*1.25*np.random.uniform(0.85,1.05,size=size)]),0)
-		def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
-
-	elif "-ships" in options:
-		att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
-		def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
-		def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+4),((att_roll/3-def_roll/3)*0.5)*0.0285*np.random.uniform(0.85,1.05,size=size)]),0)
-		def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
-
-	else:
-		att_casualties=np.round(np.average(np.sum(def_roll*0.01,axis=1)),2)
-		def_casualties=np.round(np.average(np.sum(att_roll*0.018337,axis=1)),2)
-
-
-	if "-b" in options:
-		def_casualties = def_casualties*1.1
 	
-	if "-f" in options:
-		att_casualties = att_casualties*1.25
+	if options != None:
+		options = options.split(' ')
+		if "-soldiers" in options:
+			att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
+			def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
+			def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+1000),((att_roll/3-def_roll/3)*0.5)*35*np.random.uniform(0.85,1.05,size=size)]),0)
+			def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
+
+		elif "-tanks" in options:
+			att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
+			def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
+			def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+10),((att_roll/3-def_roll/3)*0.5)*1.25*np.random.uniform(0.85,1.05,size=size)]),0)
+			def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
+
+		elif "-ships" in options:
+			att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
+			def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
+			def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+4),((att_roll/3-def_roll/3)*0.5)*0.0285*np.random.uniform(0.85,1.05,size=size)]),0)
+			def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
+
+		else:
+			att_casualties=np.round(np.average(np.sum(def_roll*0.01,axis=1)),2)
+			def_casualties=np.round(np.average(np.sum(att_roll*0.018337,axis=1)),2)
+
+
+		if "-b" in options:
+			def_casualties = def_casualties*1.1
+		
+		if "-f" in options:
+			att_casualties = att_casualties*1.25
 
 	wins = simulate_war(att_aircraft,def_aircraft,3)
 	
@@ -1024,12 +1040,13 @@ async def air_autocomplete(interaction:discord.Interaction,current_val:str) -> t
 async def naval(ctx: commands.Context,att_ships:int,def_ships:int,*,modifiers:typing.Optional[typing.Literal['-b','-f']]):
 	att_casualties,def_casualties = simulate_casualities(att_ships,def_ships,4)
 	wins = simulate_war(att_ships,def_ships,4)
-	modifiers = modifiers.split(' ')
-	if "-b" in modifiers:
-		def_casualties = def_casualties*1.1
-	
-	if "-f" in modifiers:
-		att_casualties = att_casualties*1.25
+	if modifiers != None:
+		modifiers = modifiers.split(' ')
+		if "-b" in modifiers:
+			def_casualties = def_casualties*1.1
+		
+		if "-f" in modifiers:
+			att_casualties = att_casualties*1.25
 
 	await ctx.send(f"""**Simulating {att_ships:,} ships vs {def_ships:,} ships:**
 ```Immense triumph: {wins[3]}%\nModerate Victory: {wins[2]}%\nPyrrhic Victory: {wins[1]}%\nUtter Failure: {wins[0]}%```
@@ -1283,6 +1300,20 @@ async def war(ctx:commands.Context, *,flags:RaidFlags):
 		emb.title='Register'
 		emb.description='Usage : `;register <nation id|nation link>`'
 		await ctx.send(content="You must be registered to use this command",embed=emb)
+
+@client.command()
+@commands.has_any_role('trade tester',1082777828505948190,1250404714902716436)
+async def create_view(ctx:commands.Context,role:discord.Role):
+	emb = discord.Embed()
+	emb.title = 'Role Management'
+	emb.description = f"Press the button below to add or remove the role <@&{role.id}>"	
+	emb.color = discord.Color.blue()
+	view = MyPersistentView(role)
+	message = await ctx.send(embed=emb,view=view)
+	print(message.id)
+	async with aiosqlite.connect('pnw.db') as db:
+		await db.execute(f"insert into persistent_views values ({ctx.guild.id},{role.id},{ctx.channel.id},{message.id})")
+		await db.commit()
 
 @commands.is_owner()
 @client.command()
