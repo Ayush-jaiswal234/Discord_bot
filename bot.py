@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations_with_replacement
 from commands.role_view import MyPersistentView
-import pnwkit
+from commands.scripts.trade_bot import trade_watcher
 from dotenv import load_dotenv
 
 #logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -326,40 +326,6 @@ def get_wars(my_nation_id):
 	return fetchdata
 pass		
 
-async def repeat_every_n_seconds(func_name,interval):
-	func=getattr(updater,func_name)
-	while True:
-		await func()
-		await asyncio.sleep(interval)
-
-async def trade_watcher(bot):
-	channel=bot.get_channel(715222394318356541)
-	api_key='2b2db3a2636488'
-	query = "{top_trade_info {resources {resource best_buy_offer {price offer_amount}best_sell_offer {price offer_amount sender{nation_name}}}}}"
-	async with httpx.AsyncClient() as client:
-		fetchdata =await client.post(f'https://api.politicsandwar.com/graphql?api_key={api_key}',json={'query':query})
-		fetchdata=fetchdata.json()['data']['top_trade_info']['resources']
-		last_result=fetchdata
-		while True:
-			fetchdata = await client.post(f'https://api.politicsandwar.com/graphql?api_key={api_key}',json={'query':query})
-			fetchdata=fetchdata.json()['data']['top_trade_info']['resources']
-			resource_no=-1
-			for rss in fetchdata:
-				resource_no+=1
-				condition1 = ((last_result[resource_no]['best_sell_offer']['price']-rss['best_sell_offer']['price'])*rss['best_sell_offer']['offer_amount'])>500000
-				condition2 = (last_result[resource_no]['best_sell_offer']['price']-rss['best_sell_offer']['price'])/last_result[resource_no]['best_sell_offer']['price']>=0.02
-
-				if condition1 and condition2:
-					link=f'https://politicsandwar.com/index.php?id=26&display=world&resource1={rss["resource"]}&buysell=sell&ob=price&od=DEF&maximum=15&minimum=0&search=Go'
-					await channel.send(f"""<@&1248240780502630482> 
-**{rss['best_sell_offer']['sender']['nation_name']} sells {rss['best_sell_offer']['offer_amount']} {rss['resource']} for ${rss['best_sell_offer']['price']}**
-Last Sell price: ${last_result[resource_no]['best_sell_offer']['price']}
-Last Buy price: ${rss['best_buy_offer']['price']}
-**Minimum Profit: ${(last_result[resource_no]['best_sell_offer']['price']-rss['best_sell_offer']['price'])*rss['best_sell_offer']['offer_amount']}**
-{link}""")
-			last_result=fetchdata
-			await asyncio.sleep(3)
-
 async def beige_calculator(params,resistance,reverse):
 	cost_dict = {10:(3,'Gd'),12:(4,'Ar'),14:(4,'Nv')}
 	if params !=None:
@@ -400,12 +366,6 @@ async def beige_calculator(params,resistance,reverse):
 			text +=	f"{results[x][1]}"
 
 	return text	
-
-
-	kit = pnwkit.QueryKit("YOUR_API_KEY_HERE")
-	subscription = await kit.subscribe("nation", "update")
-	async for nation in subscription:
-		logging.info(nation)
 
 def simulate_casualities(attacker,defender,multiplier):
 	size=(10000,3)
@@ -489,6 +449,8 @@ async def on_ready():
 	updater.update_trade_price.start()
 	updater.update_nation_data.start()
 	updater.update_loot_data.start()
+	start_trade = trade_watcher(client=client)
+	await start_trade.on_ready()
 	await client.change_presence(status=discord.Status.online, activity=activity)
 
 @client.event
@@ -739,16 +701,6 @@ async def register(ctx,link):
 		nation_id=link
 	update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
 	await ctx.send("Successfully registered")		
-
-@commands.is_owner()	
-@client.command()
-async def update(ctx):
-	asyncio.create_task(repeat_every_n_seconds('update_nation_data',300))	
-	asyncio.create_task(repeat_every_n_seconds('update_trade_price',7200))
-	await asyncio.sleep(10)
-	asyncio.create_task(repeat_every_n_seconds('update_loot_data',90))
-
-	await ctx.send("done")		
 
 @client.command()
 async def wars(ctx,*,_id=None):
