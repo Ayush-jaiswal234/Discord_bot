@@ -43,11 +43,11 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
             role ="1254752332273418301"
             await self.send_message(role,type_of_trade,profit,subscribe_data)
         elif condition1 and profit>=1000000 and profit<5000000 and profit/subscribe_data['offer_amount']>150: 
-            role ="1254752332273418301"
-            #await self.send_message(role,type_of_trade,profit,subscribe_data)
+            role ="1258312874137223229"
+            await self.send_message(role,type_of_trade,profit,subscribe_data)
         elif profit>100000 and profit<1000000 and profit/subscribe_data['offer_amount']>1000:
-            role ="1254752332273418301"
-            #await self.send_message(role,type_of_trade,profit,subscribe_data)      
+            role ="1258312933427908725"
+            await self.send_message(role,type_of_trade,profit,subscribe_data)      
             
 
     async def check_the_rss(self,subscribe_data):
