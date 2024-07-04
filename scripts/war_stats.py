@@ -1,7 +1,7 @@
 import sqlite3,requests
 import pandas as pd
 import re
-from commands.scripts.nation_data_converter import time_converter
+from scripts.nation_data_converter import time_converter
 
 
 async def get_slots_data(allies_data,enemies_data):

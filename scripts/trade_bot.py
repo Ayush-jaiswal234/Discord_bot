@@ -4,7 +4,7 @@ import pnwkit
 import logging
 import discord
 import aiosqlite
-from commands.scripts.nation_data_converter import get_unregistered
+from scripts.nation_data_converter import get_unregistered
 
 class trade_watcher:
     def __init__(self,client) -> None:
