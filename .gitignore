@@ -1,9 +1,6 @@
 *.env
 service_account.json
-/commands/__pycache__
-/commands/scripts/__pycache__
 test.png
-/__pycache__
 log.txt
 test.py
-__pycache__
+**/__pycache__/
