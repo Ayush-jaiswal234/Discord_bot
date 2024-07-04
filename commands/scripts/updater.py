@@ -3,7 +3,7 @@ from discord.ext import tasks
 from sqlite3 import OperationalError
 
 api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
-tasks.add_exception_type = OperationalError
+
 
 @tasks.loop(minutes=5,reconnect=True)
 async def update_nation_data():
@@ -160,3 +160,7 @@ async def update_trade_price():
 	end_time=time.time()
 	logging.info(f'Time trade={end_time-start_time}')
 pass
+
+update_nation_data.add_exception_type(OperationalError,KeyError)
+update_loot_data.add_exception_type(OperationalError,KeyError)
+update_trade_price.add_exception_type(OperationalError,KeyError)

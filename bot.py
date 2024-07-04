@@ -455,6 +455,7 @@ async def on_ready():
 
 @client.event
 async def on_command_error(ctx, error):
+	logging.warn(f"Discord Command Error:{error}")
 	if isinstance(error, commands.CheckFailure):
 		await ctx.send("Greetings Outsider,\nAll commands can only be used in the WAP server\nNOOT NOOT")
 	else:
@@ -842,8 +843,7 @@ async def help(ctx,command_name=None):
 			embed.description='Usage: ;audit <nation id>\n Defcon and build must be set for your alliance for full functionality'				
 	await ctx.send(embed=embed)					
 
-@commands.is_owner()	
-@client.command()
+@tasks.loop(hours=24)
 async def copy_db(ctx):
 	scopes=['https://www.googleapis.com/auth/drive']
 	credentials = service_account.Credentials.from_service_account_info(json.loads(os.environ['SERVICE_ACCOUNT_INFO']), scopes=scopes)
@@ -1253,7 +1253,7 @@ async def war(ctx:commands.Context, *,flags:RaidFlags):
 		await ctx.send(content="You must be registered to use this command",embed=emb)
 
 @client.command()
-@commands.has_any_role('trade tester',1082777828505948190,1250404714902716436)
+@commands.has_any_role('trade tester',1082777828505948190,1250404714902716436,1082777665733414942)
 async def create_view(ctx:commands.Context,role:discord.Role):
 	emb = discord.Embed()
 	emb.title = 'Role Management'
