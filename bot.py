@@ -1,8 +1,8 @@
 import os,discord,sqlite3,logging,requests,re
 from discord.ext import commands,tasks
 import typing
-from commands.scripts import nation_data_converter,updater,sheets,war_stats	
-from commands.scripts.pagination import Pagination
+from scripts import nation_data_converter,updater,sheets,war_stats	
+from scripts.pagination import Pagination
 from datetime import datetime,timedelta,timezone
 import aiosqlite,asyncio,httpx,json
 from google.oauth2 import service_account
@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations_with_replacement
 from commands.role_view import MyPersistentView
-from commands.scripts.trade_bot import trade_watcher
+from scripts.trade_bot import trade_watcher
 from dotenv import load_dotenv
 
 #logging.getLogger("httpx").setLevel(logging.WARNING)
