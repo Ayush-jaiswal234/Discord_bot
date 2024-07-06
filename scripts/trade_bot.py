@@ -31,21 +31,22 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
         check_if_deleted = await self.kit.subscribe("trade","delete",{"id":subscribe_data["id"]},self.check_delete)
         self.track_ids.append({"id":subscribe_data["id"],"delete":False,"amount":subscribe_data["offer_amount"],"buy_sell":past_tense})    
 
-    async def profit_calculator(self,type_of_trade,parameter,subscribe_data):
-        profit = (parameter-subscribe_data['price'])*subscribe_data['offer_amount']
-        
+    async def profit_calculator(self,type_of_trade,last_sell_price,subscribe_data):
+        profit = (last_sell_price-1-subscribe_data['price'])*subscribe_data['offer_amount']
+        profit_percent = (last_sell_price-1-subscribe_data['price'])/last_sell_price
         if type_of_trade=="sell":
             condition1 = subscribe_data['price']<self.result[f'{subscribe_data["offer_resource"]}']['best_buy_offer']['price']
         else:    
             condition1 = subscribe_data['price']>self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']
             profit=-profit
-        if condition1 and profit>=5000000 and profit/subscribe_data['offer_amount']>100:
+            profit_percent = -profit_percent
+        if condition1 and profit>=5000000 and profit_percent>0.022:
             role ="1254752332273418301"
             await self.send_message(role,type_of_trade,profit,subscribe_data)
-        elif condition1 and profit>=1000000 and profit<5000000 and profit/subscribe_data['offer_amount']>150: 
+        elif condition1 and profit>=1000000 and profit<5000000 and profit_percent>0.033: 
             role ="1258312874137223229"
             await self.send_message(role,type_of_trade,profit,subscribe_data)
-        elif profit>100000 and profit<1000000 and profit/subscribe_data['offer_amount']>1000:
+        elif profit>100000 and profit<1000000 and profit_percent>0.044:
             role ="1258312933427908725"
             await self.send_message(role,type_of_trade,profit,subscribe_data)      
             
@@ -64,7 +65,7 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
                     self.embed.description = (f'Sender: [{get_unregistered("nation",subscribe_data["sender_id"])}](https://politicsandwar.com/nation/id={subscribe_data["sender_id"]})\n'
                     f'Receiver: [{get_unregistered("nation",subscribe_data["receiver_id"])}](https://politicsandwar.com/nation/id={subscribe_data["receiver_id"]})')
                     await self.channel.send(embed = self.embed)
-            track_ids = [x for x in track_ids if x["amount"]!=0 and x["delete"]==False]        
+            self.track_ids = [x for x in self.track_ids if x["amount"]!=0 and x["delete"]==False]        
 
     async def check_delete(self,delete_data):
         self.embed.title = f'Trade {delete_data["id"]} deleted'

@@ -4,7 +4,8 @@ import typing
 from scripts import nation_data_converter,updater,sheets,war_stats	
 from scripts.pagination import Pagination
 from datetime import datetime,timedelta,timezone
-import aiosqlite,asyncio,httpx,json
+import datetime as dt
+import aiosqlite,asyncio,httpx
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload 
@@ -449,6 +450,7 @@ async def on_ready():
 	updater.update_trade_price.start()
 	updater.update_nation_data.start()
 	updater.update_loot_data.start()
+	copy_db.start()
 	start_trade = trade_watcher(client=client)
 	await start_trade.on_ready()
 	await client.change_presence(status=discord.Status.online, activity=activity)
@@ -843,15 +845,13 @@ async def help(ctx,command_name=None):
 			embed.description='Usage: ;audit <nation id>\n Defcon and build must be set for your alliance for full functionality'				
 	await ctx.send(embed=embed)					
 
-@tasks.loop(hours=24)
-async def copy_db(ctx):
+@tasks.loop(time=dt.time(hour=6,minute=15,tzinfo=dt.timezone.utc))
+async def copy_db():
 	scopes=['https://www.googleapis.com/auth/drive']
-	credentials = service_account.Credentials.from_service_account_info(json.loads(os.environ['SERVICE_ACCOUNT_INFO']), scopes=scopes)
+	credentials = service_account.Credentials.from_service_account_file('service_account.json', scopes=scopes)
 	drive_service = build('drive', 'v3', credentials=credentials)
 	results = drive_service.files().list(pageSize=100, fields="files(id, name)").execute() 
 	items = results.get('files', [])
-	logging.info("Here's a list of files: \n") 
-	logging.info(*items, sep="\n", end="\n\n")
 	for files in items:
 		if files['name']=='pnw.db':
 			f = drive_service.files().delete(fileId=files['id']).execute()
@@ -864,8 +864,7 @@ async def copy_db(ctx):
         .execute()
     )
 	logging.info(f'File ID: {file.get("id")}')		
-	drive_service.close()
-	await ctx.send('File has been uploaded')		
+	drive_service.close()		
 
 @client.tree.command(name='war_vis',description="Provides a sheet")
 async def war_vis(interaction: discord.Interaction, allies:str,enemies:str):
