@@ -551,7 +551,7 @@ async def guilds(ctx):
 
 @client.command()
 async def inactivity(ctx):
-	alliance_id=get('alliance_id',ctx.author.id)
+	alliance_id= await nation_data_converter.get('alliance_id',ctx.author.id)
 	dictionary,counter=inactive_players(alliance_id)
 	embed=discord.Embed()
 	embed.title='Inactive players'
