@@ -23,5 +23,4 @@ jobs:
             cd Discord_bot
             git pull origin master
             # Restart your application or services if necessary
-            cd ..
-            ./restart_bot.sh
+            sudo systemctl restart terminooter
