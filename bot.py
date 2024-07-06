@@ -527,7 +527,7 @@ async def audit(ctx,nation_id=None):
 
 @client.command()
 async def check_color(ctx):
-	alliance_id=get('alliance_id',ctx.author.id)
+	alliance_id=await nation_data_converter.get('alliance_id',ctx.author.id)
 	data=aa_color_compare(alliance_id)
 	embed=discord.Embed()
 	embed.title='Color trade bloc'
