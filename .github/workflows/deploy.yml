@@ -20,7 +20,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /path/to/your/repo
+            cd Discord_bot
             git pull origin master
             # Restart your application or services if necessary
-            sudo systemctl restart your-service-name
+            cd ..
+            ./restart_bot.sh
