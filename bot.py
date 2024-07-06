@@ -588,7 +588,7 @@ async def loot(ctx:commands.Context,*,nation_id:str):
 
 @client.command()
 async def nation(ctx):
-	nation_data=get('*',ctx.author.id)	
+	nation_data=await nation_data_converter.get('*',ctx.author.id)	
 	if isinstance(nation_data,str):
 		await ctx.send(f'Register to use this command')
 	else:
