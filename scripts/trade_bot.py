@@ -30,7 +30,7 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 {link}""")
         logging.info(subscribe_data["id"])
         check_if_deleted = await self.kit.subscribe("trade","delete",{"id":subscribe_data["id"]},self.check_delete)
-        self.track_ids.append({"id":subscribe_data["id"],"delete":False,"amount":subscribe_data["offer_amount"],"buy_sell":past_tense})    
+        self.track_ids.append({"id":subscribe_data["id"],"delete":False,"amount":subscribe_data["offer_amount"],"buy_sell":past_tense,"message_id":self.channel.last_message_id})    
 
     async def profit_calculator(self,type_of_trade,last_sell_price,subscribe_data):
         profit = (last_sell_price-1-subscribe_data['price'])*subscribe_data['offer_amount']
@@ -62,19 +62,20 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
                 if subscribe_data["original_trade_id"]==ids["id"]:
                     ids["amount"]=ids["amount"]-subscribe_data["offer_amount"]
                     
-                    self.embed.title = f'{subscribe_data["offer_amount"]} {subscribe_data["offer_resource"]} was {ids["buy_sell"]} from the above trade'
+                    self.embed.title = f'{subscribe_data["offer_amount"]} {subscribe_data["offer_resource"]} was {ids["buy_sell"]} from this trade'
                     self.embed.description = (f'Sender: [{get_unregistered("nation",subscribe_data["sender_id"])}](https://politicsandwar.com/nation/id={subscribe_data["sender_id"]})\n'
-                    f'Receiver: [{get_unregistered("nation",subscribe_data["receiver_id"])}](https://politicsandwar.com/nation/id={subscribe_data["receiver_id"]})')
-                    await self.channel.send(embed = self.embed)
+                    f'Receiver: [{get_unregistered("nation",subscribe_data["receiver_id"])}](https://politicsandwar.com/nation/id={subscribe_data["receiver_id"]})'
+                    f'Amount Remaining: {ids["amount"]}')
+                    await self.channel.send(embed = self.embed,reference=discord.MessageReference(message_id=ids["message_id"],channel_id=self.channel))
             self.track_ids = [x for x in self.track_ids if x["amount"]!=0 and x["delete"]==False]        
 
     async def check_delete(self,delete_data):
         self.embed.title = f'Trade {delete_data["id"]} deleted'
         async with aiosqlite.connect('pnw.db'):
             self.embed.description = f'Sender: [{get_unregistered("nation",delete_data["sender_id"])}](https://politicsandwar.com/nation/id={delete_data["sender_id"]})'
-        await self.channel.send(embed=self.embed)  
         for ids in self.track_ids:
             if delete_data["id"]==ids["id"]:
+                await self.channel.send(embed=self.embed,reference=discord.MessageReference(message_id=ids["message_id"],channel_id=self.channel))  
                 ids["delete"]=True
 
     async def on_ready(self):
