@@ -1034,7 +1034,7 @@ async def slowbeige(ctx:commands.Context,resistance:commands.Range[int, 1,100],*
 
 @client.hybrid_command(name='spyopval',with_app_command=True,description='Amount that can be looted from the target')
 async def spyopval(ctx:commands.Context, *,message:str):
-	x=re.match("You successfully gathered intelligence about [A-Za-z]+[A-z a-z]*. Your spies discovered that [A-z a-z]+ has [\w $'-.]{26,}. Your agents were [\w '-]{26,}. The operation cost you [$,.0-9]{2,} and [0-9]+ of your spies were captured and executed.",message)
+	x=re.match("You successfully gathered intelligence about [\w $'-.]+[\w $'-.]*. Your spies discovered that [\w $'-.]+ has [\w $'-.]{26,}. Your agents were [\w '-]{26,}. The operation cost you [$,.0-9]{2,} and [0-9]+ of your spies were captured and executed.",message)
 
 	logging.info(message,bool(x))
 	if bool(x):
@@ -1062,7 +1062,7 @@ async def spyopval(ctx:commands.Context, *,message:str):
 
 @client.hybrid_command(name='banklootval',with_app_command=True,description='Estimated bank resources based on the beige')
 async def banklootval(ctx:commands.Context,*,message:str):
-	x = re.match("[A-Za-z]+[A-z a-z]* looted [0-9 .]{4,}% of [A-Za-z]+[A-z a-z]*'s alliance bank, taking: [\w $'-.]{26,}",message)
+	x = re.match("[\w $'-.]+[\w $'-.]* looted [0-9 .]{4,}% of [\w $'-.]+[\w $'-.]*'s alliance bank, taking: [\w $'-.]{26,}",message)
     
 	if bool(x):
 		actual_loot,prices = await loot_from_text(message,1) 
@@ -1080,7 +1080,7 @@ async def banklootval(ctx:commands.Context,*,message:str):
 
 @client.hybrid_command(name='lootval',with_app_command=True,description='Beige worth based on beige text provided')
 async def lootval(ctx:commands.Context,*,message:str):
-	x = re.match("[A-Za-z]+[A-z a-z]* crushed [A-Za-z]+[A-z a-z]*'s resistance to 0, resulting in their immediate surrender. [A-Za-z]+[A-z a-z]* looted [\w $'-.]{26,}",message)
+	x = re.match("[\w $'-.]+[\w $'-.]* crushed [\w $'-.]+[\w $'-.]*'s resistance to 0, resulting in their immediate surrender. [\w $'-.]+[\w $'-.]* looted [\w $'-.]{26,}",message)
 	y = re.match("You have defeated your opponent by decreasing their Resistance to 0! You looted [\w $'-.]{26,}",message)
 	if bool(x) or bool(y):
 		actual_loot,prices = await loot_from_text(message,1) 
