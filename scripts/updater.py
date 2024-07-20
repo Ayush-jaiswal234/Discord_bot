@@ -1,7 +1,7 @@
 import aiosqlite,httpx,time,logging
 from discord.ext import tasks
 from sqlite3 import OperationalError
-from httpx import ReadTimeout
+from httpx import ReadTimeout,ConnectTimeout
 
 api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 
@@ -162,6 +162,6 @@ async def update_trade_price():
 	logging.info(f'Time trade={end_time-start_time}')
 pass
 
-update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout)
-update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout)
-update_trade_price.add_exception_type(OperationalError,KeyError,ReadTimeout)
+update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
+update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
+update_trade_price.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)

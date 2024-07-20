@@ -5,7 +5,7 @@ import logging
 import discord
 import aiosqlite
 from scripts.nation_data_converter import get_unregistered
-from httpx import ReadTimeout
+from httpx import ReadTimeout,ConnectTimeout
 
 class trade_watcher:
     def __init__(self,client) -> None:
@@ -14,7 +14,7 @@ class trade_watcher:
         self.track_ids = []
         self.result = {}
         self.embed = discord.Embed()
-        self.update_trades.add_exception_type(KeyError,ReadTimeout)
+        self.update_trades.add_exception_type(KeyError,ReadTimeout,ConnectTimeout)
         self.update_trades.start()
 
     async def send_message(self,role,type_of_trade,profit,subscribe_data): 
