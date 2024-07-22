@@ -459,7 +459,7 @@ async def on_ready():
 
 @client.event
 async def on_command_error(ctx, error):
-	logging.warn(f"Discord Command Error:{error}")
+	logging.warning(f"Discord Command Error:{error}")
 	if isinstance(error, commands.CheckFailure):
 		await ctx.send("Greetings Outsider,\nAll commands can only be used in the WAP server\nNOOT NOOT")
 	else:

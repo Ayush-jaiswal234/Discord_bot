@@ -6,7 +6,7 @@ class help_commands(commands.Cog):
         self.bot = bot
 
 
-    @commands.hybrid_group(name='help',with_app_command=True,invoke_without_command=True)
+    @commands.hybrid_group(name='help',with_app_command=True)
     async def help(self,ctx):
         emb = discord.Embed()
         emb.title='Help'
@@ -30,4 +30,4 @@ class help_commands(commands.Cog):
         await ctx.send(embed=emb)
 
 async def setup(bot):
-    bot.add_cog(help_commands(bot))
+    await bot.add_cog(help_commands(bot))
