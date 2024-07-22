@@ -444,7 +444,7 @@ client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=inte
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook
-client.add_cog(help_commands)
+client.add_cog(help_commands(client))
 
 @client.event
 async def on_ready():
