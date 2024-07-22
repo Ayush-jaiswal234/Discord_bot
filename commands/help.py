@@ -4,41 +4,43 @@ import discord
 class help_commands(commands.Cog):
 	def __init__(self,bot):
 		self.bot = bot
-		self.emb = discord.Embed()
-
 
 	@commands.hybrid_group(name='help',with_app_command=True)
 	async def help(self,ctx):
-		self.emb.title='Help'
-		self.emb.description='List of commands\nUse ;help <command name> to get more info about the specific command'
-		self.emb.add_field(name='Register',value='registers you to the bot')
-		self.emb.add_field(name='Raid',value='get targets')
-		self.emb.add_field(name='Who',value='displays nation information')
-		await ctx.send(embed=self.emb)
+		emb = discord.Embed()
+		emb.title='Help'
+		emb.description='List of commands\nUse ;help <command name> to get more info about the specific command'
+		emb.add_field(name='Register',value='registers you to the bot')
+		emb.add_field(name='Raid',value='get targets')
+		emb.add_field(name='Who',value='displays nation information')
+		await ctx.send(embed=emb)
 
 	@help.command(name="register",description="How to register to the bot")
 	async def register(self,ctx):
-		self.emb.title='Register'
-		self.emb.description='Usage: ;register <nation id|nation link>'
-		await ctx.send(embed=self.emb)    
+		emb = discord.Embed()
+		emb.title='Register'
+		emb.description='Usage: ;register <nation id|nation link>'
+		await ctx.send(embed=emb)    
 
 	@help.command(name="raid",description="info on how to use the raid command")
 	async def raid(self,ctx):
-		self.emb.title = 'Raid'
-		self.emb.description = 'Usage: ;raid -filter value'
-		self.emb.add_field(name='Filters',value=('1. -inactivity_days:`n` [Looks for targets inactive for n days, defaults to 0]\n'
+		emb = discord.Embed()
+		emb.title = 'Raid'
+		emb.description = 'Usage: ;raid -filter value'
+		emb.add_field(name='Filters',value=('1. -inactivity_days:`n` [Looks for targets inactive for n days, defaults to 0]\n'
 										   '2. -beige:`True|False` [gets beige targets,defaults to True if filter not used]\n'
 										   '3. -alliances:`alliance id(s)` [gets targets in the given alliance,defaults to 0 or none if filter not used]\n'
 										   '4. -beige_turns:`n` [gets targets with maximum beige of n turns,defaults to 216]\n'
-										   '5. -all_nations:`True|False` [looks for all targets in the games, defaults to False]'
+										   '5. -all_nations:`True|False` [looks for all targets in the games, defaults to False]\n'
 										   '6. -result:`embed|sheets` [The format you want the result in]'))
-		await ctx.send(embed=self.emb)
+		await ctx.send(embed=emb)
 
 	@help.command(name="who")
 	async def who(self,ctx):
-		self.emb.title = 'Who'
-		self.emb.description = 'Usage: ;who <nation id/link/name |discord user>'
-		await ctx.send(embed=self.emb)	
+		emb = discord.Embed()
+		emb.title = 'Who'
+		emb.description = 'Usage: ;who <nation id/link/name |discord user>'
+		await ctx.send(embed=emb)	
 		
 
 async def setup(bot):
