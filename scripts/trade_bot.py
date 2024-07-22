@@ -63,8 +63,8 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
                     ids["amount"]=ids["amount"]-subscribe_data["offer_amount"]
                     
                     self.embed.title = f'{subscribe_data["offer_amount"]} {subscribe_data["offer_resource"]} was {ids["buy_sell"]} from this trade'
-                    self.embed.description = (f'Sender: [{get_unregistered("nation",subscribe_data["sender_id"])}](https://politicsandwar.com/nation/id={subscribe_data["sender_id"]})\n'
-                    f'Receiver: [{get_unregistered("nation",subscribe_data["receiver_id"])}](https://politicsandwar.com/nation/id={subscribe_data["receiver_id"]})\n'
+                    self.embed.description = (f'Sender: [{await get_unregistered("nation",subscribe_data["sender_id"])}](https://politicsandwar.com/nation/id={subscribe_data["sender_id"]})\n'
+                    f'Receiver: [{await get_unregistered("nation",subscribe_data["receiver_id"])}](https://politicsandwar.com/nation/id={subscribe_data["receiver_id"]})\n'
                     f'Amount Remaining: {ids["amount"]}')
                     await self.channel.send(embed = self.embed,reference=discord.MessageReference(message_id=ids["message_id"],channel_id=self.channel.id))
             self.track_ids = [x for x in self.track_ids if x["amount"]!=0 and x["delete"]==False]        
@@ -72,7 +72,7 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
     async def check_delete(self,delete_data):
         self.embed.title = f'Trade {delete_data["id"]} deleted'
         async with aiosqlite.connect('pnw.db'):
-            self.embed.description = f'Sender: [{get_unregistered("nation",delete_data["sender_id"])}](https://politicsandwar.com/nation/id={delete_data["sender_id"]})'
+            self.embed.description = f'Sender: [{await get_unregistered("nation",delete_data["sender_id"])}](https://politicsandwar.com/nation/id={delete_data["sender_id"]})'
         for ids in self.track_ids:
             if delete_data["id"]==ids["id"]:
                 await self.channel.send(embed=self.embed,reference=discord.MessageReference(message_id=ids["message_id"],channel_id=self.channel.id))  
