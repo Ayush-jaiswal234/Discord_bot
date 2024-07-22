@@ -10,20 +10,20 @@ class help_commands(commands.Cog):
 		emb = discord.Embed()
 		emb.title='Help'
 		emb.description='Use ;help <command name> to get more info about the specific command'
-		emb.add_field(name='Commands',value=('1. air			Air attack simulation.\n'
-											'2. banklootval		Get the value of the bank basing on the beige message from war history.\n'
-											'3. fastbeige 		Get the five fastest ways to beige an opponent.\n'
-											'4. ground 			Ground attack simulation.\n'
-											'5. loot 			Get the loot data based on last war loss or spy report\n'
-											'6. lootval 		Get the value of the nation beige loot basing on the beige message from war history.\n'
-											'7. naval			Naval attack simulation\n'
-											'8. pricehistory 	Helps in determination of market prices movement\n'
-									   		'9. raid			Gets raid targets\n'
-									   		'10. register 		registers you to the bot\n'
-									   		'11. slowbeige 		Get the five slowest ways to beige an opponent. Useful for sitting purposes.\n'
-									   		'12. spyopval 		Get the value of the nation beige loot basing on the GATHER INTEL result from notifications.\n'
-									   		'13. who			Displays nation information\n'
-									   		'14. wars 			Get the wars a nation is currently in'))
+		emb.add_field(name='Commands',value=('1. air\t\tAir attack simulation.\n'
+											'2. banklootval\t\tGet the value of the bank basing on the beige message from war history.\n'
+											'3. fastbeige\t\tGet the five fastest ways to beige an opponent.\n'
+											'4. ground\t\tGround attack simulation.\n'
+											'5. loot\t\tGet the loot data based on last war loss or spy report\n'
+											'6. lootval\t\tGet the value of the nation beige loot basing on the beige message from war history.\n'
+											'7. naval\t\t\Naval attack simulation\n'
+											'8. pricehistory\t\t\Helps in determination of market prices movement\n'
+									   		'9. raid\t\t\Gets raid targets\n'
+									   		'10. register\t\t\registers you to the bot\n'
+									   		'11. slowbeige\t\t\Get the five slowest ways to beige an opponent. Useful for sitting purposes.\n'
+									   		'12. spyopval\t\t\Get the value of the nation beige loot basing on the GATHER INTEL result from notifications.\n'
+									   		'13. who\t\t\Displays nation information\n'
+									   		'14. wars\t\t\Get the wars a nation is currently in'))
 		await ctx.send(embed=emb)
 
 	@help.command(name='air',description='Air attack simulation.')
@@ -31,7 +31,7 @@ class help_commands(commands.Cog):
 		emb = discord.Embed()
 		emb.title = 'Air'
 		emb.description = (';air (AttAircraft) (DefAircraft) -filters\n'
-						'Sample command: ;air 1800 900 -b -soldiers')
+						'Sample command: `;air 1800 900 -b -soldiers`')
 		emb.add_field(name='Filters',value=('1. -soldiers	Simulate the airstrike on soldiers\n'
 									  		'2. -tanks		Simulate the airstrike on tanks\n'
 											'3. -ships		Simulate the airstrike on ships\n'
@@ -44,16 +44,15 @@ class help_commands(commands.Cog):
 		emb = discord.Embed()
 		emb.title='Ground'
 		emb.description=(';ground (AttSoldiers) (AttTanks) (DefSoldiers) (DefTanks) (AttUsesMunis?: True/False) (DefUsesMunis?: True/False) \n'
-						'Sample command: ;ground 450000 30000 300000 12500 false true')
+						'Sample command: `;ground 450000 30000 300000 12500 false true`')
 		await ctx.send(embed=emb)
 		
-
 	@help.command(name='naval',description='Naval attack simulation.')
 	async def naval(self,ctx):
 		emb = discord.Embed()
 		emb.title = 'Air'
 		emb.description = (';naval (AttShips) (DefShips) -filters\n'
-						'Sample command: ;naval 500 200 -b -f')
+						'Sample command: `;naval 500 200 -b -f`')
 		emb.add_field(name='Filters',value=('1. -b		Simulate the naval with a blitzkrieg war policy\n'
 											'2. -f 		Simulate the naval on a fortified opponent'))
 		await ctx.send(embed=emb)
