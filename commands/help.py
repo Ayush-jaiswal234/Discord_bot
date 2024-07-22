@@ -10,9 +10,9 @@ class help_commands(commands.Cog):
 		emb = discord.Embed()
 		emb.title='Help'
 		emb.description='Use ;help <command name> to get more info about the specific command'
-		emb.add_field(name='Commands',value=('1. Register registers you to the bot'
-									   '2. Raid gets targets'
-									   '3. Who displays nation information'))
+		emb.add_field(name='Commands',value=('1. Register registers you to the bot\n'
+									   '2. Raid gets targets\n'
+									   '3. Who displays nation information\n'))
 		await ctx.send(embed=emb)
 
 	@help.command(name="register",description="How to register to the bot")

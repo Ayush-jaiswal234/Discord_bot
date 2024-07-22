@@ -88,9 +88,9 @@ async def get_unregistered(search_element,_id,search_using='nation_id',fetchall=
 	async with aiosqlite.connect('pnw.db') as db:
 		async with db.execute(f"select {search_element} from all_nations_data where {search_using}='{_id}'") as cursor:
 			if fetchall==False:
-				score=cursor.fetchone()
+				score = await cursor.fetchone()
 			else:
-				score=cursor.fetchall()
+				score= await cursor.fetchall()
 	if score !=None and len(score)==1:
 		score=score[0]
 		if type(score)==(list or tuple) and len(score)==1:
