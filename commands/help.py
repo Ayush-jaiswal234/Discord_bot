@@ -22,7 +22,7 @@ class help_commands(commands.Cog):
         emb.add_field(name='Audit',value='Audits your nation on the basis of criteria set by your alliance')
         await ctx.send(embed=emb)
 
-    @help.hybrid_command(name="register",description="How to register to the bot")
+    @help.command(name="register",description="How to register to the bot")
     async def register(self,ctx):
         emb = discord.Embed()
         emb.title='Register'
