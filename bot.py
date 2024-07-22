@@ -1,14 +1,11 @@
 import os,discord,sqlite3,logging,requests,re
 from discord.ext import commands,tasks
 import typing
-from scripts import nation_data_converter,updater,sheets,war_stats	
+from scripts import nation_data_converter,sheets,war_stats
+from scripts.background_tasks import background_tasks	
 from scripts.pagination import Pagination
 from datetime import datetime,timedelta,timezone
-import datetime as dt
 import aiosqlite,asyncio,httpx
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload 
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations_with_replacement
@@ -443,17 +440,13 @@ client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=inte
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook
-
+updater_tasks = background_tasks()
 
 @client.event
 async def on_ready():
 	logging.info('Bot is ready')
-	updater.update_trade_price.start()
-	updater.update_nation_data.start()
-	updater.update_loot_data.start()
-	copy_db.start()
 	start_trade = trade_watcher(client=client)
-	await start_trade.on_ready()
+	await start_trade.start()
 	await client.change_presence(status=discord.Status.online, activity=activity)
 	await client.load_extension("commands.help")
 
@@ -768,28 +761,7 @@ async def who(ctx,*,discord_name):
 			await ctx.send(embed=embed)				
 		else:			
 			await ctx.send('Invalid nation/allinace')
-
-@tasks.loop(time=dt.time(hour=6,minute=15,tzinfo=dt.timezone.utc))
-async def copy_db():
-	scopes=['https://www.googleapis.com/auth/drive']
-	credentials = service_account.Credentials.from_service_account_file('service_account.json', scopes=scopes)
-	drive_service = build('drive', 'v3', credentials=credentials)
-	results = drive_service.files().list(pageSize=100, fields="files(id, name)").execute() 
-	items = results.get('files', [])
-	for files in items:
-		if files['name']=='pnw.db':
-			f = drive_service.files().delete(fileId=files['id']).execute()
-		f = None 
-	file_metadata = {"name": "pnw.db"}
-	media = MediaFileUpload("pnw.db", mimetype="application/x-sqlite3")
-	file = (
-        drive_service.files()
-        .create(body=file_metadata, media_body=media, fields="id")
-        .execute()
-    )
-	logging.info(f'File ID: {file.get("id")}')		
-	drive_service.close()		
-
+		
 @client.tree.command(name='war_vis',description="Provides a sheet")
 async def war_vis(interaction: discord.Interaction, allies:str,enemies:str):
 	await interaction.response.defer(thinking='Calculating the statistics')
@@ -1037,7 +1009,7 @@ async def beigealerts(ctx:commands.Context,city_range:str,alliance_id:typing.Opt
 		await db.commit()
 	await ctx.send(f"Alerts have been registered for {len(beige_nations)} nations with cities {city_range[0]}-{city_range[1]}.")
 	logging.info(beige_nations)			
-	updater.update_nation_data.change_interval(minutes=2.5)
+	updater_tasks.update_nation_data.change_interval(minutes=2.5)
 	logging.info("test")
 	check_for_beigealerts.start()
 
@@ -1089,7 +1061,7 @@ async def check_for_beigealerts():
 					await db.execute(f'delete from beige_alerts where nation_id={data[0]}')
 	
 		else:
-			updater.update_nation_data.change_interval(minutes=5)
+			background_tasks.update_nation_data.change_interval(minutes=5)
 			check_for_beigealerts.stop()			
 		await db.commit()				
 

@@ -78,7 +78,7 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
                 await self.channel.send(embed=self.embed,reference=discord.MessageReference(message_id=ids["message_id"],channel_id=self.channel.id))  
                 ids["delete"]=True
 
-    async def on_ready(self):
+    async def start(self):
         
         subscription = await self.kit.subscribe("trade","create",{"type":"Global","accepted":0},self.check_the_rss)
 
