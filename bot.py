@@ -440,12 +440,13 @@ client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=inte
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook
-updater_tasks = background_tasks()
+updater_tasks = background_tasks
 
 @client.event
 async def on_ready():
 	logging.info('Bot is ready')
 	start_trade = trade_watcher(client=client)
+
 	await start_trade.start()
 	await client.change_presence(status=discord.Status.online, activity=activity)
 	await client.load_extension("commands.help")
