@@ -10,20 +10,20 @@ class help_commands(commands.Cog):
 		emb = discord.Embed()
 		emb.title='Help'
 		emb.description='Use ;help <command name> to get more info about the specific command'
-		emb.add_field(name='Commands',value=('1. air\t\tAir attack simulation.\n'
-											'2. banklootval\t\tGet the value of the bank basing on the beige message from war history.\n'
-											'3. fastbeige\t\tGet the five fastest ways to beige an opponent.\n'
-											'4. ground\t\tGround attack simulation.\n'
-											'5. loot\t\tGet the loot data based on last war loss or spy report\n'
-											'6. lootval\t\tGet the value of the nation beige loot basing on the beige message from war history.\n'
-											'7. naval\t\tNaval attack simulation\n'
-											'8. pricehistory\t\tHelps in determination of market prices movement\n'
-									   		'9. raid\t\tGets raid targets\n'
-									   		'10. register\t\tregisters you to the bot\n'
-									   		'11. slowbeige\t\tGet the five slowest ways to beige an opponent. Useful for sitting purposes.\n'
-									   		'12. spyopval\t\tGet the value of the nation beige loot basing on the GATHER INTEL result from notifications.\n'
-									   		'13. who\t\tDisplays nation information\n'
-									   		'14. wars\t\tGet the wars a nation is currently in'))
+		emb.add_field(name='Commands',value=('1. air{:<13}Air attack simulation.\n'
+											'2. banklootval{:<13}Get the value of the bank basing on the beige message from war history.\n'
+											'3. fastbeige{:<13}Get the five fastest ways to beige an opponent.\n'
+											'4. ground{:<13}Ground attack simulation.\n'
+											'5. loot{:<13}Get the loot data based on last war loss or spy report\n'
+											'6. lootval{:<13}Get the value of the nation beige loot basing on the beige message from war history.\n'
+											'7. naval{:<13}Naval attack simulation\n'
+											'8. pricehistory{:<13}Helps in determination of market prices movement\n'
+									   		'9. raid{:<13}Gets raid targets\n'
+									   		'10. register{:<13}registers you to the bot\n'
+									   		'11. slowbeige{:<13}Get the five slowest ways to beige an opponent. Useful for sitting purposes.\n'
+									   		'12. spyopval{:<13}Get the value of the nation beige loot basing on the GATHER INTEL result from notifications.\n'
+									   		'13. who{:<13}Displays nation information\n'
+									   		'14. wars{:<13}Get the wars a nation is currently in'))
 		await ctx.send(embed=emb)
 
 	@help.command(name='air',description='Air attack simulation.')
