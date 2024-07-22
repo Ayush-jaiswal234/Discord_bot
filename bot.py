@@ -15,7 +15,6 @@ from itertools import combinations_with_replacement
 from commands.role_view import MyPersistentView
 from scripts.trade_bot import trade_watcher
 from dotenv import load_dotenv
-from commands.help import help_commands
 
 #logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.basicConfig(filename='log.txt',	level=logging.INFO) #	
@@ -444,7 +443,7 @@ client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=inte
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook
-client.add_cog(help_commands(client))
+
 
 @client.event
 async def on_ready():
@@ -456,6 +455,7 @@ async def on_ready():
 	start_trade = trade_watcher(client=client)
 	await start_trade.on_ready()
 	await client.change_presence(status=discord.Status.online, activity=activity)
+	await client.load_extension("commands.help")
 
 @client.event
 async def on_command_error(ctx, error):
