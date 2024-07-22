@@ -9,10 +9,10 @@ class help_commands(commands.Cog):
 	async def help(self,ctx):
 		emb = discord.Embed()
 		emb.title='Help'
-		emb.description='List of commands\nUse ;help <command name> to get more info about the specific command'
-		emb.add_field(name='Register',value='registers you to the bot')
-		emb.add_field(name='Raid',value='get targets')
-		emb.add_field(name='Who',value='displays nation information')
+		emb.description='Use ;help <command name> to get more info about the specific command'
+		emb.add_field(name='Commands',value=('1. Register registers you to the bot'
+									   '2. Raid gets targets'
+									   '3. Who displays nation information'))
 		await ctx.send(embed=emb)
 
 	@help.command(name="register",description="How to register to the bot")

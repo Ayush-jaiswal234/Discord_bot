@@ -1,4 +1,3 @@
-import sqlite3
 from discord.ext import commands
 import aiosqlite
 import datetime
@@ -85,17 +84,13 @@ async def get(search_element,_id,search_using='discord_id'):
 	return value			
 pass
 
-def get_unregistered(search_element,_id,search_using='nation_id',fetchall=False):
-	connection=sqlite3.connect('pnw.db')
-	cursor=connection.cursor()
-	search=f"select {search_element} from all_nations_data where {search_using}='{_id}'"
-	cursor.execute(search)
-	if fetchall==False:
-		score=cursor.fetchone()
-	else:
-		score=cursor.fetchall()
-	cursor.close()
-	connection.close()
+async def get_unregistered(search_element,_id,search_using='nation_id',fetchall=False):
+	async with aiosqlite.connect('pnw.db') as db:
+		async with db.execute(f"select {search_element} from all_nations_data where {search_using}='{_id}'") as cursor:
+			if fetchall==False:
+				score=cursor.fetchone()
+			else:
+				score=cursor.fetchall()
 	if score !=None and len(score)==1:
 		score=score[0]
 		if type(score)==(list or tuple) and len(score)==1:
@@ -107,17 +102,17 @@ async def nation_id_finder(ctx,id_or_name):
 	try:
 		discord_id= await commands.converter.MemberConverter().convert(ctx,id_or_name)
 		nation_id=get('registered_nations.nation_id',discord_id.id)
-	except:
+	except commands.BadArgument:
 		if id_or_name.isdigit():
 				nation_id=int(id_or_name)
 		elif id_or_name.startswith('https://politicsandwar.com/nation'):
-			nation_id=int(id_or_name[-6:])	
+			nation_id=int(id_or_name.split('=')[1])	
 		else:
 			finder=['nation','leader']
 			x=0
 			nation_id=id_or_name
 			while (isinstance(nation_id,str) or nation_id==None) and x<2:
-				nation_id=get_unregistered('nation_id',id_or_name,finder[x])
+				nation_id=await get_unregistered('nation_id',id_or_name,finder[x])
 				x+=1			
 	return nation_id	
 pass

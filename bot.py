@@ -26,50 +26,13 @@ def update_registered_nations(author_id,author_name,nation_id):
 	connection.close()	
 pass
 
-def get_unregistered(search_element,_id,search_using='nation_id',fetchall=False):
-	connection=sqlite3.connect('pnw.db')
-	cursor=connection.cursor()
-	search=f"select {search_element} from all_nations_data where {search_using}='{_id}'"
-	cursor.execute(search)
-	if fetchall==False:
-		score=cursor.fetchone()
-	else:
-		score=cursor.fetchall()
-	cursor.close()
-	connection.close()
-	if score !=None and len(score)==1:
-		score=score[0]
-		if type(score)==(list or tuple) and len(score)==1:
-			score=score[0]	
-	return score
-pass
-
-async def nation_id_finder(ctx,id_or_name):
-	try:
-		discord_id= await commands.MemberConverter().convert(ctx,id_or_name)
-		nation_id=await nation_data_converter.get('registered_nations.nation_id',discord_id.id)
-	except commands.BadArgument:
-		if id_or_name.isdigit():
-				nation_id=int(id_or_name)
-		elif id_or_name.startswith('https://politicsandwar.com/nation'):
-			nation_id=int(id_or_name.split('=')[1])
-		else:	
-			finder=['nation','leader']
-			x=0
-			nation_id=id_or_name
-			while (isinstance(nation_id,str) or nation_id==None) and x<2:
-				nation_id=get_unregistered('nation_id',id_or_name,finder[x])
-				x+=1			
-	return nation_id	
-pass
-
-def aa_finder(id_or_name):
+async def aa_finder(id_or_name):
 	if id_or_name.isdigit()	:
 		alliance_id=id_or_name
 	elif id_or_name.startswith('http'):
 		alliance_id=id_or_name[39:]
 	else:
-		alliance_id=get_unregistered('alliance_id',id_or_name,'alliance')
+		alliance_id = await nation_data_converter.get_unregistered('alliance_id',id_or_name,'alliance')
 	return alliance_id
 pass		
 
@@ -229,82 +192,6 @@ def check_subscriptions(server_id,command_name):
 	return validity
 pass
 
-def check_efficency(nation_id):	
-	query="""{
-		nations(id:%s,first:1){
-			data{
-				cities{
-					id
-					name
-					infrastructure
-					land
-					coalpower
-					oilpower
-					windpower
-					nuclearpower
-					coalmine
-					oilwell
-					uramine
-					leadmine
-					ironmine
-					bauxitemine
-					farm
-					gasrefinery
-					aluminumrefinery
-					munitionsfactory
-					steelmill
-					policestation
-					hospital
-					recyclingcenter
-					subway
-					supermarket
-					bank
-					mall
-					stadium
-					barracks
-					factory
-					airforcebase
-					drydock
-				}
-			}
-		}      
-	}"""	% (nation_id)
-	fetchdata=requests.get(graphql_link,json={'query':query})
-	fetchdata=fetchdata.json()
-	fetchdata=fetchdata['data']['nations']['data'][0]['cities']
-	total_keys= [keys for keys in fetchdata[0]]
-	total_keys.pop(0)
-	total_keys.pop(0)
-	total_values=[0 for x in total_keys]
-	for y in range(0,len(fetchdata)): 
-			temp=[fetchdata[y][keys] for keys in total_keys]
-			total_values=[total_values[i]+temp[i] for i in range(0,len(temp))]
-	avg_value=[round(i/len(fetchdata),2) for i in total_values]
-	return avg_value,len(fetchdata)
-pass
-
-def check_for_defcon(nation_id):
-	connection=sqlite3.connect('pnw.db')
-	cursor=connection.cursor()
-	data="select barracks,factory,hangar,drydock,all_nations_data.soldiers,all_nations_data.tanks,all_nations_data.aircraft,all_nations_data.ships from defcon inner join all_nations_data on all_nations_data.alliance_id = defcon.alliance_id where all_nations_data.nation_id=%s" % (nation_id)
-	cursor.execute(data)
-	defcon=cursor.fetchone()
-	cursor.close()
-	connection.close()
-	return defcon
-pass
-
-def check_for_build(nation_id,infra):
-	connection=sqlite3.connect('pnw.db')
-	cursor=connection.cursor()
-	data="select build_details from build inner join all_nations_data on all_nations_data.alliance_id = build.alliance_id where (all_nations_data.nation_id=%s and build.min_infra<=%s) order by build.min_infra desc limit 1 " % (nation_id,infra)
-	cursor.execute(data)
-	build=cursor.fetchone()
-	cursor.close()
-	connection.close()
-	return build
-pass
-
 def get_wars(my_nation_id):
 	query="""{
 		wars(nation_id:%s,days_ago:5){
@@ -447,7 +334,7 @@ async def on_ready():
 	global updater_tasks
 	logging.info('Bot is ready')
 	start_trade = trade_watcher(client=client)
-	updater_tasks = await background_tasks()
+	updater_tasks = background_tasks()
 	await start_trade.start()
 	await client.change_presence(status=discord.Status.online, activity=activity)
 	await client.load_extension("commands.help")
@@ -466,61 +353,6 @@ async def on_command_error(ctx, error):
 async def add_subscription(ctx,command_name,time):
 	update_subscriptions(ctx.guild.id,command_name,time)
 	await ctx.send('Subscriptions updated')	
-
-@client.command()
-async def audit(ctx,nation_id=None):
-	if nation_id==None:
-		nation_id=str(ctx.author.id)
-	nation_id=await nation_id_finder(ctx,nation_id)
-	results,city_count=check_efficency(nation_id)
-	embed_name=['Infra','Land','Coalpower','Oilpower','Windpower','Nuclearpower','Coalmine','Oilwell','Uramine','Leadmine','Ironmine','Bauxitemine','Farm','Gasrefinery','Aluminumrefinery','Munitionsfactory','Steelmill','Policestation','Hospital','Recyclingcenter','Subway','Supermarket','Bank','Mall','Stadium','Barracks','Factory','Hangar','Drydock']
-	embed1=discord.Embed()
-	embed1.title='Build average details'
-	for x in range(0,len(embed_name)):
-		if results[x]!=0:
-			embed1.add_field(name=embed_name[x],value=results[x],inline=True)
-	defcon=check_for_defcon(nation_id)
-	logging.info(defcon)
-	embed2=	discord.Embed()
-	embed2.title='Defcon'
-	text=''
-	if defcon!=None:
-		for x in range(0,4):
-			value='✓'
-			if results[x+25]<defcon[x]:
-				value='✘'
-			embed2.add_field(name=embed_name[x+25],value=value,inline=True)
-	else:
-		text="Defcon hasn't been set for your alliance"			
-	build=(check_for_build(nation_id,results[0]))
-	if build!=None:
-		embed3=discord.Embed()
-		embed3.title='Audit'
-		build=build[0]
-		build=eval(build)
-		improvements=[build[keys] for keys in build]
-		for x in range(0,23):
-			requirements_met='❌'
-			if results[x+2]>=improvements[x] and improvements[x]!=0:
-				requirements_met='✅'
-				embed3.add_field(name=embed_name[x+2],value=requirements_met)
-			elif results[x+2]<improvements[x]:
-				embed3.add_field(name=embed_name[x+2],value="Requirement not satisfied")	
-	else:
-		text1="Build hasn't been set for this infra"			
-	embed4=discord.Embed()
-	embed4.title='To do'
-	emoji_list=['one','two','three','four','five','six','seven','eight','nine']	
-		
-	await ctx.send(embed=embed1)
-	if defcon!=None:
-		await ctx.send(embed=embed2)
-	else:
-		await ctx.send(text)
-	if build!=None:
-		await ctx.send(embed=embed3)
-	else:
-		await ctx.send(text1)	
 
 @client.command()
 async def check_color(ctx):
@@ -564,12 +396,12 @@ async def inactivity(ctx):
 
 @client.hybrid_command(name="loot",with_app_command=True,description="Amount of loot you would get from the target nation considering a raid war and pirate war policy")
 async def loot(ctx:commands.Context,*,nation_id:str):
-	nation_id=await nation_id_finder(ctx,nation_id)
+	nation_id=await nation_data_converter.nation_id_finder(ctx,nation_id)
 	result = await loot_calculator(nation_id)	
 	if result!=None:
 		logging.info(result)
 		embed=discord.Embed()
-		embed.title=f'Loot info for {get_unregistered("nation",nation_id)}'
+		embed.title=f'Loot info for {await nation_data_converter.get_unregistered("nation",nation_id)}'
 		list_of_things_to_find=['Money','Food','Coal','Oil','Uranium','Lead','Iron','Bauxite','Gasoline','Munitions','Steel','Aluminum']
 		for x in range(0,len(list_of_things_to_find)):
 			embed.add_field(name=list_of_things_to_find[x],value='{:,}'.format(int(result[1][x+2]*0.14)),inline=True)
@@ -662,7 +494,6 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 		page1.description='Usage : `;register <nation id|nation link>`'
 		await ctx.send(content="You must be registered to use this command",embed=page1)	
 			
-
 @client.hybrid_command(name="register",with_app_command=True,description="Finds the best raiding targets")
 async def register(ctx,link):
 	if link.startswith('http'):
@@ -676,7 +507,7 @@ async def register(ctx,link):
 async def wars(ctx,*,_id=None):
 	if _id==None:
 		_id=str(ctx.author.id)
-	nation_id=await nation_id_finder(ctx,_id)
+	nation_id=await nation_data_converter.nation_id_finder(ctx,_id)
 	active_wars=get_wars(nation_id)
 	off_wars=discord.Embed()
 	def_wars=discord.Embed()
@@ -687,25 +518,25 @@ async def wars(ctx,*,_id=None):
 	for x in active_wars: 
 		if int(x['attid'])==nation_id:
 			i=0
-			text=f"Defender:[{get_unregistered('nation',x['defid'])}](https://politicsandwar.com/nation/id={x['defid']})\n"
+			text=f"Defender:[{await nation_data_converter.get_unregistered('nation',x['defid'])}](https://politicsandwar.com/nation/id={x['defid']})\n"
 			for keys in x:
 				if 'id' not in keys:
 					if keys=='war_type':
 						text=text+f"{display_elements[i]}:{x[keys]}\n"
 					elif x[keys]!='0': 
-						text=text+f"{display_elements[i]}:{get_unregistered('nation',x[keys])}\n"			
+						text=text+f"{display_elements[i]}:{await nation_data_converter.get_unregistered('nation',x[keys])}\n"			
 					i+=1	
 			off_wars.add_field(name=f'{counter_off}.https://politicsandwar.com/nation/war/timeline/war={x["id"]}',value=text,inline=False)
 			counter_off+=1
 		else:
 			i=0
-			text=f"Aggressor:[{get_unregistered('nation',x['attid'])}](https://politicsandwar.com/nation/id={x['attid']})\n"
+			text=f"Aggressor:[{await nation_data_converter.get_unregistered('nation',x['attid'])}](https://politicsandwar.com/nation/id={x['attid']})\n"
 			for keys in x:
 				if 'id' not in keys:
 					if keys=='war_type':
 						text=text+f"{display_elements[i]}:{x[keys]}\n"
 					elif x[keys]!='0': 
-						text=text+f"{display_elements[i]}:{get_unregistered('nation',x[keys])}\n"		
+						text=text+f"{display_elements[i]}:{await nation_data_converter.get_unregistered('nation',x[keys])}\n"		
 					i+=1
 			def_wars.add_field(name=f'{counter_def}.https://politicsandwar.com/nation/war/timeline/war={x["id"]}',value=text,inline=False)
 			counter_def+=1
@@ -714,8 +545,8 @@ async def wars(ctx,*,_id=None):
 
 @client.hybrid_command(name="who",with_app_command=True,description="Gives info on the given nation or user")
 async def who(ctx,*,discord_name):
-	nation_id=await nation_id_finder(ctx,discord_name)
-	nation_data=get_unregistered('*',nation_id)
+	nation_id=await nation_data_converter.nation_id_finder(ctx,discord_name)
+	nation_data = await nation_data_converter.get_unregistered('*',nation_id)
 	discord_id=await nation_data_converter.get('discord_id',nation_id,'registered_nations.nation_id')
 	if isinstance(nation_data,tuple):
 		embed=discord.Embed()
@@ -748,14 +579,14 @@ async def who(ctx,*,discord_name):
 		await ctx.send(embed=embed)
 	else:
 		alliance_id=aa_finder(discord_name)
-		alliance_data=get_unregistered('cities,offensive_wars,defensive_wars,score,soldiers,tanks,aircraft,ships,missiles,nukes',alliance_id,'alliance_position<>1 and alliance_id',True)
+		alliance_data = await nation_data_converter.get_unregistered('cities,offensive_wars,defensive_wars,score,soldiers,tanks,aircraft,ships,missiles,nukes',alliance_id,'alliance_position<>1 and alliance_id',True)
 		if alliance_id!=[]:	
 			total_stats=[0 for x in alliance_data[0]]
 			for y in range(0,len(alliance_data)):
 				temp=[x for x in alliance_data[y]]
 				total_stats=[total_stats[i]+temp[i] for i in range(0,len(temp))]
 			embed=discord.Embed()
-			embed.title=f"{(get_unregistered('alliance',alliance_id,'alliance_id'))}({len(alliance_data)} nations)"
+			embed.title=f"{(await nation_data_converter.get_unregistered('alliance',alliance_id,'alliance_id'))}({len(alliance_data)} nations)"
 			embed.url=f'https://politicsandwar.com/alliance/id={alliance_id}'
 			just_list=['Cities','Offensive Wars','Defensive Wars','Score','Soldiers','Tanks','Aircraft','Ships','Missiles','Nukes']	
 			for x in range(0,len(just_list)):
@@ -939,7 +770,7 @@ async def spyopval(ctx:commands.Context, *,message:str):
 		full_stop=message.find('.')
 		nation=(message)[45:full_stop]
 		logging.info(nation)
-		nation_id=get_unregistered('nation_id',nation,'nation')
+		nation_id = await nation_data_converter.get_unregistered('nation_id',nation,'nation')
 		if nation_id!=None and (message.count(nation)==2 or message.count(nation)==3):
 			find_stuffs_orig = ['food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum']
 			actual_loot,prices = await loot_from_text(message,2)    
