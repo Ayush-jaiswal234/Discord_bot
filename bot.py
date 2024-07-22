@@ -440,13 +440,14 @@ client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=inte
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook
-updater_tasks = background_tasks
+
 
 @client.event
 async def on_ready():
+	global updater_tasks
 	logging.info('Bot is ready')
 	start_trade = trade_watcher(client=client)
-
+	updater_tasks = await background_tasks()
 	await start_trade.start()
 	await client.change_presence(status=discord.Status.online, activity=activity)
 	await client.load_extension("commands.help")
@@ -990,6 +991,7 @@ async def lootval(ctx:commands.Context,*,message:str):
 	
 @client.hybrid_command(name='beigealerts',with_app_command=True,description='Alerts about the targets leaving beige')
 async def beigealerts(ctx:commands.Context,city_range:str,alliance_id:typing.Optional[str]):
+	global updater_tasks
 	channel = ctx.channel
 	logging.info(channel.id)
 	if alliance_id == None:
