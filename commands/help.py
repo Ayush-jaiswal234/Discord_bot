@@ -16,14 +16,14 @@ class help_commands(commands.Cog):
 											'4. ground\t\tGround attack simulation.\n'
 											'5. loot\t\tGet the loot data based on last war loss or spy report\n'
 											'6. lootval\t\tGet the value of the nation beige loot basing on the beige message from war history.\n'
-											'7. naval\t\t\Naval attack simulation\n'
-											'8. pricehistory\t\t\Helps in determination of market prices movement\n'
-									   		'9. raid\t\t\Gets raid targets\n'
-									   		'10. register\t\t\registers you to the bot\n'
-									   		'11. slowbeige\t\t\Get the five slowest ways to beige an opponent. Useful for sitting purposes.\n'
-									   		'12. spyopval\t\t\Get the value of the nation beige loot basing on the GATHER INTEL result from notifications.\n'
-									   		'13. who\t\t\Displays nation information\n'
-									   		'14. wars\t\t\Get the wars a nation is currently in'))
+											'7. naval\t\tNaval attack simulation\n'
+											'8. pricehistory\t\tHelps in determination of market prices movement\n'
+									   		'9. raid\t\tGets raid targets\n'
+									   		'10. register\t\tregisters you to the bot\n'
+									   		'11. slowbeige\t\tGet the five slowest ways to beige an opponent. Useful for sitting purposes.\n'
+									   		'12. spyopval\t\tGet the value of the nation beige loot basing on the GATHER INTEL result from notifications.\n'
+									   		'13. who\t\tDisplays nation information\n'
+									   		'14. wars\t\tGet the wars a nation is currently in'))
 		await ctx.send(embed=emb)
 
 	@help.command(name='air',description='Air attack simulation.')
