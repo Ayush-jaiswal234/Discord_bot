@@ -15,6 +15,7 @@ from itertools import combinations_with_replacement
 from commands.role_view import MyPersistentView
 from scripts.trade_bot import trade_watcher
 from dotenv import load_dotenv
+from commands.help import help_commands
 
 #logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.basicConfig(filename='log.txt',	level=logging.INFO) #	
@@ -443,6 +444,7 @@ client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=inte
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook
+client.add_cog(help_commands)
 
 @client.event
 async def on_ready():
@@ -796,54 +798,6 @@ async def who(ctx,*,discord_name):
 			await ctx.send(embed=embed)				
 		else:			
 			await ctx.send('Invalid nation/allinace')
-
-@client.command()
-async def help(ctx,command_name=None):
-	embed=discord.Embed()
-	if command_name==None:
-		embed.title='Help'
-		embed.description='List of commands\nUse ;help <command name> to get more info about the specific command'
-		embed.add_field(name='Register',value='registers you to the bot')
-		embed.add_field(name='Raid',value='get targets')
-		embed.add_field(name='Who',value='displays nation information')
-		embed.add_field(name='Nation',value='displays your nation registered to the bot')
-		embed.add_field(name='Inactivity',value='inactivity length of members')
-		embed.add_field(name='Check_color',value='checks if all the members have same color bloc as the alliance')
-		embed.add_field(name='Set_defcon',value='Sets defcon for your alliance')
-		embed.add_field(name='Set_build',value='Sets the build required for the particular infra level')
-		embed.add_field(name='Audit',value='Audits your nation on the basis of criteria set by your alliance')
-	else:
-		command_name=command_name.lower()
-		if command_name=='register':	
-			embed.title='Register'
-			embed.description='Usage: ;register <nation id|nation link>'
-		
-		if command_name=='raid':
-			embed.title='Raid'
-			embed.description='Usage: ;raid'
-			embed.add_field(name='Filters',value='1. -inactivity_days:`n` [Looks for targets inactive for n days, defaults to 0]\n2. -beige:`True|False` [gets beige targets,defaults to True if filter not used]\n3. -alliances:`alliance id(s)` [gets targets in the given alliance,defaults to 0 or none if filter not used]\n4. -beige_turns:`n` [gets targets with maximum beige of n turns,defaults to 216]\n5. -all_nations:`True|False` [looks for all targets in the games, defaults to False]')
-		if command_name=='who':
-			embed.title='Who'
-			embed.description='Usage: ;who <nation name|@user>\n Takes nation name,leader name,@user and nation id as argument'
-		if command_name=='nation':
-			embed.title='Nation'
-			embed.description='Usage: ;nation\n Gets the nation you are registered to'
-		if command_name=='inactivity':
-			embed.title='Inactivity'
-			embed.description='Usage: ;inactivity\n Displays all nations which are inactive for more than 5 days in the alliance'		
-		if command_name=='check_color':
-			embed.title='Check_color'
-			embed.description='Usage: ;check_color\n Displays all nations that are not in the correct color trade bloc'
-		if command_name=='set_defcon':
-			embed.title='Set_defcon'
-			embed.description='Usage: ;set_defcon <values>\n Example Usage: ;set_defcon 5/0/0/0 (sets defcon to 5 barracks,0 factory,0 hangar and 0 drydock)'
-		if command_name=='set_build':
-			embed.title='Set_build'
-			embed.description='Usage: ;set_build <values>'
-		if command_name=='audit':
-			embed.title='Audit'	
-			embed.description='Usage: ;audit <nation id>\n Defcon and build must be set for your alliance for full functionality'				
-	await ctx.send(embed=embed)					
 
 @tasks.loop(time=dt.time(hour=6,minute=15,tzinfo=dt.timezone.utc))
 async def copy_db():
