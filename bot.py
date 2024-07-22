@@ -16,7 +16,7 @@ from commands.role_view import MyPersistentView
 from scripts.trade_bot import trade_watcher
 from dotenv import load_dotenv
 
-#logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.basicConfig(filename='log.txt',	level=logging.INFO) #	
 aiosqlite.threadsafety=1
 load_dotenv()
