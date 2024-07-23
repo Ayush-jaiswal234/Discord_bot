@@ -177,7 +177,7 @@ class background_tasks:
 	pass
 
 	@tasks.loop(time=dt.time(hour=6,minute=15,tzinfo=dt.timezone.utc))
-	async def copy_db():
+	async def copy_db(self):
 		scopes=['https://www.googleapis.com/auth/drive']
 		credentials = service_account.Credentials.from_service_account_file('service_account.json', scopes=scopes)
 		drive_service = build('drive', 'v3', credentials=credentials)
