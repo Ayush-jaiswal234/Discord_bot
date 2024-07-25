@@ -8,13 +8,14 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from discord.ext import commands
 from scripts.nation_data_converter import time_converter
+from json.decoder import JSONDecodeError
 
 class background_tasks:
 
 	def __init__(self,bot) -> None:
 		self.channel = bot.get_channel(715222394318356541)
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
-		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
+		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError)
 		self.update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
 		self.update_trade_price.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
 		self.audit_members.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
@@ -221,7 +222,7 @@ class background_tasks:
 			if nation["alliance_position"]!="APPLICANT":
 				if nation["color"]!=fetchdata["color"]:
 					text = await self.member_info(nation)
-					await self.channel.send(f"{text} please change your color {fetchdata["color"]}")
+					await self.channel.send(f"{text} please change your color {fetchdata['color']}")
 				inactive_days = time_converter(dt.strptime(nation["last_active"],'%Y-%m-%d %H:%M:%S')).split('d')[0]
 				if inactive_days>5:
 					text = await self.member_info(nation)
@@ -241,7 +242,7 @@ class background_tasks:
 	async def member_info(self,nation):
 		discord_id = None
 		if nation["discord_id"]!=None:
-			discord_id = f"<@{nation["discord_id"]}>"
+			discord_id = f'<@{nation["discord_id"]}>'
 		elif nation["discord"]!="":
 			discord_id= await commands.converter.MemberConverter().convert(self.channel,nation["discord"])
 			discord_id = f"<@{discord_id}"
@@ -255,4 +256,4 @@ class background_tasks:
 			nation["discord_id"]=discord_id
 			return discord_id
 		else:
-			return f"https://policticsandwar.com/nation/id={nation["id"]} is not registered to the bot\n"
+			return f'https://policticsandwar.com/nation/id={nation["id"]} is not registered to the bot\n'
