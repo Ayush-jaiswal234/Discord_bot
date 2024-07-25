@@ -223,7 +223,7 @@ class background_tasks:
 				if nation["color"]!=fetchdata["color"]:
 					text = await self.member_info(nation)
 					await self.channel.send(f"{text} please change your color {fetchdata['color']}")
-				inactive_days = time_converter(dt.datetime.strptime(nation["last_active"],'%Y-%m-%d %H:%M:%S')).split('d')[0]
+				inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%d %H:%M:%S')).split('d')[0]
 				if inactive_days>5:
 					text = await self.member_info(nation)
 					await self.channel.send(f"{text} please login you have been inactive for {inactive_days} day(s).")
