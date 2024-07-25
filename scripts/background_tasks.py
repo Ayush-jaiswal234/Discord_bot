@@ -243,9 +243,6 @@ class background_tasks:
 		discord_id = None
 		if nation["discord_id"]!=None:
 			discord_id = f'<@{nation["discord_id"]}>'
-		elif nation["discord"]!="":
-			discord_id= await commands.converter.MemberConverter().convert(self.channel,nation["discord"])
-			discord_id = f"<@{discord_id}"
 		else:
 			async with aiosqlite.connect('pnw.db') as db:	
 				async with db.execute(f'select discord_id from registered_nations where nation_id={nation["id"]}') as cursor:
