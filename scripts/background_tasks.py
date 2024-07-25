@@ -233,7 +233,7 @@ class background_tasks:
 				for units in range(0,len(mmr)):
 					if nation[unit_name[units]]<mmr_nation[units]:
 						mmr_violation = True
-						violation_text = f"{text} You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.\n"
+						violation_text = f"{violation_text} You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.\n"
 				if mmr_violation:
 					text = await self.member_info(nation)
 					await self.channel.send(f"{text} {violation_text}")		
