@@ -224,13 +224,13 @@ class background_tasks:
 					text = await self.member_info(nation)
 					await self.channel.send(f"{text} please change your color {fetchdata['color']}")
 				inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%dT%H:%M:%S')).split('d')[0]
-				if inactive_days>5:
+				if int(inactive_days)>5:
 					text = await self.member_info(nation)
 					await self.channel.send(f"{text} please login you have been inactive for {inactive_days} day(s).")
 				mmr_nation = [x * nation["num_cities"] for x in mmr]
 				mmr_violation = False
 				violation_text = ""
-				for units in range(0,mmr):
+				for units in range(0,len(mmr)):
 					if nation[unit_name[units]]<mmr_nation[units]:
 						mmr_violation = True
 						violation_text = f"{text} You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.\n"
