@@ -215,7 +215,7 @@ class background_tasks:
 	}"""
 		async with httpx.AsyncClient() as client:
 			fetchdata=await client.post(self.api_v3_link,json={'query':query})
-			fetchdata = fetchdata.json()["data"]["alliances"]["data"]
+			fetchdata = fetchdata.json()["data"]["alliances"]["data"][0]
 		mmr = [0 * 3000 ,2 * 250,5 * 15, 0 * 5]	
 		unit_name = ["soldiers","tanks","aircraft","ships"]
 		for nation in fetchdata["nations"]:
