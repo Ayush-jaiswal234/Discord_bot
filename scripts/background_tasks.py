@@ -304,7 +304,8 @@ class background_tasks:
 			base_pop = city["infrastructure"]*100 #later add crime and disease
 			city_age_mod = int(time_converter(dt.datetime.strptime(city["date"].split('+')[0],'%Y-%m-%d')).split('d')[0])
 			if city_age_mod!=0:
-				city_age_mod =1 + log(city_age_mod/15)
+				city_age_mod =1 + log(city_age_mod)/15
+				
 			raws_rev["food"] -= ((base_pop**2)/125000000) + ((base_pop*city_age_mod-base_pop)/850)
 			raws_rev["food"] += max(0,city["farm"]*(1+(city["farm"]*2.63-2.63)/100)*food_mod*(1-rad_mod))
 
