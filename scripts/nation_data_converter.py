@@ -38,7 +38,14 @@ def continent(number):
 	4:'Africa',
 	5:'Asia',
 	6:'Australia',
-	7:'Antarctica'
+	7:'Antarctica',
+	"na":"north_america",
+	"sa":"south_america",
+	"eu":"europe",
+	"af":"africa",
+	"as":"asia",
+	"au":"australia",
+	"an":"antarctica"
 	}
 	return switcher.get(number)
 pass
