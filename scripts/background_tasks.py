@@ -184,7 +184,7 @@ class background_tasks:
 		logging.info(f'Time trade={end_time-start_time}')
 	pass
 
-	@tasks.loop(time=dt.time(hour=6,minute=15,tzinfo=dt.timezone.utc))
+	@tasks.loop(time=dt.time(hour=6,minute=15,tzinfo=dt.timezone.utc),reconnect=True)
 	async def copy_db(self):
 		scopes=['https://www.googleapis.com/auth/drive']
 		credentials = service_account.Credentials.from_service_account_file('service_account.json', scopes=scopes)
@@ -205,7 +205,7 @@ class background_tasks:
 		logging.info(f'File ID: {file.get("id")}')		
 		drive_service.close()
 
-	@tasks.loop(hours=24,reconnect=True)
+	@tasks.loop(time=dt.time(hour=10,tzinfo=dt.timezone.utc),reconnect=True)
 	async def audit_members(self):
 		query="""{game_info{radiation{global,north_america,south_america,europe,africa,asia,australia,antarctica}}
 
@@ -230,7 +230,7 @@ class background_tasks:
 		mmr_raiders = [5 * 3000 ,0 * 250,0 * 15, 0 * 5]	
 		unit_name = ["soldiers","tanks","aircraft","ships"]
 		for nation in fetchdata["nations"]:
-			if nation["alliance_position"]!="APPLICANT" and nation["id"] in ['209785','181050']:
+			if nation["alliance_position"]!="APPLICANT":
 				if nation["num_cities"]>10:
 					alert_required,message= await self.alert_checker(nation,fetchdata["color"],radiation,mmr,unit_name)
 				else:
