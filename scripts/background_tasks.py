@@ -237,8 +237,15 @@ class background_tasks:
 					alert_required,message= await self.alert_checker(nation,fetchdata["color"],radiation,mmr_raiders,unit_name)	
 				if alert_required:
 					discord_id = await self.member_info(nation)
-					user = await self.bot.fetch_user(discord_id)
-					await user.send(message)
+					if discord_id!=None:
+						try:
+							user = await self.bot.get_user(discord_id)
+						except:
+							logging.info('get_user failed')	
+							user = await self.bot.fetch_user(discord_id)
+						await user.send(message)
+					else:
+						logging.info(f'{nation["id"]} not registered')	
 
 		logging.info("Task audit_members ran successfully")
 
@@ -252,33 +259,32 @@ class background_tasks:
 					discord_id = await cursor.fetchone()
 			if discord_id!=None:
 				discord_id = discord_id[0]		
-		if discord_id!=None:
-			return discord_id
-		else:
-			return f'https://politicsandwar.com/nation/id={nation["id"]} is not registered to the bot\n'
+		
+		return discord_id
+			
 
 	async def alert_checker(self,nation,aa_color,radiation,mmr,unit_name):
 		alert_required = False
-		alert_text = "```"
+		alert_text = ""
 		
 		if nation["color"]!=aa_color and nation["color"]!="biege":
 			alert_required = True
-			alert_text = f"{alert_text}Please change your color {aa_color}\n"
+			alert_text = f"{alert_text}**Color:**\n```Please change your color {aa_color}.```\n"
 		
 		inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%dT%H:%M:%S')).split('d')[0]
 		if int(inactive_days)>5:
 			alert_required = True
-			alert_text = f"{alert_text}Please login you have been inactive for {inactive_days} day(s).\n"
+			alert_text = f"{alert_text}**Inactivity:**\n```Please login you have been inactive for {inactive_days} day(s).```\n"
 		mmr_nation = [x * nation["num_cities"] for x in mmr]
 		
 		for units in range(0,len(mmr)):
 			if nation[unit_name[units]]<mmr_nation[units]:
 				alert_required = True
-				alert_text = f"{alert_text}You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.\n"
+				alert_text = f"{alert_text}**{units.capitalize()}:**\n```You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.```\n"
 		
 		if nation["spies"]<60:
 			alert_required = True
-			alert_text= f"{alert_text}You are missing {60-nation['spies']} spies to reach the mmr.\n"
+			alert_text= f"{alert_text}**Spies:**\n```You are missing {60-nation['spies']} spies to reach the mmr.```\n"
 
 		muni_mod = 1
 		if nation["arms_stockpile"]:
@@ -359,7 +365,7 @@ class background_tasks:
 		for rss,revenue in raws_rev.items():
 			if revenue<0:
 				if nation[rss]<-revenue*3: 
-					alert_text = f"{alert_text}You only have {nation[rss]} {rss} remaining which will last for less than {int(-nation[rss]/revenue)+1} days.\n"
+					alert_text = f"{alert_text}**{rss.capitalize()}:**\n```You only have {nation[rss]} {rss} remaining which will last for less than {int(-nation[rss]/revenue)+1} days.```\n"
 					alert_required = True								
-		alert_text = f"{alert_text}```"
+
 		return alert_required,alert_text
