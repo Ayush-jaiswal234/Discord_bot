@@ -259,7 +259,7 @@ class background_tasks:
 
 	async def alert_checker(self,nation,aa_color,radiation,mmr,unit_name):
 		alert_required = False
-		alert_text = ""
+		alert_text = "```"
 		
 		if nation["color"]!=aa_color and nation["color"]!="biege":
 			alert_required = True
@@ -278,7 +278,7 @@ class background_tasks:
 		
 		if nation["spies"]<60:
 			alert_required = True
-			alert_text= f"{alert_text} You are missing {60-nation['spies']} to reach the mmr."
+			alert_text= f"{alert_text} You are missing {60-nation['spies']} spies to reach the mmr.\n"
 
 		muni_mod = 1
 		if nation["arms_stockpile"]:
@@ -359,7 +359,7 @@ class background_tasks:
 		for rss,revenue in raws_rev.items():
 			if revenue<0:
 				if nation[rss]<-revenue*3: 
-					alert_text = f"{alert_text} You only have {nation[rss]} {rss} remaining which will last for less than {int(-nation[rss]/revenue)+1} days.\n"
+					alert_text = f"{alert_text}You only have {nation[rss]} {rss} remaining which will last for less than {int(-nation[rss]/revenue)+1} days.\n"
 					alert_required = True								
-
+		alert_text = f"{alert_text}```"
 		return alert_required,alert_text
