@@ -14,7 +14,7 @@ from scripts.nation_data_converter import continent
 class background_tasks:
 
 	def __init__(self,bot) -> None:
-		self.channel = bot.get_channel(715222394318356541)
+		self.bot = bot
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
 		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError)
@@ -230,14 +230,15 @@ class background_tasks:
 		mmr_raiders = [5 * 3000 ,0 * 250,0 * 15, 0 * 5]	
 		unit_name = ["soldiers","tanks","aircraft","ships"]
 		for nation in fetchdata["nations"]:
-			if nation["alliance_position"]!="APPLICANT":
+			if nation["alliance_position"]!="APPLICANT" and nation["id"] in ['209785','181050']:
 				if nation["num_cities"]>10:
 					alert_required,message= await self.alert_checker(nation,fetchdata["color"],radiation,mmr,unit_name)
 				else:
 					alert_required,message= await self.alert_checker(nation,fetchdata["color"],radiation,mmr_raiders,unit_name)	
 				if alert_required:
 					discord_id = await self.member_info(nation)
-					await self.channel.send(f"{discord_id} {message}")
+					user = await self.bot.fetch_user(discord_id)
+					await user.send(message)
 
 		logging.info("Task audit_members ran successfully")
 
@@ -252,8 +253,7 @@ class background_tasks:
 			if discord_id!=None:
 				discord_id = discord_id[0]		
 		if discord_id!=None:
-			nation["discord_id"]=discord_id
-			return f"<@{discord_id}> \n"
+			return discord_id
 		else:
 			return f'https://politicsandwar.com/nation/id={nation["id"]} is not registered to the bot\n'
 
@@ -263,7 +263,7 @@ class background_tasks:
 		
 		if nation["color"]!=aa_color and nation["color"]!="biege":
 			alert_required = True
-			alert_text = f"Please change your color {aa_color}\n"
+			alert_text = f"{alert_text}Please change your color {aa_color}\n"
 		
 		inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%dT%H:%M:%S')).split('d')[0]
 		if int(inactive_days)>5:
@@ -274,11 +274,11 @@ class background_tasks:
 		for units in range(0,len(mmr)):
 			if nation[unit_name[units]]<mmr_nation[units]:
 				alert_required = True
-				alert_text = f"{alert_text} You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.\n"
+				alert_text = f"{alert_text}You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.\n"
 		
 		if nation["spies"]<60:
 			alert_required = True
-			alert_text= f"{alert_text} You are missing {60-nation['spies']} spies to reach the mmr.\n"
+			alert_text= f"{alert_text}You are missing {60-nation['spies']} spies to reach the mmr.\n"
 
 		muni_mod = 1
 		if nation["arms_stockpile"]:
