@@ -307,6 +307,13 @@ async def loot_calculator(nation_id):
 def is_guild(ctx):
 	if ctx.guild is None:
 		return False
+	elif ctx.guild.id == 1082151511892693055:
+		wap_role_ids = {1146498346245181520, 1082777885372330064}
+		user_roles = {role.id for role in ctx.author.roles}
+		if wap_role_ids.intersection(user_roles):
+			return True
+		else:
+			return False
 	else: 
 		return ctx.guild
 
