@@ -226,11 +226,15 @@ class background_tasks:
 			fetchdata = fetchdata.json()["data"]
 		radiation = fetchdata["game_info"]["radiation"]
 		fetchdata = fetchdata["alliances"]["data"][0]	
-		mmr = [0 * 3000 ,2 * 250,5 * 15, 0 * 5]	
-		unit_name = ["soldiers","tanks","aircraft","ships"]
+		mmr = [0 * 3000 ,2 * 250,5 * 15, 0 * 5,60]	
+		mmr_raiders = [5 * 3000 ,0 * 250,0 * 15, 0 * 5,60]	
+		unit_name = ["soldiers","tanks","aircraft","ships","spies"]
 		for nation in fetchdata["nations"]:
 			if nation["alliance_position"]!="APPLICANT":
-				alert_required,message= await self.alert_checker(nation,fetchdata["color"],radiation,mmr,unit_name)
+				if nation["num_cities"]>10:
+					alert_required,message= await self.alert_checker(nation,fetchdata["color"],radiation,mmr,unit_name)
+				else:
+					alert_required,message= await self.alert_checker(nation,fetchdata["color"],radiation,mmr_raiders,unit_name)	
 				if alert_required:
 					discord_id = await self.member_info(nation)
 					await self.channel.send(f"{discord_id} {message}")
