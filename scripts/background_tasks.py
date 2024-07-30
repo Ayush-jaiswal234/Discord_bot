@@ -226,9 +226,9 @@ class background_tasks:
 			fetchdata = fetchdata.json()["data"]
 		radiation = fetchdata["game_info"]["radiation"]
 		fetchdata = fetchdata["alliances"]["data"][0]	
-		mmr = [0 * 3000 ,2 * 250,5 * 15, 0 * 5,60]	
-		mmr_raiders = [5 * 3000 ,0 * 250,0 * 15, 0 * 5,60]	
-		unit_name = ["soldiers","tanks","aircraft","ships","spies"]
+		mmr = [0 * 3000 ,2 * 250,5 * 15, 0 * 5]	
+		mmr_raiders = [5 * 3000 ,0 * 250,0 * 15, 0 * 5]	
+		unit_name = ["soldiers","tanks","aircraft","ships"]
 		for nation in fetchdata["nations"]:
 			if nation["alliance_position"]!="APPLICANT":
 				if nation["num_cities"]>10:
@@ -276,6 +276,10 @@ class background_tasks:
 				alert_required = True
 				alert_text = f"{alert_text} You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.\n"
 		
+		if nation["spies"]<60:
+			alert_required = True
+			alert_text= f"{alert_text} You are missing {60-nation['spies']} to reach the mmr."
+
 		muni_mod = 1
 		if nation["arms_stockpile"]:
 			muni_mod =1.34
