@@ -1005,5 +1005,8 @@ async def sync_slash(ctx):
 	await client.tree.sync()
 	await ctx.send('slash commands updated')
 
+@client.command()
+async def ping(ctx):
+	await ctx.send(f"Latency: {client.latency*1000}ms")
 
 client.run(os.getenv('DISCORD_TOKEN'))		
