@@ -108,7 +108,7 @@ pass
 async def nation_id_finder(ctx,id_or_name):
 	try:
 		discord_id= await commands.converter.MemberConverter().convert(ctx,id_or_name)
-		nation_id=get('registered_nations.nation_id',discord_id.id)
+		nation_id = await get('registered_nations.nation_id',discord_id.id)
 	except commands.BadArgument:
 		if id_or_name.isdigit():
 				nation_id=int(id_or_name)
@@ -124,13 +124,13 @@ async def nation_id_finder(ctx,id_or_name):
 	return nation_id	
 pass
 
-def aa_finder(id_or_name):
+async def aa_finder(id_or_name):
 	if id_or_name.isdigit()	:
 		alliance_id=id_or_name
 	elif id_or_name.startswith('http'):
 		alliance_id=id_or_name[39:]
 	else:
-		alliance_id=get_unregistered('alliance_id',id_or_name,'alliance')
+		alliance_id = await get_unregistered('alliance_id',id_or_name,'alliance')
 	return alliance_id
 pass	
 

@@ -24,17 +24,7 @@ def update_registered_nations(author_id,author_name,nation_id):
 	connection.execute(data_to_be_inserted)
 	connection.commit()
 	connection.close()	
-pass
-
-async def aa_finder(id_or_name):
-	if id_or_name.isdigit()	:
-		alliance_id=id_or_name
-	elif id_or_name.startswith('http'):
-		alliance_id=id_or_name[39:]
-	else:
-		alliance_id = await nation_data_converter.get_unregistered('alliance_id',id_or_name,'alliance')
-	return alliance_id
-pass		
+pass	
 
 async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=None):	
 	async with aiosqlite.connect('pnw.db') as db:
@@ -585,7 +575,7 @@ async def who(ctx,*,discord_name):
 		embed.add_field(name='Nukes',value=nation_data[24],inline=True)
 		await ctx.send(embed=embed)
 	else:
-		alliance_id=aa_finder(discord_name)
+		alliance_id= await nation_data_converter.aa_finder(discord_name)
 		alliance_data = await nation_data_converter.get_unregistered('cities,offensive_wars,defensive_wars,score,soldiers,tanks,aircraft,ships,missiles,nukes',alliance_id,'alliance_position<>1 and alliance_id',True)
 		if alliance_id!=[]:	
 			total_stats=[0 for x in alliance_data[0]]
