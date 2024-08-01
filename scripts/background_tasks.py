@@ -10,11 +10,13 @@ from scripts.nation_data_converter import time_converter
 from json.decoder import JSONDecodeError
 from math import log
 from scripts.nation_data_converter import continent
+from discord.errors import Forbidden
 
 class background_tasks:
 
 	def __init__(self,bot) -> None:
 		self.bot = bot
+		self.channel = bot.get_channel(1083194484285780120)
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
 		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError)
@@ -205,7 +207,7 @@ class background_tasks:
 		logging.info(f'File ID: {file.get("id")}')		
 		drive_service.close()
 
-	@tasks.loop(time=dt.time(hour=22,tzinfo=dt.timezone.utc),reconnect=True)
+	@tasks.loop(time=dt.time(hour=22,minute=0,tzinfo=dt.timezone.utc),reconnect=True)
 	async def audit_members(self):
 		query="""{game_info{radiation{global,north_america,south_america,europe,africa,asia,australia,antarctica}}
 
@@ -243,7 +245,10 @@ class background_tasks:
 						except:
 							logging.info('get_user failed')	
 							user = await self.bot.fetch_user(discord_id)
-						await user.send(message)
+						try:
+							await user.send(message)
+						except Forbidden:
+							await self.channel.send(f"<@{discord_id}> Your dm's are disabled for non-friends. Please enable dm for the people you share the server with(For gov ref: https://politicsandwar.com/nation/id={nation['id']}).\nAs for the rest of the message:\n{message}")
 					else:
 						logging.info(f'{nation["id"]} not registered')	
 
@@ -280,7 +285,7 @@ class background_tasks:
 		for units in range(0,len(mmr)):
 			if nation[unit_name[units]]<mmr_nation[units]:
 				alert_required = True
-				alert_text = f"{alert_text}**{units.capitalize()}:**\n```You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.```\n"
+				alert_text = f"{alert_text}**{unit_name[units].capitalize()}:**\n```You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.```\n"
 		
 		if nation["spies"]<60:
 			alert_required = True
@@ -367,5 +372,5 @@ class background_tasks:
 				if nation[rss]<-revenue*3: 
 					alert_text = f"{alert_text}**{rss.capitalize()}:**\n```You only have {nation[rss]} {rss} remaining which will last for less than {int(-nation[rss]/revenue)+1} days.```\n"
 					alert_required = True								
-
+		
 		return alert_required,alert_text
