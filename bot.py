@@ -281,18 +281,6 @@ async def add_subscription(ctx,command_name,time):
 	update_subscriptions(ctx.guild.id,command_name,time)
 	await ctx.send('Subscriptions updated')	
 
-@client.command()
-async def check_color(ctx):
-	alliance_id=await nation_data_converter.get('alliance_id',ctx.author.id)
-	data=aa_color_compare(alliance_id)
-	embed=discord.Embed()
-	embed.title='Color trade bloc'
-	y=0
-	while y<len(data) and y<25:
-		embed.add_field(name=f'{y+1}.https://politicsandwar.com/nation/id={data[y][0]}',value=f'Color: {data[y][1]}')
-		y=y+1
-	await ctx.send(embed=embed)
-
 @commands.is_owner()
 @client.command()
 async def guilds(ctx):
@@ -303,22 +291,6 @@ async def guilds(ctx):
 	async for guild in client.fetch_guilds(limit=150):
 		embed.add_field(name=f'{counter}.{guild.name}',value=f'Server ID:{guild.id}',inline=False)
 		counter=counter+1
-	await ctx.send(embed=embed)	
-
-@client.command()
-async def inactivity(ctx):
-	alliance_id= await nation_data_converter.get('alliance_id',ctx.author.id)
-	dictionary,counter=inactive_players(alliance_id)
-	embed=discord.Embed()
-	embed.title='Inactive players'
-	y=0
-	while y<counter and y<25:
-		link=dictionary[y]['link']
-		days=dictionary[y]['days']
-		hours=dictionary[y]['hours']
-		position=dictionary[y]['position']
-		embed.add_field(name=f'{y+1}.{link}',value=f'Inactive for {days} days, {hours} hours\n Position:{position}')
-		y=y+1
 	await ctx.send(embed=embed)	
 
 @client.hybrid_command(name="loot",with_app_command=True,description="Amount of loot you would get from the target nation considering a raid war and pirate war policy")
@@ -475,12 +447,14 @@ async def wars(ctx,*,_id=None):
 	off_text,def_text="",""
 	for war in war_data: 
 		if int(war['att_id'])==nation_id:
-			off_text=(f"{off_text}{count_off}. [{await nation_data_converter.get_unregistered('nation',war['def_id'])}](https://politicsandwar.com/nation/id={war['def_id']})\n"
-		 			f"AR:{war['att_resistance']} DR:{war['def_resistance']}\n")
+			off_text=(f"{off_text}{count_off}. [{await nation_data_converter.get_unregistered('nation',war['def_id'])}](https://politicsandwar.com/nation/id={war['def_id']})\t"
+		 			f"`AR:{war['att_resistance']}` `DR:{war['def_resistance']}`\n"
+					f"[{await nation_data_converter.get_unregistered('alliance',war['def_id'])}](https://politicsandwar.com/nation/id={war['def_alliance_id']})")
 			count_off+=1
 		else:
-			def_text=(f"{def_text}{count_def}. [{await nation_data_converter.get_unregistered('nation',war['att_id'])}](https://politicsandwar.com/nation/id={war['att_id']})\n"
-		 			f"AR:{war['att_resistance']} DR:{war['def_resistance']}\n")
+			def_text=(f"{def_text}{count_def}. [{await nation_data_converter.get_unregistered('nation',war['att_id'])}](https://politicsandwar.com/nation/id={war['att_id']})\t"
+		 			f"`AR:{war['att_resistance']}` DR:`{war['def_resistance']}`\n"
+					f"[{await nation_data_converter.get_unregistered('alliance',war['att_id'])}](https://politicsandwar.com/nation/id={war['att_alliance_id']})")
 			count_def+=1
 		
 	if off_text!="":
