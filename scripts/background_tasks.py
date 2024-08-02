@@ -207,8 +207,9 @@ class background_tasks:
 		logging.info(f'File ID: {file.get("id")}')		
 		drive_service.close()
 
-	@tasks.loop(time=dt.time(hour=22,minute=0,tzinfo=dt.timezone.utc),reconnect=True)
+	@tasks.loop(time=dt.time(hour=6,minute=0,tzinfo=dt.timezone.utc),reconnect=True)
 	async def audit_members(self):
+		logging.info('Task audit_members started')
 		query="""{game_info{radiation{global,north_america,south_america,europe,africa,asia,australia,antarctica}}
 
 				alliances(id:11189){
