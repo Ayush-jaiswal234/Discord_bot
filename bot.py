@@ -427,9 +427,9 @@ async def wars(ctx,*,_id=None):
 	nation_data = fetchdata['nations']['data'][0]
 	emb = discord.Embed()
 	emb.title = f'War info for {nation_data["nation_name"]}'
-	emb.description =(f'Nation: [{nation_data["nation_name"]}](https://politicsandwar.com/nation/war/declare/id={nation_id})\n'
+	emb.description =(f'Nation: [{nation_data["nation_name"]}](https://politicsandwar.com/nation/id={nation_id})\n'
 					f'Cities: {nation_data["num_cities"]}\n'
-					f'Alliance: [{nation_data["alliance"]["name"]}](https://politicsandwar.com/nation/war/declare/id={nation_data["alliance_id"]})\n'
+					f'Alliance: [{nation_data["alliance"]["name"]}](https://politicsandwar.com/alliance/id={nation_data["alliance_id"]})\n'
 					f'Beige Turns: {nation_data["beige_turns"]}')
 	
 	emb.add_field(name='Army',
@@ -447,13 +447,13 @@ async def wars(ctx,*,_id=None):
 	off_text,def_text="",""
 	for war in war_data: 
 		if int(war['att_id'])==nation_id:
-			off_text=(f"{off_text}{count_off}. [{await nation_data_converter.get_unregistered('nation',war['def_id'])}](https://politicsandwar.com/nation/id={war['def_id']})\t"
+			off_text=(f"{off_text}{count_off}. [{await nation_data_converter.get_unregistered('nation',war['def_id'])}](https://politicsandwar.com/nation/id={war['def_id']})  "
 		 			f"`AR:{war['att_resistance']}` `DR:{war['def_resistance']}`\n"
 					f"Alliance: {await nation_data_converter.get_unregistered('alliance',war['def_id'])}\n")
 			count_off+=1
 		else:
-			def_text=(f"{def_text}{count_def}. [{await nation_data_converter.get_unregistered('nation',war['att_id'])}](https://politicsandwar.com/nation/id={war['att_id']})\t"
-		 			f"`AR:{war['att_resistance']}` `DR:{war['def_resistance']}`\n"
+			def_text=(f"{def_text}{count_def}. [{await nation_data_converter.get_unregistered('nation',war['att_id'])}](https://politicsandwar.com/nation/id={war['att_id']})  "
+		 			f"`DR:{war['def_resistance']}` `AR:{war['att_resistance']}`\n"
 					f"Alliance: {await nation_data_converter.get_unregistered('alliance',war['att_id'])}\n")
 			count_def+=1
 		
