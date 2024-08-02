@@ -481,7 +481,7 @@ async def register(ctx,link):
 	update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
 	await ctx.send("Successfully registered")		
 
-@client.hybrid_command(name="raid",with_app_command=True,description="Fetchs the wars the nation is currently in")
+@client.hybrid_command(name="wars",with_app_command=True,description="Fetchs the wars the nation is currently in")
 async def wars(ctx,*,_id=None):
 	if _id==None:
 		_id=str(ctx.author.id)
