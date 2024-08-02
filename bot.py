@@ -1,4 +1,4 @@
-import os,discord,sqlite3,logging,requests,re
+import os,discord,sqlite3,logging,re
 from discord.ext import commands,tasks
 import typing
 from scripts import nation_data_converter,sheets,war_stats
@@ -91,57 +91,6 @@ async def get_prices(db):
 	price= await cursor.fetchone()
 	await cursor.close()
 	return price	
-pass
-
-def inactive_players(alliance_id):
-	all_nations_in_alliance='https://politicsandwar.com/api/nations/?key=10433a4b8a7dec&alliance_id='+str(alliance_id)
-	fetchdata=requests.get(f"{all_nations_in_alliance}")
-	fetchdata=fetchdata.json()
-	d={"link":"","days":0,"hours":0,'position':''}
-	y=0
-	m=[]
-	for x in range(0,len(fetchdata['nations']),1):
-		minutessinceactive=fetchdata['nations'][x]['minutessinceactive']
-		alliance_position=fetchdata['nations'][x]['allianceposition']
-		if minutessinceactive>7200:
-			nation_id=fetchdata['nations'][x]['nationid']
-			d['link']='https://politicsandwar.com/nation/id='+ str(nation_id)
-			d['days']=int(minutessinceactive/1440)
-			d['hours']=int((minutessinceactive%1440)/60)
-			if alliance_position==2:
-				d['position']='Member'
-			elif alliance_position==1:
-				d['position']='Applicant'	
-			m.append(y)
-			m[y]=dict(d)
-			y=y+1
-	return m,y
-pass
-
-def aa_color_compare(alliance_id):
-	query="""{
-		alliances(id:%s,first:1){ 
-			data{
-				color
-				nations{
-					id
-					color
-					alliance_position
-					vmode
-				}
-			}
-		}
-	}"""% (alliance_id)
-	fetchdata=requests.post(f"{graphql_link}",json={'query':query})
-	fetchdata=fetchdata.json()
-	color_list=[]
-	y=0
-	for x in fetchdata['data']['alliances']['data'][0]['nations']:
-		if x['alliance_position']!="APPLICANT" and x['color']!=fetchdata['data']['alliances']['data'][0]['color'] and x['vmode']==0:
-			color_tuple=(x['id'],x['color'])
-			color_list.insert(y,color_tuple)
-			y+=1
-	return color_list		
 pass
 
 def update_subscriptions(server_id,command_name,date_time):
@@ -499,10 +448,11 @@ async def wars(ctx,*,_id=None):
 			beige_turns,soldiers,tanks,aircraft,ships,missiles,nukes,spies}}
 		}}
 		}}"""
-	fetchdata=requests.get(graphql_link,json={'query':query})
-	fetchdata = fetchdata.json()['data']
+	async with httpx.AsyncClient() as client:
+		fetchdata=await client.post(graphql_link,json={'query':query})
+		fetchdata = fetchdata.json()['data']
 	war_data = fetchdata['wars']['data']
-	nation_data = fetchdata['nations']['data']
+	nation_data = fetchdata['nations']['data'][0]
 	emb = discord.Embed()
 	emb.title = f'War info for {nation_data["nation_name"]}'
 	emb.description =(f'Nation:[{nation_data["nation_name"]}](https://politicsandwar.com/nation/war/declare/id={nation_id})\n'
@@ -520,34 +470,24 @@ async def wars(ctx,*,_id=None):
 					f"Nukes: {nation_data['nukes']:<8,}\n"
 					f"Spies: {nation_data['spies']:<8,}```"),
 					inline=False)
-	
-	counter_off,counter_def=1,1
-	display_elements=['War Type','Ground Control','Air Superiority','Naval Blockade']
+
+	count_off,count_def=1,1
+	off_text,def_text="",""
 	for war in war_data: 
 		if int(war['att_id'])==nation_id:
-			i=0
-			text=f"Defender:[{await nation_data_converter.get_unregistered('nation',war['defid'])}](https://politicsandwar.com/nation/id={war['defid']})\n"
-			for keys in war:
-				if 'id' not in keys:
-					if keys=='war_type':
-						text=text+f"{display_elements[i]}:{war[keys]}\n"
-					elif war[keys]!='0': 
-						text=text+f"{display_elements[i]}:{await nation_data_converter.get_unregistered('nation',war[keys])}\n"			
-					i+=1	
-			emb.add_field(name=f'{counter_off}.https://politicsandwar.com/nation/war/timeline/war={war["id"]}',value=text,inline=False)
-			counter_off+=1
+			off_text=(f"{off_text}{count_off}.[{await nation_data_converter.get_unregistered('nation',war['def_id'])}](https://politicsandwar.com/nation/id={war['def_id']})\n"
+		 			f"AR={war['att_resistance']} DR={war['def_resistance']}")
+			count_off+=1
 		else:
-			i=0
-			text=f"Aggressor:[{await nation_data_converter.get_unregistered('nation',war['attid'])}](https://politicsandwar.com/nation/id={war['attid']})\n"
-			for keys in war:
-				if 'id' not in keys:
-					if keys=='war_type':
-						text=text+f"{display_elements[i]}:{war[keys]}\n"
-					elif war[keys]!='0': 
-						text=text+f"{display_elements[i]}:{await nation_data_converter.get_unregistered('nation',war[keys])}\n"		
-					i+=1
-			emb.add_field(name=f'{counter_def}.https://politicsandwar.com/nation/war/timeline/war={war["id"]}',value=text,inline=False)
-			counter_def+=1
+			def_text=(f"{def_text}{count_def}.[{await nation_data_converter.get_unregistered('nation',war['att_id'])}](https://politicsandwar.com/nation/id={war['att_id']})\n"
+		 			f"AR={war['att_resistance']} DR={war['def_resistance']}")
+			count_def+=1
+		
+		if off_text!="":
+			emb.add_field(name='Offensive wars',value=off_text,inline=False)
+		if def_text!="":
+			emb.add_field(name="Defensive wars",value=def_text,inline=False)	
+			
 	await ctx.send(embed=emb)	
 
 @client.hybrid_command(name="who",with_app_command=True,description="Gives info on the given nation or user")

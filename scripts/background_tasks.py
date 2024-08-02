@@ -12,7 +12,7 @@ from math import log
 from scripts.nation_data_converter import continent
 from discord.errors import Forbidden
 
-info_time = dt.time(hour=10,minute=0,tzinfo=dt.timezone.utc)
+info_time = dt.time(hour=22,minute=0,tzinfo=dt.timezone.utc)
 
 class background_tasks:
 
@@ -218,7 +218,7 @@ class background_tasks:
   					data{
 					color
 					nations{
-						continent,last_active,color,id,alliance_position,soldiers,tanks,aircraft,ships,spies,num_cities,discord,discord_id,offensive_wars_count,defensive_wars_count
+						vacation_mode_turns,continent,last_active,color,id,alliance_position,soldiers,tanks,aircraft,ships,spies,num_cities,discord,discord_id,offensive_wars_count,defensive_wars_count
 						food,uranium,coal,iron,bauxite,oil,lead
 						cities{
 							date,coal_power,oil_power,farm,aluminum_refinery,munitions_factory,oil_refinery,nuclear_power,steel_mill,coal_mine,oil_well,lead_mine,uranium_mine,iron_mine,bauxite_mine,infrastructure,land
@@ -236,7 +236,7 @@ class background_tasks:
 		unit_name = ["soldiers","tanks","aircraft","ships"]
 		logging.info('before loop')
 		for nation in fetchdata["nations"]:
-			if nation["alliance_position"]!="APPLICANT":
+			if nation["alliance_position"]!="APPLICANT" and nation["vacation_mode_turns"]==0:
 				if nation["num_cities"]>10:
 					alert_required,message= await self.alert_checker(nation,fetchdata["color"],radiation,mmr,unit_name)
 				else:
@@ -259,15 +259,13 @@ class background_tasks:
 		logging.info("Task audit_members ran successfully")
 
 	async def member_info(self,nation):
-		discord_id = None
-		if nation["discord_id"]!=None:
-			discord_id = nation["discord_id"]
+		async with aiosqlite.connect('pnw.db') as db:	
+			async with db.execute(f'select discord_id from registered_nations where nation_id={nation["id"]}') as cursor:
+				discord_id = await cursor.fetchone()
+		if discord_id!=None:
+			discord_id = discord_id[0]
 		else:
-			async with aiosqlite.connect('pnw.db') as db:	
-				async with db.execute(f'select discord_id from registered_nations where nation_id={nation["id"]}') as cursor:
-					discord_id = await cursor.fetchone()
-			if discord_id!=None:
-				discord_id = discord_id[0]		
+			discord_id = nation["discord_id"]
 		
 		return discord_id
 			
