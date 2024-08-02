@@ -180,25 +180,6 @@ def check_subscriptions(server_id,command_name):
 	cursor.close()
 	connection.close()	
 	return validity
-pass
-
-def get_wars(my_nation_id):
-	query="""{
-		wars(nation_id:%s,days_ago:5){
-			id
-			attid
-			defid
-			war_type
-			groundcontrol
-			airsuperiority
-			navalblockade
-			}
-		}""" % (my_nation_id)
-	fetchdata=requests.get(graphql_link,json={'query':query})
-	fetchdata=fetchdata.json()
-	fetchdata=fetchdata['data']['wars']
-	logging.info(fetchdata)
-	return fetchdata
 pass		
 
 async def beige_calculator(params,resistance,reverse):
@@ -491,7 +472,7 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 		page1.description='Usage : `;register <nation id|nation link>`'
 		await ctx.send(content="You must be registered to use this command",embed=page1)	
 			
-@client.hybrid_command(name="register",with_app_command=True,description="Finds the best raiding targets")
+@client.hybrid_command(name="register",with_app_command=True,description="Registers you to the bot")
 async def register(ctx,link):
 	if link.startswith('http'):
 		nation_id=int(link[37:])
@@ -500,45 +481,74 @@ async def register(ctx,link):
 	update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
 	await ctx.send("Successfully registered")		
 
-@client.command()
+@client.hybrid_command(name="raid",with_app_command=True,description="Fetchs the wars the nation is currently in")
 async def wars(ctx,*,_id=None):
 	if _id==None:
 		_id=str(ctx.author.id)
 	nation_id=await nation_data_converter.nation_id_finder(ctx,_id)
-	active_wars=get_wars(nation_id)
-	off_wars=discord.Embed()
-	def_wars=discord.Embed()
-	def_wars.title='Defensive Wars'
-	off_wars.title='Offensive Wars'
+	query=f"""{{
+		wars(nation_id:{nation_id},days_ago:5){{data{{
+			id,end_date
+			att_id,def_id,att_resistance,def_resistance,att_alliance_id,def_alliance_id
+			war_type,ground_control,air_superiority,naval_blockade
+			
+  			}} }}
+		
+		nations(id:{nation_id}){{data{{
+			nation_name,num_cities,alliance{{name}},alliance_id
+			beige_turns,soldiers,tanks,aircraft,ships,missiles,nukes,spies}}
+		}}
+		}}"""
+	fetchdata=requests.get(graphql_link,json={'query':query})
+	fetchdata = fetchdata.json()['data']
+	war_data = fetchdata['wars']['data']
+	nation_data = fetchdata['nations']['data']
+	emb = discord.Embed()
+	emb.title = f'War info for {nation_data["nation_name"]}'
+	emb.description =(f'Nation:[{nation_data["nation_name"]}](https://politicsandwar.com/nation/war/declare/id={nation_id})\n'
+					f'Cities:{nation_data["num_cities"]}\n'
+					f'[Alliance:{nation_data["alliance"]["name"]}](https://politicsandwar.com/nation/war/declare/id={nation_data["alliance_id"]})\n'
+					f'Beige Turns: {nation_data["beige_turns"]}')
+	
+	emb.add_field(name='Army',
+			   value=("```js\n"
+					f"Soldiers: {nation_data['soldiers']:<8,}"
+					f"Tanks: {nation_data['tanks']:<8,}\n"
+					f"Aircraft: {nation_data['aircraft']:<8,}"
+					f"Ships: {nation_data['ships']:<8,}\n"
+					f"Missiles: {nation_data['missiles']:<8,}"
+					f"Nukes: {nation_data['nukes']:<8,}\n"
+					f"Spies: {nation_data['spies']:<8,}```"),
+					inline=False)
+	
 	counter_off,counter_def=1,1
 	display_elements=['War Type','Ground Control','Air Superiority','Naval Blockade']
-	for x in active_wars: 
-		if int(x['attid'])==nation_id:
+	for war in war_data: 
+		if int(war['att_id'])==nation_id:
 			i=0
-			text=f"Defender:[{await nation_data_converter.get_unregistered('nation',x['defid'])}](https://politicsandwar.com/nation/id={x['defid']})\n"
-			for keys in x:
+			text=f"Defender:[{await nation_data_converter.get_unregistered('nation',war['defid'])}](https://politicsandwar.com/nation/id={war['defid']})\n"
+			for keys in war:
 				if 'id' not in keys:
 					if keys=='war_type':
-						text=text+f"{display_elements[i]}:{x[keys]}\n"
-					elif x[keys]!='0': 
-						text=text+f"{display_elements[i]}:{await nation_data_converter.get_unregistered('nation',x[keys])}\n"			
+						text=text+f"{display_elements[i]}:{war[keys]}\n"
+					elif war[keys]!='0': 
+						text=text+f"{display_elements[i]}:{await nation_data_converter.get_unregistered('nation',war[keys])}\n"			
 					i+=1	
-			off_wars.add_field(name=f'{counter_off}.https://politicsandwar.com/nation/war/timeline/war={x["id"]}',value=text,inline=False)
+			emb.add_field(name=f'{counter_off}.https://politicsandwar.com/nation/war/timeline/war={war["id"]}',value=text,inline=False)
 			counter_off+=1
 		else:
 			i=0
-			text=f"Aggressor:[{await nation_data_converter.get_unregistered('nation',x['attid'])}](https://politicsandwar.com/nation/id={x['attid']})\n"
-			for keys in x:
+			text=f"Aggressor:[{await nation_data_converter.get_unregistered('nation',war['attid'])}](https://politicsandwar.com/nation/id={war['attid']})\n"
+			for keys in war:
 				if 'id' not in keys:
 					if keys=='war_type':
-						text=text+f"{display_elements[i]}:{x[keys]}\n"
-					elif x[keys]!='0': 
-						text=text+f"{display_elements[i]}:{await nation_data_converter.get_unregistered('nation',x[keys])}\n"		
+						text=text+f"{display_elements[i]}:{war[keys]}\n"
+					elif war[keys]!='0': 
+						text=text+f"{display_elements[i]}:{await nation_data_converter.get_unregistered('nation',war[keys])}\n"		
 					i+=1
-			def_wars.add_field(name=f'{counter_def}.https://politicsandwar.com/nation/war/timeline/war={x["id"]}',value=text,inline=False)
+			emb.add_field(name=f'{counter_def}.https://politicsandwar.com/nation/war/timeline/war={war["id"]}',value=text,inline=False)
 			counter_def+=1
-	await ctx.send(embed=off_wars)	
-	await ctx.send(embed=def_wars)
+	await ctx.send(embed=emb)	
 
 @client.hybrid_command(name="who",with_app_command=True,description="Gives info on the given nation or user")
 async def who(ctx,*,discord_name):

@@ -12,7 +12,7 @@ from math import log
 from scripts.nation_data_converter import continent
 from discord.errors import Forbidden
 
-info_time = dt.time(hour=8,minute=0,tzinfo=dt.timezone.utc)
+info_time = dt.time(hour=10,minute=0,tzinfo=dt.timezone.utc)
 
 class background_tasks:
 
@@ -24,7 +24,7 @@ class background_tasks:
 		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError)
 		self.update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
 		self.update_trade_price.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
-		self.audit_members.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
+		#self.audit_members.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
 		self.update_trade_price.start()
 		self.update_nation_data.start()
 		self.update_loot_data.start()
@@ -234,6 +234,7 @@ class background_tasks:
 		mmr = [0 * 3000 ,2 * 250,5 * 15, 0 * 5]	
 		mmr_raiders = [5 * 3000 ,0 * 250,0 * 15, 0 * 5]	
 		unit_name = ["soldiers","tanks","aircraft","ships"]
+		logging.info('before loop')
 		for nation in fetchdata["nations"]:
 			if nation["alliance_position"]!="APPLICANT":
 				if nation["num_cities"]>10:
