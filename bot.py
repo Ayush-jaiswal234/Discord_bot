@@ -455,9 +455,9 @@ async def wars(ctx,*,_id=None):
 	nation_data = fetchdata['nations']['data'][0]
 	emb = discord.Embed()
 	emb.title = f'War info for {nation_data["nation_name"]}'
-	emb.description =(f'Nation:[{nation_data["nation_name"]}](https://politicsandwar.com/nation/war/declare/id={nation_id})\n'
-					f'Cities:{nation_data["num_cities"]}\n'
-					f'[Alliance:{nation_data["alliance"]["name"]}](https://politicsandwar.com/nation/war/declare/id={nation_data["alliance_id"]})\n'
+	emb.description =(f'Nation: [{nation_data["nation_name"]}](https://politicsandwar.com/nation/war/declare/id={nation_id})\n'
+					f'Cities: {nation_data["num_cities"]}\n'
+					f'Alliance: [{nation_data["alliance"]["name"]}](https://politicsandwar.com/nation/war/declare/id={nation_data["alliance_id"]})\n'
 					f'Beige Turns: {nation_data["beige_turns"]}')
 	
 	emb.add_field(name='Army',
@@ -476,17 +476,17 @@ async def wars(ctx,*,_id=None):
 	for war in war_data: 
 		if int(war['att_id'])==nation_id:
 			off_text=(f"{off_text}{count_off}.[{await nation_data_converter.get_unregistered('nation',war['def_id'])}](https://politicsandwar.com/nation/id={war['def_id']})\n"
-		 			f"AR={war['att_resistance']} DR={war['def_resistance']}")
+		 			f"AR:{war['att_resistance']} DR:{war['def_resistance']}")
 			count_off+=1
 		else:
 			def_text=(f"{def_text}{count_def}.[{await nation_data_converter.get_unregistered('nation',war['att_id'])}](https://politicsandwar.com/nation/id={war['att_id']})\n"
-		 			f"AR={war['att_resistance']} DR={war['def_resistance']}")
+		 			f"AR:{war['att_resistance']} DR:{war['def_resistance']}")
 			count_def+=1
 		
-		if off_text!="":
-			emb.add_field(name='Offensive wars',value=off_text,inline=False)
-		if def_text!="":
-			emb.add_field(name="Defensive wars",value=def_text,inline=False)	
+	if off_text!="":
+		emb.add_field(name='Offensive wars',value=off_text,inline=False)
+	if def_text!="":
+		emb.add_field(name="Defensive wars",value=def_text,inline=False)	
 			
 	await ctx.send(embed=emb)	
 
