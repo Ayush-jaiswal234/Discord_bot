@@ -475,12 +475,12 @@ async def wars(ctx,*,_id=None):
 	off_text,def_text="",""
 	for war in war_data: 
 		if int(war['att_id'])==nation_id:
-			off_text=(f"{off_text}{count_off}.[{await nation_data_converter.get_unregistered('nation',war['def_id'])}](https://politicsandwar.com/nation/id={war['def_id']})\n"
-		 			f"AR:{war['att_resistance']} DR:{war['def_resistance']}")
+			off_text=(f"{off_text}{count_off}. [{await nation_data_converter.get_unregistered('nation',war['def_id'])}](https://politicsandwar.com/nation/id={war['def_id']})\n"
+		 			f"AR:{war['att_resistance']} DR:{war['def_resistance']}\n")
 			count_off+=1
 		else:
-			def_text=(f"{def_text}{count_def}.[{await nation_data_converter.get_unregistered('nation',war['att_id'])}](https://politicsandwar.com/nation/id={war['att_id']})\n"
-		 			f"AR:{war['att_resistance']} DR:{war['def_resistance']}")
+			def_text=(f"{def_text}{count_def}. [{await nation_data_converter.get_unregistered('nation',war['att_id'])}](https://politicsandwar.com/nation/id={war['att_id']})\n"
+		 			f"AR:{war['att_resistance']} DR:{war['def_resistance']}\n")
 			count_def+=1
 		
 	if off_text!="":
