@@ -12,7 +12,7 @@ from math import log
 from scripts.nation_data_converter import continent
 from discord.errors import Forbidden
 
-info_time = dt.time(hour=22,minute=0,tzinfo=dt.timezone.utc)
+info_time = dt.time(hour=6,minute=15,tzinfo=dt.timezone.utc)
 
 class background_tasks:
 
@@ -24,7 +24,7 @@ class background_tasks:
 		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError)
 		self.update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
 		self.update_trade_price.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
-		#self.audit_members.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
+		self.audit_members.add_exception_type(OperationalError,KeyError,ConnectTimeout)
 		self.update_trade_price.start()
 		self.update_nation_data.start()
 		self.update_loot_data.start()
@@ -227,7 +227,7 @@ class background_tasks:
 					}}
 				}}"""
 		async with httpx.AsyncClient() as client:
-			fetchdata=await client.post(self.whitlisted_api_link,json={'query':query})
+			fetchdata=await client.post(self.whitlisted_api_link,json={'query':query},timeout=None)
 			fetchdata = fetchdata.json()["data"]
 		radiation = fetchdata["game_info"]["radiation"]
 		fetchdata = fetchdata["alliances"]["data"][0]	
