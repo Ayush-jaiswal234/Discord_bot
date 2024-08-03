@@ -103,6 +103,6 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 				'best_buy_offer':item['best_buy_offer'],
 				'best_sell_offer':item['best_sell_offer']
 			}
-		for rss,value in game_average_price:
+		for rss,value in game_average_price.items():
 			self.average_price[rss]=value
 		logging.log(self.average_price)	
