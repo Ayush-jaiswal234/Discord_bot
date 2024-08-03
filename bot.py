@@ -228,7 +228,7 @@ def is_guild(ctx):
 	if ctx.guild is None:
 		return False
 	elif ctx.guild.id == 1082151511892693055:
-		wap_role_ids = {1146498346245181520, 1082777885372330064}
+		wap_role_ids = {1146498346245181520, 1082777885372330064,1090430905870463058}
 		user_roles = {role.id for role in ctx.author.roles}
 		if wap_role_ids.intersection(user_roles):
 			return True
@@ -400,6 +400,8 @@ async def register(ctx,link):
 	else:
 		nation_id=link
 	update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
+	#async with httpx.AsyncClient() as client:
+		#query= f"{{nations(id:{nation_id})}}{{data{{discord,discord_id}}}}"
 	await ctx.send("Successfully registered")		
 
 @client.hybrid_command(name="wars",with_app_command=True,description="Fetchs the wars the nation is currently in")
