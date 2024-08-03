@@ -27,6 +27,7 @@ class trade_watcher:
 **{subscribe_data['offer_amount']:,} {subscribe_data['offer_resource']} is being {past_tense} for ${subscribe_data['price']:,}**
 Last Sell price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']:,}
 Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_offer']['price']:,}
+Market average: ${self.average_price[f'{subscribe_data["offer_resource"]}']:,}
 **Minimum Profit: ${profit:,}**
 {link}""")
 		logging.info(subscribe_data["id"])
@@ -41,7 +42,7 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 			condition1 = condition1 and subscribe_data['price']<self.average_price[f'{subscribe_data["offer_resource"]}']*0.90 
 		else:    
 			condition1 = subscribe_data['price']>self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']
-			condition1 = condition1 and subscribe_data['price']>self.average_price[f'{subscribe_data["offer_resource"]}']*0.90
+			condition1 = condition1 and subscribe_data['price']>self.average_price[f'{subscribe_data["offer_resource"]}']*1.10
 			profit=-profit
 			profit_percent = -profit_percent
 		condition1 = condition1 
