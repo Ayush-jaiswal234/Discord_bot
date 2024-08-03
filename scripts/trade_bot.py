@@ -15,7 +15,7 @@ class trade_watcher:
 		self.result = {}
 		self.average_price={}
 		self.embed = discord.Embed()
-		self.logger = logging.basicConfig(filename='trade.txt',level=logging.info)
+		logging.basicConfig(filename='trade.txt',level=logging.info)
 		self.update_trades.add_exception_type(KeyError,ReadTimeout,ConnectTimeout)
 		self.update_trades.start()
 
@@ -30,7 +30,7 @@ Last Sell price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_sell
 Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_offer']['price']:,}
 **Minimum Profit: ${profit:,}**
 {link}""")
-		self.logger.log(subscribe_data["id"])
+		logging.log(subscribe_data["id"])
 		check_if_deleted = await self.kit.subscribe("trade","delete",{"id":subscribe_data["id"]},self.check_delete)
 		self.track_ids.append({"id":subscribe_data["id"],"delete":False,"amount":subscribe_data["offer_amount"],"buy_sell":past_tense,"message_id":self.channel.last_message_id})    
 
@@ -44,7 +44,7 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 			profit=-profit
 			profit_percent = -profit_percent
 		condition1 = condition1 and (subscribe_data['price']>self.average_price[f'{subscribe_data["offer_resource"]}']*0.97 or subscribe_data['price']<self.average_price[f'{subscribe_data["offer_resource"]}']*0.97)	
-		self.logger.log(subscribe_data)
+		logging.log(subscribe_data)
 		if condition1 and profit>=5000000 and profit_percent>0.022:
 			role ="1254752332273418301"
 			await self.send_message(role,type_of_trade,profit,subscribe_data)
@@ -105,3 +105,4 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 			}
 		for rss,value in game_average_price:
 			self.average_price[rss]=value
+		logging.log(self.average_price)	
