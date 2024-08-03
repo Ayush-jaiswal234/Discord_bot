@@ -39,10 +39,8 @@ Market average: ${self.average_price[f'{subscribe_data["offer_resource"]}']:,}
 		profit_percent = (last_sell_price-1-subscribe_data['price'])/last_sell_price
 		if type_of_trade=="sell":
 			condition1 = subscribe_data['price']<self.result[f'{subscribe_data["offer_resource"]}']['best_buy_offer']['price']
-			condition1 = condition1 and subscribe_data['price']<self.average_price[f'{subscribe_data["offer_resource"]}']*0.90 
 		else:    
 			condition1 = subscribe_data['price']>self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']
-			condition1 = condition1 and subscribe_data['price']>self.average_price[f'{subscribe_data["offer_resource"]}']*1.10
 			profit=-profit
 			profit_percent = -profit_percent
 		condition1 = condition1 
