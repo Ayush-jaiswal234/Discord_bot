@@ -12,7 +12,7 @@ from math import log
 from scripts.nation_data_converter import continent
 from discord.errors import Forbidden
 
-info_time = dt.time(hour=6,minute=15,tzinfo=dt.timezone.utc)
+info_time = dt.time(hour=22,minute=0,tzinfo=dt.timezone.utc)
 
 class background_tasks:
 
