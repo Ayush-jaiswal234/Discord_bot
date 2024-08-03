@@ -223,7 +223,7 @@ class background_tasks:
 						cities{
 							date,coal_power,oil_power,farm,aluminum_refinery,munitions_factory,oil_refinery,nuclear_power,steel_mill,coal_mine,oil_well,lead_mine,uranium_mine,iron_mine,bauxite_mine,infrastructure,land
 						}  
-						arms_stockpile,bauxite_works,emergency_gasoline_reserve,iron_works,mass_irrigation,uranium_enrichment_program
+						central_intelligence_agency,arms_stockpile,bauxite_works,emergency_gasoline_reserve,iron_works,mass_irrigation,uranium_enrichment_program
 					}}
 				}}"""
 		async with httpx.AsyncClient() as client:
@@ -289,9 +289,14 @@ class background_tasks:
 				alert_required = True
 				alert_text = f"{alert_text}**{unit_name[units].capitalize()}:**\n```You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.```\n"
 		
-		if nation["spies"]<60:
-			alert_required = True
-			alert_text= f"{alert_text}**Spies:**\n```You are missing {60-nation['spies']} spies to reach the mmr.```\n"
+		if nation["central_intelligence_agency"]:
+			if nation["spies"]<60:
+				alert_required = True
+				alert_text= f"{alert_text}**Spies:**\n```You are missing {60-nation['spies']} spies to reach the mmr.```\n"
+		else:
+			if nation["spies"]<50:
+				alert_required = True
+				alert_text= f"{alert_text}**Spies:**\n```You are missing {60-nation['spies']} spies to reach the mmr.```\n"
 
 		muni_mod = 1
 		if nation["arms_stockpile"]:

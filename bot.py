@@ -399,10 +399,17 @@ async def register(ctx,link):
 		nation_id=int(link[37:])
 	else:
 		nation_id=link
-	update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
-	#async with httpx.AsyncClient() as client:
-		#query= f"{{nations(id:{nation_id})}}{{data{{discord,discord_id}}}}"
-	await ctx.send("Successfully registered")		
+	
+	async with httpx.AsyncClient() as client:
+		query= f"{{nations(id:{nation_id}){{ data{{discord}} }} }}"
+		fetchdata = client.post(graphql_link,json={'query':query})
+		fetchdata = fetchdata.json()['data']['nations']['data'][0]
+	if fetchdata["discord"]==ctx.message.author:	
+		update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
+		await ctx.send("Successfully registered")		
+	else:
+		await ctx.send("Go to https://politicsandwar.com/nation/edit \nPut your username `{ctx.message.author}` in the discord username section\nClick save & try again.")
+		
 
 @client.hybrid_command(name="wars",with_app_command=True,description="Fetchs the wars the nation is currently in")
 async def wars(ctx,*,_id=None):
