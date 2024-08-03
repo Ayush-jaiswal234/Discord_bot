@@ -13,7 +13,6 @@ class trade_watcher:
 		self.kit = pnwkit.QueryKit("2b2db3a2636488")
 		self.track_ids = []
 		self.result = {}
-		self.average_price={}
 		self.embed = discord.Embed()
 		self.update_trades.add_exception_type(KeyError,ReadTimeout,ConnectTimeout)
 		self.update_trades.start()
@@ -27,7 +26,6 @@ class trade_watcher:
 **{subscribe_data['offer_amount']:,} {subscribe_data['offer_resource']} is being {past_tense} for ${subscribe_data['price']:,}**
 Last Sell price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']:,}
 Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_offer']['price']:,}
-Market average: ${self.average_price[f'{subscribe_data["offer_resource"]}']:,}
 **Minimum Profit: ${profit:,}**
 {link}""")
 		logging.info(subscribe_data["id"])
@@ -43,8 +41,6 @@ Market average: ${self.average_price[f'{subscribe_data["offer_resource"]}']:,}
 			condition1 = subscribe_data['price']>self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']
 			profit=-profit
 			profit_percent = -profit_percent
-		condition1 = condition1 
-		logging.info(subscribe_data)
 		if condition1 and profit>=5000000 and profit_percent>0.022:
 			role ="1254752332273418301"
 			await self.send_message(role,type_of_trade,profit,subscribe_data)
@@ -59,6 +55,7 @@ Market average: ${self.average_price[f'{subscribe_data["offer_resource"]}']:,}
 	async def check_the_rss(self,subscribe_data):
 		subscribe_data = subscribe_data.to_dict()
 		if subscribe_data['accepted']==0:
+			logging.info(subscribe_data)
 			await self.profit_calculator(subscribe_data['buy_or_sell'],self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price'],subscribe_data)
 		
 		elif self.track_ids!=[]:
@@ -88,22 +85,17 @@ Market average: ${self.average_price[f'{subscribe_data["offer_resource"]}']:,}
 
 	@tasks.loop(seconds=15,reconnect=True)
 	async def update_trades(self): 
-		query = """{top_trade_info {resources {resource best_buy_offer {price offer_amount}best_sell_offer {price offer_amount}}}
-		tradeprices(first:1){   data{coal,oil,uranium,iron,bauxite,lead,gasoline,munitions,steel,aluminum,food,credits}}}"""
+		query = "{top_trade_info {resources {resource best_buy_offer {price offer_amount}best_sell_offer {price offer_amount}}}}"
 		api_key='2b2db3a2636488'
 		async with httpx.AsyncClient() as httpx_client:
 			fetchdata = await httpx_client.post(f'https://api.politicsandwar.com/graphql?api_key={api_key}',json={'query':query})
-		fetchdata=fetchdata.json()['data']
-		last_trade_data = fetchdata['top_trade_info']['resources']
-		game_average_price = fetchdata['tradeprices']['data'][0]
-		for item in last_trade_data:
+		fetchdata=fetchdata.json()['data']['top_trade_info']['resources']
+		for item in fetchdata:
 			if item['resource']=='credit':
 				item['resource']='credits'
 			self.result[item['resource']]={
 				'best_buy_offer':item['best_buy_offer'],
 				'best_sell_offer':item['best_sell_offer']
 			}
-		for rss,value in game_average_price.items():
-			self.average_price[rss]=value
 
 
