@@ -15,7 +15,6 @@ class trade_watcher:
 		self.result = {}
 		self.average_price={}
 		self.embed = discord.Embed()
-		logging.basicConfig(filename='trade.txt',level=logging.info)
 		self.update_trades.add_exception_type(KeyError,ReadTimeout,ConnectTimeout)
 		self.update_trades.start()
 
@@ -39,11 +38,13 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 		profit_percent = (last_sell_price-1-subscribe_data['price'])/last_sell_price
 		if type_of_trade=="sell":
 			condition1 = subscribe_data['price']<self.result[f'{subscribe_data["offer_resource"]}']['best_buy_offer']['price']
+			condition1 = condition1 and subscribe_data['price']>self.average_price[f'{subscribe_data["offer_resource"]}']*0.90 
 		else:    
 			condition1 = subscribe_data['price']>self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']
+			condition1 = condition1 and subscribe_data['price']<self.average_price[f'{subscribe_data["offer_resource"]}']*0.90
 			profit=-profit
 			profit_percent = -profit_percent
-		condition1 = condition1 and (subscribe_data['price']>self.average_price[f'{subscribe_data["offer_resource"]}']*0.97 or subscribe_data['price']<self.average_price[f'{subscribe_data["offer_resource"]}']*0.97)	
+		condition1 = condition1 
 		logging.info(subscribe_data)
 		if condition1 and profit>=5000000 and profit_percent>0.022:
 			role ="1254752332273418301"
@@ -105,4 +106,5 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 			}
 		for rss,value in game_average_price.items():
 			self.average_price[rss]=value
-		logging.info(self.average_price)	
+
+
