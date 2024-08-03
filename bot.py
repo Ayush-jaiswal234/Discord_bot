@@ -18,12 +18,11 @@ logging.basicConfig(filename='log.txt',	level=logging.INFO) #
 aiosqlite.threadsafety=1
 load_dotenv()
 
-def update_registered_nations(author_id,author_name,nation_id):
-	connection=sqlite3.connect('pnw.db')
-	data_to_be_inserted=("insert into registered_nations values(%s,'%s',%s) on conflict(discord_id) do update set user_name='%s',nation_id=%s") % (author_id,author_name,nation_id,author_name,nation_id)
-	connection.execute(data_to_be_inserted)
-	connection.commit()
-	connection.close()	
+async def update_registered_nations(author_id,author_name,nation_id):
+	async with aiosqlite.connect('pnw.db') as db:
+		data_to_be_inserted=("insert into registered_nations values(%s,'%s',%s) on conflict(discord_id) do update set user_name='%s',nation_id=%s") % (author_id,author_name,nation_id,author_name,nation_id)
+		await db.execute(data_to_be_inserted)
+		await db.commit()	
 pass	
 
 async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=None):	
@@ -404,11 +403,12 @@ async def register(ctx,link):
 		query= f"{{nations(id:{nation_id}){{ data{{discord}} }} }}"
 		fetchdata = await client.post(graphql_link,json={'query':query})
 		fetchdata = fetchdata.json()['data']['nations']['data'][0]
-	if fetchdata["discord"]==ctx.message.author:	
-		update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
+	print(fetchdata,type(fetchdata['discord']),ctx.author,type(ctx.message.author))	
+	if fetchdata["discord"]==str(ctx.message.author):	
+		await update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
 		await ctx.send("Successfully registered")		
 	else:
-		await ctx.send("Go to https://politicsandwar.com/nation/edit \nPut your username `{ctx.message.author}` in the discord username section\nClick save & try again.")
+		await ctx.send(f"Go to https://politicsandwar.com/nation/edit \nPut your username `{ctx.message.author}` in the discord username section\nClick save & try again.")
 		
 
 @client.hybrid_command(name="wars",with_app_command=True,description="Fetchs the wars the nation is currently in")
