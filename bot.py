@@ -402,7 +402,7 @@ async def register(ctx,link):
 	
 	async with httpx.AsyncClient() as client:
 		query= f"{{nations(id:{nation_id}){{ data{{discord}} }} }}"
-		fetchdata = client.post(graphql_link,json={'query':query})
+		fetchdata = await client.post(graphql_link,json={'query':query})
 		fetchdata = fetchdata.json()['data']['nations']['data'][0]
 	if fetchdata["discord"]==ctx.message.author:	
 		update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
