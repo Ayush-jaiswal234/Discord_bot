@@ -373,7 +373,7 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 					loot = f"Loot: ${target['beige_loot']:,}"
 					emb.add_field(name=f'{i}. https://politicsandwar.com/nation/id={(target["nation_id"])}',value=f'{loot}',inline=False)
 					emb.add_field(name='Alliance',value=target["alliance"],inline=True)
-					if target[""]!=0:
+					if target["beige_turns"]!=0:
 						emb.add_field(name='Beige',value=f'{target["beige_turns"]} turns',inline=True)	
 					emb.add_field(name='Soldiers',value=target["soldiers"],inline=True)
 					emb.add_field(name='Tanks',value=target["tanks"],inline=True)
