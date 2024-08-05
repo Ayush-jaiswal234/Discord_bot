@@ -14,7 +14,6 @@ from scripts.trade_bot import trade_watcher
 from dotenv import load_dotenv
 from jinja2 import Environment, PackageLoader, select_autoescape
 from flask.views import MethodView
-from web_flask import app
 import web_flask
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -412,11 +411,9 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 					template = env.get_template('index.html')
 					result = template.render(targets=list_of_targets)
 					return str(result)		
-			
-			async with httpx.AsyncClient() as client:	
-				response = await client.post(f'http://{os.getenv("web_address")}:5000/store_data', json={"endpoint":endpoint})
-				if response.status_code ==200:
-					await ctx.send(f"http://{os.getenv('web_address')}:5000/raids/{endpoint}")
+				
+			web_flask.app.add_url_rule(f"/raids/{endpoint}", view_func=RaidView.as_view(endpoint))
+			await ctx.send(f"http://{os.getenv('web_address')}/raids/{endpoint}")
 	else:
 		page1.title='Register'
 		page1.description='Usage : `;register <nation id|nation link>`'
