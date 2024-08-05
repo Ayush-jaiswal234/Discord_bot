@@ -377,7 +377,7 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 						emb.add_field(name='Beige',value=f'{target["beige_turns"]} turns',inline=True)	
 					emb.add_field(name='Soldiers',value=target["soldiers"],inline=True)
 					emb.add_field(name='Tanks',value=target["tanks"],inline=True)
-					emb.add_field(name='Aircrafts',value=target["Aircraft"],inline=True)
+					emb.add_field(name='Aircrafts',value=target["aircraft"],inline=True)
 					emb.add_field(name='Ships',value=target["ships"],inline=True)
 					emb.add_field(name='Last bank deposit',value=target["last_deposit_date"],inline=True)
 					i+=1
@@ -393,7 +393,7 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 			list_of_targets=await targets(war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns)
 			keys = ['beige_loot','war_end_date','alliance','cities','beige_turns','soldiers','tanks','aircraft','ships','last_active','last_deposit_date']
 			for i in range(len(list_of_targets)):
-				recreate_target = [f'=HYPERLINK("https://politicsandwar.com/nation/id={list_of_targets[i]["nation_id"]}","{list_of_targets[i]["nation"]}"))']
+				recreate_target = [f'=HYPERLINK("https://politicsandwar.com/nation/id={list_of_targets[i]["nation_id"]}","{list_of_targets[i]["nation"]}")']
 				recreate_target.extend([list_of_targets[i][key] for key in keys])
 				list_of_targets[i] = recreate_target
 			list_of_targets.insert(0,['Nation','Loot','War loss date','Alliance','Cities','Beige Turns','Soldiers','Tanks','Aircrafts','Ships','Last Active','Last Bank Deposit'])
@@ -405,7 +405,8 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 				await ctx.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
 
 		elif flags.result=='web':
-			endpoint = str(ctx.message.author).strip
+			endpoint = str(ctx.message.author)
+			endpoint = re.sub('[\W_]+', '', endpoint)
 			class RaidView(MethodView):
 				def get(self):
 					template = env.get_template('index.html')
