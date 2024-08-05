@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Raid Targets</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0;
+        }
+
+        table {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 80%;
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #2e2e2e;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #383838;
+            color: white;
+        }
+
+        th:hover {
+            background-color: #606060;
+        }
+
+        tr:nth-child(even) {
+            background-color: #3e3e3e;
+        }
+
+        a {
+            color: #1e90ff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .table-container {
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="my-4">Raid Targets</h1>
+        <div class="table-container">
+            <table id="targetTable" class="table table-striped tablesorter">
+                <thead>
+                    <tr>
+                        <th>Nation</th>
+                        <th>Alliance</th>
+                        <th>Alliance Position</th>
+                        <th>Cities</th>
+                        <th>Beige Turns</th>
+                        <th>Last Active</th>
+                        <th>Beige Loot</th>
+                        <th>Slots</th>
+                        <th>Last War Loss</th>
+                        <th>Last Bank Deposit</th>
+                        <th>Soldiers</th>
+                        <th>Tanks</th>
+                        <th>Aircraft</th>
+                        <th>Ships</th>
+                        <th>Missiles</th>
+                        <th>Nukes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for target in targets %}
+                    <tr>
+                        <td><a href="https://politicsandwar.com/nation/id={{target.nation_id}}">{{ target.nation }}</a></td>
+                        <td><a href="https://politicsandwar.com/alliance/id={{target.alliance_id}}">{{ target.alliance }}</a></td>
+                        <td>{{ target.alliance_position }}</td>
+                        <td>{{ target.cities }}</td>
+                        <td>{{ target.beige_turns }}</td>
+                        <td>{{ target.last_active }}</td>
+                        <td>${{ target.beige_loot | comma }}</td>
+                        <td>{{ target.defensive_wars }}/3</td>
+                        <td>{{ target.war_end_date }}</td>
+                        <td>{{ target.last_deposit_date }}</td>
+                        <td>{{ target.soldiers }}</td>
+                        <td>{{ target.tanks }}</td>
+                        <td>{{ target.aircraft }}</td>
+                        <td>{{ target.ships }}</td>
+                        <td>{{ target.missiles }}</td>
+                        <td>{{ target.nukes }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#targetTable").tablesorter();
+        });
+    </script>
+</body>
+
+</html>

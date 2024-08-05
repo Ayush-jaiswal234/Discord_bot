@@ -74,6 +74,7 @@ pass
 
 def position(number):
 	switcher={
+	0:'No Alliance',	
 	1:'Applicant',
 	2:'Member',
 	3:'Officer',

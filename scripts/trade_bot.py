@@ -55,7 +55,7 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 	async def check_the_rss(self,subscribe_data):
 		subscribe_data = subscribe_data.to_dict()
 		if subscribe_data['accepted']==0:
-			logging.info(subscribe_data)
+			#logging.info(subscribe_data)
 			await self.profit_calculator(subscribe_data['buy_or_sell'],self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price'],subscribe_data)
 		
 		elif self.track_ids!=[]:
