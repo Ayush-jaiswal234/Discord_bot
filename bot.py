@@ -406,15 +406,8 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 		elif flags.result=='web':
 			endpoint = str(ctx.message.author)
 			endpoint = re.sub('[\W_]+', '', endpoint)
-			list_of_targets=await targets(war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns)
-			class RaidView(MethodView):
-				def get(self):
-					template = env.get_template('index.html')
-					result = template.render(targets=list_of_targets)
-					return str(result)		
-				
-			web_flask.app.add_url_rule(f"/raids/{endpoint}", view_func=RaidView.as_view(endpoint))
-			await ctx.send(f"http://{os.getenv('web_address')}:5000/raids/{endpoint}")
+			unique_link = web_flask.generate_link(endpoint, [war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns])
+			await ctx.send(unique_link)
 	else:
 		page1.title='Register'
 		page1.description='Usage : `;register <nation id|nation link>`'
@@ -970,5 +963,6 @@ async def sync_slash(ctx):
 async def ping(ctx):
 	await ctx.send(f"Latency: {round(client.latency*1000)}ms")
 
-web_flask.run()
-client.run(os.getenv('DISCORD_TOKEN'))		
+if __name__=='__main__':
+	web_flask.run()
+	client.run(os.getenv('DISCORD_TOKEN'))		
