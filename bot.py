@@ -412,9 +412,11 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 					template = env.get_template('index.html')
 					result = template.render(targets=list_of_targets)
 					return str(result)		
-				
-			app.add_url_rule(f"/raids/{endpoint}", view_func=RaidView.as_view(endpoint))
-			await ctx.send(f"http://{os.getenv('web_address')}/raids/{endpoint}")
+			
+			async with httpx.AsyncClient() as client:	
+				response = await client.post('http://127.0.0.1:5000/store_data', json={"endpoint":endpoint})
+				if response.status_code ==200:
+					await ctx.send(f"http://{os.getenv('web_address')}:5000/raids/{endpoint}")
 	else:
 		page1.title='Register'
 		page1.description='Usage : `;register <nation id|nation link>`'
