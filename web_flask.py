@@ -37,7 +37,7 @@ async def raid_view(unique_id):
     parameters, _ = user_data[unique_id]
     # Fetch data based on parameters
     list_of_targets = await targets(*parameters)
-    del user_data[unique_id]  # Remove data after use
+    #del user_data[unique_id]  # Remove data after use
     template = env.get_template('index.html')
     result = template.render(targets=list_of_targets)
     return str(result)
