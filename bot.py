@@ -414,7 +414,7 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 					return str(result)		
 			
 			async with httpx.AsyncClient() as client:	
-				response = await client.post(f'http://{os.getenv('web_address')}:5000/store_data', json={"endpoint":endpoint})
+				response = await client.post(f'http://{os.getenv("web_address")}:5000/store_data', json={"endpoint":endpoint})
 				if response.status_code ==200:
 					await ctx.send(f"http://{os.getenv('web_address')}:5000/raids/{endpoint}")
 	else:
