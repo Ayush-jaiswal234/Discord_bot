@@ -10,7 +10,7 @@ app = Flask('')
 
 @app.route('/')
 def main():
-    return "It lives!!"
+    return "WAP"
 
 def run():
     Thread(target=lambda: app.run(host=os.getenv('web_address'), port=5000)).start()
@@ -38,6 +38,19 @@ async def raid_view(unique_id):
     # Fetch data based on parameters
     list_of_targets = await targets(*parameters)
     #del user_data[unique_id]  # Remove data after use
-    template = env.get_template('index.html')
+    template = env.get_template('raid.html')
+    result = template.render(targets=list_of_targets)
+    return str(result)
+
+@app.route('/war/<unique_id>')
+async def war_view(unique_id):
+    print('start')
+    if unique_id not in user_data:
+        return "Invalid link or data expired.", 404
+    parameters, _ = user_data[unique_id]
+    # Fetch data based on parameters
+    list_of_targets = await targets(*parameters)
+    #del user_data[unique_id]  # Remove data after use
+    template = env.get_template('war.html')
     result = template.render(targets=list_of_targets)
     return str(result)

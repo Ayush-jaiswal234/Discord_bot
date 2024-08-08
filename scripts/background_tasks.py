@@ -218,7 +218,7 @@ class background_tasks:
   					data{
 					color
 					nations{
-						vacation_mode_turns,continent,last_active,color,id,alliance_position,soldiers,tanks,aircraft,ships,spies,num_cities,discord,discord_id,offensive_wars_count,defensive_wars_count
+						vacation_mode_turns,continent,last_active,color,id,alliance_position,soldiers,tanks,aircraft,ships,num_cities,discord,discord_id,offensive_wars_count,defensive_wars_count
 						food,uranium,coal,iron,bauxite,oil,lead
 						cities{
 							date,coal_power,oil_power,farm,aluminum_refinery,munitions_factory,oil_refinery,nuclear_power,steel_mill,coal_mine,oil_well,lead_mine,uranium_mine,iron_mine,bauxite_mine,infrastructure,land
@@ -288,15 +288,6 @@ class background_tasks:
 			if nation[unit_name[units]]<mmr_nation[units]:
 				alert_required = True
 				alert_text = f"{alert_text}**{unit_name[units].capitalize()}:**\n```You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.```\n"
-		
-		if nation["central_intelligence_agency"]:
-			if nation["spies"]<60:
-				alert_required = True
-				alert_text= f"{alert_text}**Spies:**\n```You are missing {60-nation['spies']} spies to reach the mmr.```\n"
-		else:
-			if nation["spies"]<50:
-				alert_required = True
-				alert_text= f"{alert_text}**Spies:**\n```You are missing {60-nation['spies']} spies to reach the mmr.```\n"
 
 		muni_mod = 1
 		if nation["arms_stockpile"]:

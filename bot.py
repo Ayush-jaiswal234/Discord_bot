@@ -30,7 +30,7 @@ pass
 
 async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=None):	
 	async with aiosqlite.connect('pnw.db') as db:
-		date=datetime.now().replace(microsecond=0)
+		date=datetime.now(timezone.utc).replace(microsecond=0)
 		date = date -timedelta(days=inactivity_time)
 		search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
 		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
@@ -266,7 +266,7 @@ env = create_jinja_env()
 graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 intents = discord.Intents.default()	
 intents.message_content = True
-client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=intents)
+client=commands.AutoShardedBot(command_prefix='!',help_command=None,intents=intents)
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook
@@ -336,7 +336,7 @@ class RaidFlags(commands.FlagConverter,delimiter= " ",prefix='-'):
 	alliances: str = '0'
 	beige: bool = True
 	beige_turns: int = 216
-	result: str = 'embed'
+	result: str = 'web'
 
 @client.hybrid_command(name="raid",with_app_command=True,description="Finds the best raiding targets")
 async def raid(ctx:commands.Context, *,flags:RaidFlags):
