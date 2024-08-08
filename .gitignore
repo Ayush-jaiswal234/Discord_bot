@@ -5,3 +5,4 @@ log.txt
 test.py
 **/__pycache__/
 pnw.db
+pnw.db-journal

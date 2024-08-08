@@ -266,7 +266,7 @@ env = create_jinja_env()
 graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 intents = discord.Intents.default()	
 intents.message_content = True
-client=commands.AutoShardedBot(command_prefix='!',help_command=None,intents=intents)
+client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=intents)
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook
@@ -281,6 +281,7 @@ async def on_ready():
 	await start_trade.start()
 	await client.change_presence(status=discord.Status.online, activity=activity)
 	await client.load_extension("commands.help")
+	await client.load_extension("commands.nation_audit")
 
 @client.event
 async def on_command_error(ctx, error):
