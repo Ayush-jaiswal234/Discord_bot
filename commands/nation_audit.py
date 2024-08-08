@@ -53,12 +53,12 @@ class audit_commands(commands.Cog):
 				for rss,revenue in revenue.items():
 					if revenue<0:
 						if nation[rss]<-revenue*3: 
-							improv_text_dict[rss] = f"{improv_text_dict.get(rss,'')}{discord_id} {round(-nation[rss]/revenue,2)} days "
+							improv_text_dict[rss] = f"{improv_text_dict.get(rss,'')}{discord_id} {round(abs(nation[rss])/revenue,2)} days "
 
 		final_message =""
 		for key,text in improv_text_dict.items():
 			if len(final_message)<1800:
-				final_message =f"{final_message}{key.capitalize()}\n{text}\n\n"
+				final_message =f"{final_message}**{key.capitalize()}**\n{text}\n\n"
 			else:
 				await ctx.send(final_message)
 				final_message = ""		
@@ -91,7 +91,7 @@ class audit_commands(commands.Cog):
 		
 		for units in range(0,len(mmr)):
 			if nation[unit_name[units]]<mmr_nation[units]:
-				audit_dict[unit_name[units]] = f"{audit_dict.get(unit_name[units],'')}{discord_id} {nation[unit_name[units]]}/{mmr_nation[units]} "
+				audit_dict[unit_name[units]] = f"{audit_dict.get(unit_name[units],'')}{discord_id} {nation[unit_name[units]]:,}/{mmr_nation[units]:,} "
 
 		max_spies =50
 		if nation["central_intelligence_agency"]:
