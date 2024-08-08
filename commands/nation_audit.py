@@ -18,7 +18,7 @@ class audit_commands(commands.Cog):
   					data{{
 					color
 					nations{{
-						vacation_mode_turns,continent,last_active,color,id,alliance_position,soldiers,tanks,aircraft,ships,spies,num_cities,discord,discord_id,offensive_wars_count,defensive_wars_count
+						nation_name,vacation_mode_turns,continent,last_active,color,id,alliance_position,soldiers,tanks,aircraft,ships,spies,num_cities,discord,discord_id,offensive_wars_count,defensive_wars_count
 						food,uranium,coal,iron,bauxite,oil,lead
 						cities{{
 							date,coal_power,oil_power,farm,aluminum_refinery,munitions_factory,oil_refinery,nuclear_power,steel_mill,coal_mine,oil_well,lead_mine,uranium_mine,iron_mine,bauxite_mine,infrastructure,land
@@ -40,7 +40,7 @@ class audit_commands(commands.Cog):
 			if nation["alliance_position"]!="APPLICANT" and nation["vacation_mode_turns"]==0:
 				discord_id = await self.member_info(nation)
 				if discord_id==None:
-					discord_id = f"https://politicsandwar.com/nation/id={nation['id']}"
+					discord_id = f"[{nation["nation_name"]}](https://politicsandwar.com/nation/id={nation['id']})"
 				else:
 					discord_id = f"<@{discord_id}>"	
 				
@@ -53,7 +53,7 @@ class audit_commands(commands.Cog):
 				for rss,revenue in revenue.items():
 					if revenue<0:
 						if nation[rss]<-revenue*3: 
-							improv_text_dict[rss] = f"{improv_text_dict.get(rss,'')}{discord_id} "
+							improv_text_dict[rss] = f"{improv_text_dict.get(rss,'')}{discord_id} {int(-nation[rss]/revenue)+1} days "
 
 		final_message =""
 		for key,text in improv_text_dict.items():
@@ -79,19 +79,19 @@ class audit_commands(commands.Cog):
 		
 		inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%dT%H:%M:%S')).split('d')[0]
 		if int(inactive_days)>5:
-			audit_dict["inactive"] = f"{audit_dict.get('inactive','')}{discord_id} "
+			audit_dict["inactive"] = f"{audit_dict.get('inactive','')}{discord_id} {int(inactive_days)} days"
 
 		mmr_nation = [x * nation["num_cities"] for x in mmr]
 		
 		for units in range(0,len(mmr)):
 			if nation[unit_name[units]]<mmr_nation[units]:
-				audit_dict[unit_name[units]] = f"{audit_dict.get(unit_name[units],'')}{discord_id} "
+				audit_dict[unit_name[units]] = f"{audit_dict.get(unit_name[units],'')}{discord_id} {nation[unit_name[units]]}/{mmr_nation[units]}"
 
 		max_spies =50
 		if nation["central_intelligence_agency"]:
 			max_spies = 60
 		if nation["spies"]<max_spies:
-			audit_dict["spies"] = f"{audit_dict.get('spies','')}{discord_id} "		
+			audit_dict["spies"] = f"{audit_dict.get('spies','')}{discord_id} {nation["spies"]}/{max_spies} "		
 
 		return audit_dict	
 
