@@ -40,7 +40,7 @@ class audit_commands(commands.Cog):
 			if nation["alliance_position"]!="APPLICANT" and nation["vacation_mode_turns"]==0:
 				discord_id = await self.member_info(nation)
 				if discord_id==None:
-					discord_id = f"[{nation["nation_name"]}](https://politicsandwar.com/nation/id={nation['id']})"
+					discord_id = f"[{nation['nation_name']}](https://politicsandwar.com/nation/id={nation['id']})"
 				else:
 					discord_id = f"<@{discord_id}>"	
 				
@@ -57,8 +57,14 @@ class audit_commands(commands.Cog):
 
 		final_message =""
 		for key,text in improv_text_dict.items():
-			final_message =f"{final_message}{key.capitalize()}\n{text}\n\n"
-		await ctx.send(final_message)	
+			if len(final_message)<1800:
+				final_message =f"{final_message}{key.capitalize()}\n{text}\n\n"
+			else:
+				await ctx.send(final_message)
+				final_message = ""		
+		
+		await ctx.send(final_message)
+
 
 	async def member_info(self,nation):
 		async with aiosqlite.connect('pnw.db') as db:	
@@ -79,19 +85,19 @@ class audit_commands(commands.Cog):
 		
 		inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%dT%H:%M:%S')).split('d')[0]
 		if int(inactive_days)>5:
-			audit_dict["inactive"] = f"{audit_dict.get('inactive','')}{discord_id} {int(inactive_days)} days"
+			audit_dict["inactive"] = f"{audit_dict.get('inactive','')}{discord_id} {int(inactive_days)} days "
 
 		mmr_nation = [x * nation["num_cities"] for x in mmr]
 		
 		for units in range(0,len(mmr)):
 			if nation[unit_name[units]]<mmr_nation[units]:
-				audit_dict[unit_name[units]] = f"{audit_dict.get(unit_name[units],'')}{discord_id} {nation[unit_name[units]]}/{mmr_nation[units]}"
+				audit_dict[unit_name[units]] = f"{audit_dict.get(unit_name[units],'')}{discord_id} {nation[unit_name[units]]}/{mmr_nation[units]} "
 
 		max_spies =50
 		if nation["central_intelligence_agency"]:
 			max_spies = 60
 		if nation["spies"]<max_spies:
-			audit_dict["spies"] = f"{audit_dict.get('spies','')}{discord_id} {nation["spies"]}/{max_spies} "		
+			audit_dict["spies"] = f"{audit_dict.get('spies','')}{discord_id} {nation['spies']}/{max_spies} "		
 
 		return audit_dict	
 
