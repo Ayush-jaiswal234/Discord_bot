@@ -53,7 +53,7 @@ class audit_commands(commands.Cog):
 				for rss,revenue in revenue.items():
 					if revenue<0:
 						if nation[rss]<-revenue*3: 
-							improv_text_dict[rss] = f"{improv_text_dict.get(rss,'')}{discord_id} {round(abs(nation[rss])/revenue,2)} days "
+							improv_text_dict[rss] = f"{improv_text_dict.get(rss,'')}{discord_id} {round(abs(nation[rss]/revenue),2)} days "
 
 		final_message =""
 		for key,text in improv_text_dict.items():

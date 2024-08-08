@@ -368,7 +368,7 @@ class background_tasks:
 		for rss,revenue in raws_rev.items():
 			if revenue<0:
 				if nation[rss]<-revenue*3: 
-					alert_text = f"{alert_text}**{rss.capitalize()}:**\n```You only have {nation[rss]} {rss} remaining which will last for {round(abs(nation[rss])/revenue,2)} days.```\n"
+					alert_text = f"{alert_text}**{rss.capitalize()}:**\n```You only have {nation[rss]} {rss} remaining which will last for {round(abs(nation[rss]/revenue),2)} days.```\n"
 					alert_required = True								
 		
 		return alert_required,alert_text
