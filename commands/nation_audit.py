@@ -50,10 +50,7 @@ class audit_commands(commands.Cog):
 				else:
 					data_dict["discord_id"] = f"<@{discord_id}>"	
 				
-				if nation["num_cities"]>10:
-					audit_text_dict = await self.alert_checker(nation,data_dict,audit_text_dict)
-				else:
-					audit_text_dict = await self.alert_checker(nation,data_dict,audit_text_dict)
+				audit_text_dict = await self.alert_checker(nation,data_dict,audit_text_dict)
 
 				revenue = await self.revenue_calc(radiation,nation)	
 				for rss,revenue in revenue.items():

@@ -221,7 +221,7 @@ class background_tasks:
 						vacation_mode_turns,continent,last_active,color,id,alliance_position,soldiers,tanks,aircraft,ships,num_cities,discord,discord_id,offensive_wars_count,defensive_wars_count
 						food,uranium,coal,iron,bauxite,oil,lead
 						cities{
-							date,coal_power,oil_power,farm,aluminum_refinery,munitions_factory,oil_refinery,nuclear_power,steel_mill,coal_mine,oil_well,lead_mine,uranium_mine,iron_mine,bauxite_mine,infrastructure,land
+							date,barracks,factory,hangar,drydock,coal_power,oil_power,farm,aluminum_refinery,munitions_factory,oil_refinery,nuclear_power,steel_mill,coal_mine,oil_well,lead_mine,uranium_mine,iron_mine,bauxite_mine,infrastructure,land
 						}  
 						central_intelligence_agency,arms_stockpile,bauxite_works,emergency_gasoline_reserve,iron_works,mass_irrigation,uranium_enrichment_program
 					}}
@@ -229,18 +229,22 @@ class background_tasks:
 		async with httpx.AsyncClient() as client:
 			fetchdata=await client.post(self.whitlisted_api_link,json={'query':query},timeout=None)
 			fetchdata = fetchdata.json()["data"]
-		radiation = fetchdata["game_info"]["radiation"]
+		data_dict = {}
+		data_dict["radiation"]=fetchdata["game_info"]["radiation"]
 		fetchdata = fetchdata["alliances"]["data"][0]	
-		mmr = [0 * 3000 ,2 * 250,5 * 15, 0 * 5]	
-		mmr_raiders = [5 * 3000 ,0 * 250,0 * 15, 0 * 5]	
-		unit_name = ["soldiers","tanks","aircraft","ships"]
-		logging.info('before loop')
+			
+		data_dict["mmr"] = {"soldiers":0 * 3000 ,"tanks":2 * 250,"aircraft":5 * 15,"ships": 0 * 5}	
+		data_dict["mmr_raiders"] = {"soldiers":5 * 3000 ,"tanks":0 * 250,"aircraft":0 * 15,"ships": 0 * 5}		
+		data_dict["mmr_buildings"]={"barracks":0,"factory":2,"hangar":5,"drydock":0}
+		data_dict["raiders_buildings"]={"barracks":5,"factory":0,"hangar":0,"drydock":0}
+		data_dict["color"]=fetchdata["color"]
+		
+		#data_dict["war"]=war
+		audit_text_dict = {}
 		for nation in fetchdata["nations"]:
 			if nation["alliance_position"]!="APPLICANT" and nation["vacation_mode_turns"]==0:
-				if nation["num_cities"]>10:
-					alert_required,message= await self.alert_checker(nation,fetchdata["color"],radiation,mmr,unit_name)
-				else:
-					alert_required,message= await self.alert_checker(nation,fetchdata["color"],radiation,mmr_raiders,unit_name)	
+				alert_required,message = await self.alert_checker(nation,data_dict)	
+				
 				if alert_required:
 					discord_id = await self.member_info(nation)
 					if discord_id!=None:
@@ -252,7 +256,7 @@ class background_tasks:
 						try:
 							await user.send(message)
 						except Forbidden:
-							await self.channel.send(f"<@{discord_id}> Your dm's are disabled for non-friends. Please enable dm for the people you share the server with(For gov ref: https://politicsandwar.com/nation/id={nation['id']}).\nAs for the rest of the message:\n{message}")
+							await self.channel.send(f"<@{discord_id}> Why did you block me??? Please enable dm for the people you share the server with(For gov ref: https://politicsandwar.com/nation/id={nation['id']}).\nAs for the rest of the message:\n{message}")
 					else:
 						logging.info(f'{nation["id"]} not registered')	
 
@@ -270,24 +274,41 @@ class background_tasks:
 		return discord_id
 			
 
-	async def alert_checker(self,nation,aa_color,radiation,mmr,unit_name):
+	async def alert_checker(self,nation,data_dict):
 		alert_required = False
 		alert_text = ""
 		
-		if nation["color"]!=aa_color and nation["color"]!="biege":
+		if nation["color"]!=data_dict["color"] and nation["color"]!="biege":
 			alert_required = True
-			alert_text = f"{alert_text}**Color:**\n```Please change your color {aa_color}.```\n"
+			alert_text = f"{alert_text}**Color:**\n```Please change your color {data_dict['color']}.```\n"
 		
 		inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%dT%H:%M:%S')).split('d')[0]
 		if int(inactive_days)>5:
 			alert_required = True
 			alert_text = f"{alert_text}**Inactivity:**\n```Please login you have been inactive for {inactive_days} day(s).```\n"
-		mmr_nation = [x * nation["num_cities"] for x in mmr]
 		
-		for units in range(0,len(mmr)):
-			if nation[unit_name[units]]<mmr_nation[units]:
+		if nation["num_cities"]>10:
+			mmr_nation = {k:v* nation["num_cities"] for k,v in data_dict["mmr"].items()}
+			mmr_buildings ={k:v* nation["num_cities"] for k,v in data_dict["mmr_buildings"].items()}
+		else:
+			mmr_nation = {k:v* nation["num_cities"] for k,v in data_dict["mmr_raiders"].items()}
+			mmr_buildings ={k:v* nation["num_cities"] for k,v in data_dict["raiders_buildings"].items()}
+		
+		actual_mmr_buildings ={"barracks":0,"factory":0,"hangar":0,"drydock":0}
+		for city in nation["cities"]:
+			for keys in actual_mmr_buildings:
+				actual_mmr_buildings[keys]+=city[keys]
+
+		for keys in mmr_nation:
+			if nation[keys]<mmr_nation[keys]:
 				alert_required = True
-				alert_text = f"{alert_text}**{unit_name[units].capitalize()}:**\n```You are missing {mmr_nation[units]-nation[unit_name[units]]} {unit_name[units]} to reach the mmr.```\n"
+				alert_text = f"{alert_text}**{keys.capitalize()}:**\n```You are missing {mmr_nation[keys]-nation[keys]} {keys} to reach the mmr.```\n"
+
+		for keys in actual_mmr_buildings:
+			if actual_mmr_buildings[keys]<mmr_buildings[keys]:
+				alert_required = True
+				alert_text = f"{alert_text}**{keys.capitalize()}:**\n```You are missing {mmr_buildings[keys]-actual_mmr_buildings[keys]} {keys} to reach mmr.```\n"
+
 
 		muni_mod = 1
 		if nation["arms_stockpile"]:
@@ -313,7 +334,7 @@ class background_tasks:
 		if nation["mass_irrigation"]:
 			food_mod = 1/400
 
-		rad_mod = (radiation["global"]+radiation[continent(nation["continent"])])/1000
+		rad_mod = (data_dict["radiation"]["global"]+data_dict["radiation"][continent(nation["continent"])])/1000
 
 		raws_rev ={"food":0,"uranium":0,"coal":0,"oil":0,"iron":0,"lead":0,"bauxite":0}
 		
@@ -370,5 +391,5 @@ class background_tasks:
 				if nation[rss]<-revenue*3: 
 					alert_text = f"{alert_text}**{rss.capitalize()}:**\n```You only have {nation[rss]} {rss} remaining which will last for {round(abs(nation[rss]/revenue),2)} days.```\n"
 					alert_required = True								
-		
+		alert_text = f"{alert_text} If you think you shouldn't receive some or all of the message or something looks broken please dm or ping .wielder with the problem."
 		return alert_required,alert_text
