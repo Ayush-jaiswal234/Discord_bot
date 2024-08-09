@@ -4,6 +4,7 @@ from scripts.nation_data_converter import time_converter,continent
 import datetime as dt
 from math import log
 import aiosqlite
+from discord import AllowedMentions
 
 class audit_commands(commands.Cog):
 	def __init__(self,bot):
@@ -11,7 +12,8 @@ class audit_commands(commands.Cog):
 		self.whitelisted_api = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
 		
 	@commands.command()
-	async def audit_aa(self,ctx:commands.Context,alliance_id=11189):	
+	async def audit_aa(self,ctx:commands.Context,ping=False,war=False,alliance_id=11189):	
+
 		query=f"""{{game_info{{radiation{{global,north_america,south_america,europe,africa,asia,australia,antarctica}} }}
 
 				alliances(id:{alliance_id}){{
@@ -21,7 +23,7 @@ class audit_commands(commands.Cog):
 						nation_name,vacation_mode_turns,continent,last_active,color,id,alliance_position,soldiers,tanks,aircraft,ships,spies,num_cities,discord,discord_id,offensive_wars_count,defensive_wars_count
 						food,uranium,coal,iron,bauxite,oil,lead
 						cities{{
-							date,coal_power,oil_power,farm,aluminum_refinery,munitions_factory,oil_refinery,nuclear_power,steel_mill,coal_mine,oil_well,lead_mine,uranium_mine,iron_mine,bauxite_mine,infrastructure,land
+							date,barracks,factory,hangar,drydock,coal_power,oil_power,farm,aluminum_refinery,munitions_factory,oil_refinery,nuclear_power,steel_mill,coal_mine,oil_well,lead_mine,uranium_mine,iron_mine,bauxite_mine,infrastructure,land
 						}}  
 						central_intelligence_agency,arms_stockpile,bauxite_works,emergency_gasoline_reserve,iron_works,mass_irrigation,uranium_enrichment_program
 					}} }}
@@ -31,39 +33,43 @@ class audit_commands(commands.Cog):
 			fetchdata=await client.post(self.whitelisted_api,json={'query':query},timeout=None)
 			fetchdata = fetchdata.json()["data"]
 		radiation = fetchdata["game_info"]["radiation"]
-		fetchdata = fetchdata["alliances"]["data"][0]	
-		mmr = [0 * 3000 ,2 * 250,5 * 15, 0 * 5]	
-		mmr_raiders = [5 * 3000 ,0 * 250,0 * 15, 0 * 5]	
-		unit_name = ["soldiers","tanks","aircraft","ships"]
-		improv_text_dict = {}
+		fetchdata = fetchdata["alliances"]["data"][0]
+		data_dict = {}	
+		data_dict["mmr"] = {"soldiers":0 * 3000 ,"tanks":2 * 250,"aircraft":5 * 15,"ships": 0 * 5}	
+		data_dict["mmr_raiders"] = {"soldiers":5 * 3000 ,"tanks":0 * 250,"aircraft":0 * 15,"ships": 0 * 5}		
+		data_dict["mmr_buildings"]={"barracks":0,"factory":2,"hangar":5,"drydock":0}
+		data_dict["raiders_buildings"]={"barracks":5,"factory":0,"hangar":0,"drydock":0}
+		data_dict["color"]=fetchdata["color"]
+		data_dict["war"]=war
+		audit_text_dict = {}
 		for nation in fetchdata["nations"]:
 			if nation["alliance_position"]!="APPLICANT" and nation["vacation_mode_turns"]==0:
 				discord_id = await self.member_info(nation)
 				if discord_id==None:
-					discord_id = f"[{nation['nation_name']}](https://politicsandwar.com/nation/id={nation['id']})"
+					data_dict["discord_id"] = f"[{nation['nation_name']}](<https://politicsandwar.com/nation/id={nation['id']}>)"
 				else:
-					discord_id = f"<@{discord_id}>"	
+					data_dict["discord_id"] = f"<@{discord_id}>"	
 				
 				if nation["num_cities"]>10:
-					improv_text_dict = await self.alert_checker(nation,fetchdata["color"],mmr,unit_name,discord_id,improv_text_dict)
+					audit_text_dict = await self.alert_checker(nation,data_dict,audit_text_dict)
 				else:
-					improv_text_dict = await self.alert_checker(nation,fetchdata["color"],mmr_raiders,unit_name,discord_id,improv_text_dict)
+					audit_text_dict = await self.alert_checker(nation,data_dict,audit_text_dict)
 
 				revenue = await self.revenue_calc(radiation,nation)	
 				for rss,revenue in revenue.items():
 					if revenue<0:
 						if nation[rss]<-revenue*3: 
-							improv_text_dict[rss] = f"{improv_text_dict.get(rss,'')}{discord_id} {round(abs(nation[rss]/revenue),2)} days "
+							audit_text_dict[rss] = f"{audit_text_dict.get(rss,'')}{data_dict['discord_id']} {round(abs(nation[rss]/revenue),2)} days "
 
 		final_message =""
-		for key,text in improv_text_dict.items():
-			if len(final_message)<1800:
+		for key,text in audit_text_dict.items():
+			if len(final_message)+len(text)<2000:
 				final_message =f"{final_message}**{key.capitalize()}**\n{text}\n\n"
 			else:
-				await ctx.send(final_message)
+				await ctx.send(final_message,allowed_mentions=AllowedMentions(users=ping))
 				final_message = ""		
 		
-		await ctx.send(final_message)
+		await ctx.send(final_message,allowed_mentions=AllowedMentions(users=ping))
 
 
 	async def member_info(self,nation):
@@ -78,26 +84,43 @@ class audit_commands(commands.Cog):
 		
 		return discord_id
 
-	async def alert_checker(self,nation,aa_color,mmr,unit_name,discord_id,audit_dict):
+	async def alert_checker(self,nation,data_dict,audit_dict):
 
-		if nation["color"]!=aa_color and nation["color"]!="biege":
-			audit_dict["color"] = f"{audit_dict.get('color','')}{discord_id} "
+		if nation["color"]!=data_dict["color"] and nation["color"]!="biege":
+			audit_dict["color"] = f"{audit_dict.get('color','')}{data_dict['discord_id']} "
 		
 		inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%dT%H:%M:%S')).split('d')[0]
 		if int(inactive_days)>5:
-			audit_dict["inactive"] = f"{audit_dict.get('inactive','')}{discord_id} {int(inactive_days)} days "
+			audit_dict["inactive"] = f"{audit_dict.get('inactive','')}{data_dict['discord_id']} {int(inactive_days)} days "
 
-		mmr_nation = [x * nation["num_cities"] for x in mmr]
-		
-		for units in range(0,len(mmr)):
-			if nation[unit_name[units]]<mmr_nation[units]:
-				audit_dict[unit_name[units]] = f"{audit_dict.get(unit_name[units],'')}{discord_id} {nation[unit_name[units]]:,}/{mmr_nation[units]:,} "
+		if not data_dict["war"]:
+			if nation["num_cities"]>10:
+				mmr_nation = {k:v* nation["num_cities"] for k,v in data_dict["mmr"].items()}
+				mmr_buildings ={k:v* nation["num_cities"] for k,v in data_dict["mmr_buildings"].items()}
+			else:
+				mmr_nation = {k:v* nation["num_cities"] for k,v in data_dict["mmr_raiders"].items()}
+				mmr_buildings ={k:v* nation["num_cities"] for k,v in data_dict["raiders_buildings"].items()}
+			
+			actual_mmr_buildings ={"barracks":0,"factory":0,"hangar":0,"drydock":0}
+			for city in nation["cities"]:
+				for keys in actual_mmr_buildings:
+					actual_mmr_buildings[keys]+=city[keys]
+			
+			for keys in mmr_nation:
+				if nation[keys]<mmr_nation[keys]:
+					audit_dict[keys] = f"{audit_dict.get(keys,'')}{data_dict['discord_id']} {nation[keys]:,}/{mmr_nation[keys]:,} "
 
-		max_spies =50
-		if nation["central_intelligence_agency"]:
-			max_spies = 60
-		if nation["spies"]<max_spies:
-			audit_dict["spies"] = f"{audit_dict.get('spies','')}{discord_id} {nation['spies']}/{max_spies} "		
+			for keys in actual_mmr_buildings:
+				if actual_mmr_buildings[keys]<mmr_buildings[keys]:
+					audit_dict[keys] = f"{audit_dict.get(keys,'')}{data_dict['discord_id']} {actual_mmr_buildings[keys]:,}/{mmr_buildings[keys]:,} "
+
+			max_spies =50
+			if nation["central_intelligence_agency"]:
+				max_spies = 60
+			if nation["spies"]<max_spies:
+				audit_dict["spies"] = f"{audit_dict.get('spies','')}{data_dict['discord_id']} {nation['spies']}/{max_spies} "		
+
+
 
 		return audit_dict	
 
