@@ -152,6 +152,8 @@ class audit_commands(commands.Cog):
 		food_mod = 1/500
 		if nation["mass_irrigation"]:
 			food_mod = 1/400
+		if nation["continent"]=="an":
+			food_mod = food_mod*0.5	
 
 		rad_mod = (radiation["global"]+radiation[continent(nation["continent"])])/1000
 
@@ -164,7 +166,7 @@ class audit_commands(commands.Cog):
 				city_age_mod =1 + log(city_age_mod)/15
 				
 			raws_rev["food"] -= ((base_pop**2)/125000000) + ((base_pop*city_age_mod-base_pop)/850)
-			raws_rev["food"] += max(0,city["farm"]*(1+(city["farm"]*2.63-2.63)/100)*food_mod*(1-rad_mod))
+			raws_rev["food"] += city["farm"]*(1 + ((0.5 *(city["farm"] - 1)) / (20 - 1)))*food_mod*city["land"]*(1-rad_mod)*12
 
 			unpowered_infra = city["infrastructure"]
 			raws_rev["uranium"] += 3*city["uranium_mine"]*(1+(city["uranium_mine"]*12.5-12.5)/100)*ura_mod
