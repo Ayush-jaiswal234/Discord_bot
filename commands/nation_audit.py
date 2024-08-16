@@ -12,6 +12,7 @@ class audit_commands(commands.Cog):
 		self.whitelisted_api = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
 		
 	@commands.command()
+	@commands.has_any_role(1089752938353803380,1082785377296846939,1082777828505948190,1082777665733414942)
 	async def audit_aa(self,ctx:commands.Context,ping=False,war=False,alliance_id=11189):	
 
 		query=f"""{{game_info{{radiation{{global,north_america,south_america,europe,africa,asia,australia,antarctica}} }}

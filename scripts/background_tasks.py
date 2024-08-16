@@ -19,9 +19,8 @@ class background_tasks:
 
 	def __init__(self,bot) -> None:
 		self.bot = bot
-		self.channel = bot.get_channel(715222394318356541)#715222394318356541 #change to 1083194484285780120
+		self.channel = bot.get_channel(1147384907694354452)
 		self.scheduler = AsyncIOScheduler()
-		print("Scheduler initialized, adding job.")
 		self.scheduler.add_job(self.spies_checker, trigger='cron',day_of_week='fri', hour=12, minute=00,timezone=dt.timezone.utc)
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
