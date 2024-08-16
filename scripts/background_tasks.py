@@ -11,6 +11,7 @@ from json.decoder import JSONDecodeError
 from math import log
 from scripts.nation_data_converter import continent
 from discord.errors import Forbidden
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 info_time = dt.time(hour=22,minute=0,tzinfo=dt.timezone.utc)
 
@@ -18,15 +19,20 @@ class background_tasks:
 
 	def __init__(self,bot) -> None:
 		self.bot = bot
-		self.channel = bot.get_channel(1083194484285780120)
+		self.channel = bot.get_channel(715222394318356541)#715222394318356541 #change to 1083194484285780120
+		self.scheduler = AsyncIOScheduler()
+		print("Scheduler initialized, adding job.")
+		self.scheduler.add_job(self.spies_checker, trigger='cron',day_of_week='fri', hour=12, minute=00,timezone=dt.timezone.utc)
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
+
+		self.scheduler.start()
 		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError)
 		self.update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
 		self.update_trade_price.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
 		self.audit_members.add_exception_type(OperationalError,KeyError,ConnectTimeout)
 		self.update_trade_price.start()
-		self.update_nation_data.start()
+		self.update_nation_data.start()	
 		self.update_loot_data.start()
 		self.copy_db.start()
 		self.audit_members.start()
@@ -218,7 +224,7 @@ class background_tasks:
   					data{
 					color
 					nations{
-						vacation_mode_turns,continent,last_active,color,id,alliance_position,soldiers,tanks,aircraft,ships,num_cities,discord,discord_id,offensive_wars_count,defensive_wars_count
+						vacation_mode_turns,continent,last_active,color,id,alliance_position,soldiers,tanks,aircraft,ships,num_cities,discord_id,offensive_wars_count,defensive_wars_count
 						food,uranium,coal,iron,bauxite,oil,lead
 						cities{
 							date,barracks,factory,hangar,drydock,coal_power,oil_power,farm,aluminum_refinery,munitions_factory,oil_refinery,nuclear_power,steel_mill,coal_mine,oil_well,lead_mine,uranium_mine,iron_mine,bauxite_mine,infrastructure,land
@@ -393,3 +399,33 @@ class background_tasks:
 					alert_required = True								
 		alert_text = f"{alert_text} If you think you shouldn't receive some or all of the message or something looks broken please dm or ping .wielder with the problem."
 		return alert_required,alert_text
+	
+	async def spies_checker(self):
+		query="""{
+				alliances(id:11189){
+  					data{
+					nations{
+						spies,discord_id,nation_name,id,central_intelligence_agency,vacation_mode_turns,alliance_position
+					} }
+				} }"""
+		async with httpx.AsyncClient() as client:
+			fetchdata=await client.post(self.whitlisted_api_link,json={'query':query},timeout=None)
+			fetchdata = fetchdata.json()["data"]['alliances']['data'][0]['nations']
+
+		alert_text=""
+		for nation in fetchdata:
+			if nation["alliance_position"]!="APPLICANT" and nation["vacation_mode_turns"]==0:
+				max_spies = 50
+				if nation["central_intelligence_agency"]:
+					max_spies = 60
+
+				if nation["spies"]<max_spies:
+					discord_id = await self.member_info(nation)
+					if discord_id!=None:
+						discord_id = f"<@{discord_id}>"
+					else:
+						discord_id = f"[{nation['nation_name']}](<https://politicsandwar.com/nation/id={nation['id']}>)"
+					alert_text=f"{alert_text}{discord_id} "
+
+		if alert_text!="":
+			await self.channel.send(f"Weekly Reminder to Buy Spies!!!\n{alert_text}")

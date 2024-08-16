@@ -26,6 +26,9 @@ class audit_commands(commands.Cog):
 							date,barracks,factory,hangar,drydock,coal_power,oil_power,farm,aluminum_refinery,munitions_factory,oil_refinery,nuclear_power,steel_mill,coal_mine,oil_well,lead_mine,uranium_mine,iron_mine,bauxite_mine,infrastructure,land
 						}}  
 						central_intelligence_agency,arms_stockpile,bauxite_works,emergency_gasoline_reserve,iron_works,mass_irrigation,uranium_enrichment_program
+						 wars(active:true,status:ACTIVE){{
+          					id
+							}}
 					}} }}
 				}} }}"""
 
@@ -60,11 +63,11 @@ class audit_commands(commands.Cog):
 
 		final_message =""
 		for key,text in audit_text_dict.items():
-			if len(final_message)+len(text)<2000:
+			if len(final_message)+len(text)+len(key)<1990:
 				final_message =f"{final_message}**{key.capitalize()}**\n{text}\n\n"
 			else:
 				await ctx.send(final_message,allowed_mentions=AllowedMentions(users=ping))
-				final_message = ""		
+				final_message = f"**{key.capitalize()}**\n{text}\n\n"		
 		
 		await ctx.send(final_message,allowed_mentions=AllowedMentions(users=ping))
 
@@ -97,6 +100,9 @@ class audit_commands(commands.Cog):
 			else:
 				mmr_nation = {k:v* nation["num_cities"] for k,v in data_dict["mmr_raiders"].items()}
 				mmr_buildings ={k:v* nation["num_cities"] for k,v in data_dict["raiders_buildings"].items()}
+				
+				if len(nation["wars"])<5:
+					audit_dict["raids"] = f"{audit_dict.get('raids','')}{data_dict['discord_id']} {len(nation['wars'])}/5 "
 			
 			actual_mmr_buildings ={"barracks":0,"factory":0,"hangar":0,"drydock":0}
 			for city in nation["cities"]:
