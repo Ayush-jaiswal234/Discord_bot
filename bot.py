@@ -221,9 +221,9 @@ async def loot_from_text(message,length_of_param):
 
 async def loot_calculator(nation_id):
 	async with aiosqlite.connect('pnw.db') as db:
+		prices = await get_prices(db)	
 		async with db.execute(f'select * from loot_data where nation_id={nation_id}') as cursor:
 			loot = await cursor.fetchone()
-		prices = await get_prices(db)	
 	logging.info(loot)
 	if loot!=None:
 		total_worth = loot[2]*0.14
@@ -975,7 +975,7 @@ async def ping(ctx):
 	await ctx.send(f"Latency: {round(client.latency*1000)}ms")
 
 @client.hybrid_command(name='range',description='Steps you need to take to be in range of the target nation',with_app_command=True)
-async def range(ctx,target,user_nation='Default'):
+async def range_command(ctx,target,user_nation='Default'):
 	if user_nation == 'Default':
 		user_nation = await nation_data_converter.get('registered_nations.nation_id',ctx.author.id)
 	else:
