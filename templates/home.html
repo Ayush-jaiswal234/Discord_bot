@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weaponized Assualt Penguins</title>
+    <style>
+        body {
+            background-color: #101010;
+            background-image: url("{{ url_for('static', filename='images/wap.png') }}");
+            background-repeat: no-repeat;
+            background-blend-mode: lighten;
+            background-size: cover;
+            color: #fff;
+            font-family: sans-serif;
+            text-align: center;
+        }
+
+        .container {
+            max-width: auto;
+            margin: 0 auto;
+            padding: 20px;
+            margin-top: 8%;
+        }
+
+        h1 {
+            font-size: 70px;
+        }
+
+        .categories {
+            display: flex;
+            justify-content: space-around;
+            max-width: 800px;
+            margin: 0 auto;
+            margin-top: 8%;
+            background-color: #222431;
+        }
+
+        .category {
+            background-color: #202020;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .category:hover {
+            background-color: #303030;
+        }
+
+        .icons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+        }
+
+        .icon {
+            font-size: 30px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Weaponized Assualt Penguins</h1>
+
+        <div class="categories">
+            <div class="category">Guides</div>
+            <div class="category">TermiNOOTer Commands</div>
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/your_font_awesome_kit_id.js" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -92,8 +92,10 @@ async def get(search_element,_id,search_using='discord_id'):
 	return value			
 pass
 
-async def get_unregistered(search_element,_id,search_using='nation_id',fetchall=False):
+async def get_unregistered(search_element,_id,search_using='nation_id',fetchall=False,return_row = False):
 	async with aiosqlite.connect('pnw.db') as db:
+		if return_row:
+			db.row_factory =aiosqlite.Row
 		async with db.execute(f"select {search_element} from all_nations_data where {search_using}='{_id}'") as cursor:
 			if fetchall==False:
 				score = await cursor.fetchone()

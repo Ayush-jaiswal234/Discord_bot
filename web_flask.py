@@ -10,7 +10,15 @@ app = Flask('')
 
 @app.route('/')
 def main():
-    return "WAP"
+    return render_template('home.html')
+
+@app.route('/commands')
+def commands():
+    return render_template('commands.html')
+
+@app.route('/guides')
+def guides():
+    return render_template('guides.html')
 
 def run():
     Thread(target=lambda: app.run(host=os.getenv('web_address'), port=5000)).start()

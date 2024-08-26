@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 from jinja2 import Environment, PackageLoader, select_autoescape
 from flask.views import MethodView
 import web_flask
+from math import ceil
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.basicConfig(filename='log.txt',	level=logging.INFO) #	
@@ -425,7 +426,6 @@ async def register(ctx,link):
 		query= f"{{nations(id:{nation_id}){{ data{{discord}} }} }}"
 		fetchdata = await client.post(graphql_link,json={'query':query})
 		fetchdata = fetchdata.json()['data']['nations']['data'][0]
-	print(fetchdata,type(fetchdata['discord']),ctx.author,type(ctx.message.author))	
 	if fetchdata["discord"]==str(ctx.message.author):	
 		await update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
 		await ctx.send("Successfully registered")		
@@ -507,8 +507,8 @@ async def who(ctx,*,discord_name):
 		if discord_id!=None:
 			embed.add_field(name='Discord id',value=f'<@{discord_id}>',inline=True)	
 		embed.add_field(name='Score',value=nation_data[13],inline=True)
-		embed.add_field(name='Offensive War Range',value=f'{int(0.75*nation_data[13])}-{int(1.75*nation_data[13])}',inline=True)
-		embed.add_field(name='Defensive War Range',value=f'{int(nation_data[13]/1.75)}-{int(nation_data[13]/0.75)}',inline=True)
+		embed.add_field(name='Offensive War Range',value=f'{int(0.75*nation_data[13])}-{int(2.75*nation_data[13])}',inline=True)
+		embed.add_field(name='Defensive War Range',value=f'{int(nation_data[13]/2.75)}-{int(nation_data[13]/0.75)}',inline=True)
 		embed.add_field(name='Cities',value=nation_data[10],inline=True)
 		embed.add_field(name='Color',value=nation_data_converter.color(nation_data[6]),inline=True)
 		if nation_data[6]==0:
@@ -973,6 +973,70 @@ async def force_register(ctx,user:discord.User,link):
 @client.command()
 async def ping(ctx):
 	await ctx.send(f"Latency: {round(client.latency*1000)}ms")
+
+@client.hybrid_command(name='range',description='Steps you need to take to be in range of the target nation',with_app_command=True)
+async def range(ctx,target,user_nation='Default'):
+	if user_nation == 'Default':
+		user_nation = await nation_data_converter.get('registered_nations.nation_id',ctx.author.id)
+	else:
+		user_nation = await nation_data_converter.nation_id_finder(ctx,user_nation)	
+	
+	target = await nation_data_converter.nation_id_finder(ctx,target)
+
+	user_nation_stats = await nation_data_converter.get_unregistered('score,cities,nukes,missiles,ships,tanks,aircraft',user_nation,return_row=True)
+	user_nation_range = [user_nation_stats["score"]*0.75,user_nation_stats["score"]*2.75]
+	
+	score_val = {"nukes":15,"missiles":5,"tanks":0.025,"aircraft":0.3,"ships":1}
+	
+	target_nation = await nation_data_converter.get_unregistered('score,nation',target,return_row=True)
+	result = f"To get in range to hit [{target_nation['nation']}](<https://politicsandwar.com/nation/id={target}>):\n"
+	if target_nation["score"]>=user_nation_range[0] and target_nation["score"]<=user_nation_range[1]:
+		await ctx.send("You are already in range")
+
+	elif target_nation["score"]<user_nation_range[0]:
+		
+		reduce_score = user_nation_stats["score"]-(target_nation["score"]/0.75)
+		keys = user_nation_stats.keys()
+		keys.remove('score')
+		keys.remove('cities')	
+		i=0
+		print(reduce_score)
+		while reduce_score>0 and i<len(keys):
+			if user_nation_stats[keys[i]]!=0:
+				no_of_unit = reduce_score/score_val[keys[i]]
+				if no_of_unit<=user_nation_stats[keys[i]]:
+					reduce_score -= ceil(no_of_unit) * score_val[keys[i]]
+					result = f"{result}Destroy {ceil(no_of_unit)} {keys[i].capitalize()}\n"
+				else:
+					reduce_score -= user_nation_stats[keys[i]] *score_val[keys[i]]	
+					result = f"{result}Decom {user_nation_stats[keys[i]]} {keys[i].capitalize()}\n"
+			print(result)		
+			i+=1		
+				
+		if reduce_score>0:
+			result = f"{result}Decom {round(reduce_score*40,2)} Infrastructure"
+		await ctx.send(result)	
+	else:
+		
+		increase_score = (target_nation["score"]/2.75)-user_nation_stats["score"]
+		keys = ["aircraft","tanks","ships"]
+		max_mili ={"tanks":1250,"aircraft":75,"ships":15}
+		while increase_score>0 and i<len(keys):
+			max_units = user_nation_stats["cities"]*max_mili[keys[i]]
+			if user_nation_stats[keys[i]]<max_units:
+				buy_units = increase_score/score_val[keys[i]]
+				if buy_units<=max_units-user_nation_stats[keys[i]]:
+					increase_score -= ceil(buy_units)*score_val[keys[i]]
+					result = f"{result}Build {ceil(buy_units)} {keys[i].capitalize()}\n"
+				else:
+					increase_score -= (max_units-user_nation_stats[keys[i]]) *score_val[keys[i]]	
+					result = f"{result}Build {max_units-user_nation_stats[keys[i]]} {keys[i].capitalize()}\n"	
+		if increase_score>0:
+			result = f"{result}Buy {round(reduce_score*40,2)} Infrastructure which is not recommended."
+		await ctx.send(result)
+		
+
+
 
 if __name__=='__main__':
 	web_flask.run()
