@@ -62,3 +62,6 @@ async def war_view(unique_id):
     template = env.get_template('war.html')
     result = template.render(targets=list_of_targets)
     return str(result)
+
+if __name__=='__main__':
+    app.run(debug=True)

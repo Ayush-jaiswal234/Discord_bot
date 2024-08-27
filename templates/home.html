@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Weaponized Assualt Penguins</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weaponized Assault Penguins</title>
     <style>
         body {
             background-color: #101010;
@@ -32,38 +35,71 @@
             margin: 0 auto;
             margin-top: 8%;
             background-color: #222431;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .category-link {
+            text-decoration: none; /* Remove underline from links */
+            color: inherit; /* Inherit color from parent */
+            display: block; /* Make the link cover the entire div */
         }
 
         .category {
-            background-color: #202020;
+            background-color: rgba(32,32,32,0.00004);
             padding: 20px;
             border-radius: 10px;
             cursor: pointer;
+            flex-basis: 45%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s;
         }
 
         .category:hover {
             background-color: #303030;
         }
 
-        .icons {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 40px;
+        .category img {
+            width: 100%;
+            max-width: 100px; /* Adjust based on desired size */
+            height: auto;
+            margin-bottom: 15px;
+            border-radius: 5px;
         }
 
-        .icon {
-            font-size: 30px;
-            margin: 0 10px;
+        @media (max-width: 768px) {
+            .categories {
+                flex-direction: column;
+            }
+
+            .category {
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Weaponized Assualt Penguins</h1>
+        <h1>Weaponized Assault Penguins</h1>
 
         <div class="categories">
-            <div class="category">Guides</div>
-            <div class="category">TermiNOOTer Commands</div>
+            <!-- Category 1 -->
+            <a href="guides" class="category-link">
+                <div class="category">
+                    <img src="{{ url_for('static', filename='images/guides.png') }}" alt="Guides Image">
+                    <div>Guides</div>
+                </div>
+            </a>
+            
+            <!-- Category 2 -->
+            <a href="commands" class="category-link">
+                <div class="category">
+                    <img src="{{ url_for('static', filename='images/terminooter.png') }}" alt="Commands Image">
+                    <div>TermiNOOTer Commands</div>
+                </div>
+            </a>
         </div>
     </div>
 
