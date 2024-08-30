@@ -26,7 +26,7 @@ class trade_watcher:
 **{subscribe_data['offer_amount']:,} {subscribe_data['offer_resource']} is being {past_tense} for ${subscribe_data['price']:,}**
 Last Sell price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']:,}
 Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_offer']['price']:,}
-**Minimum Profit: ${profit:,}**
+**Maximum Profit: ${profit:,}**
 {link}""")
 		logging.info(subscribe_data["id"])
 		check_if_deleted = await self.kit.subscribe("trade","delete",{"id":subscribe_data["id"]},self.check_delete)

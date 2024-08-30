@@ -1035,7 +1035,19 @@ async def range_command(ctx,target,user_nation='Default'):
 			result = f"{result}Buy {round(reduce_score*40,2)} Infrastructure which is not recommended."
 		await ctx.send(result)
 		
-
+@client.hybrid_command(name="spies",description="Calculates the odds for a spy attack",with_app_command=True)
+async def spies(ctx,att_spies:int,def_spies:int,level=3,filter=None):
+	odds = level * 25 + (att_spies*100/((def_spies*3)+1))
+	filter_odd = 1
+	filter_odds = {"tactician":1.15,"arcane":0.85,"covert":1.15}
+	type_odds = {"intel":1,"spies":1.5,"tanks":1.5,"aircraft":2,"ships":3,"missiles":4,"nukes":5}
+	if filter!=None:	
+		filter_odd = filter_odds[filter] 	
+	all_odds = {k:min((odds/v)*filter_odd,99) for k,v in type_odds.items()}
+	result =""
+	for spy_type,value in all_odds.items():
+		result = f"{result}{spy_type.capitalize()}: Success chance {round(value,2)}%, Caught chance {round(100-value/102 *100,2)}%\n"
+	await ctx.send(result)	
 
 
 if __name__=='__main__':
