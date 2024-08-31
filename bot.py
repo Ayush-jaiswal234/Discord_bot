@@ -609,8 +609,10 @@ async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,*,options:
 	def_troops_casualties = None
 	logging.info(options)
 	att_casualties,def_casualties=0,0
-	def_troops_casualties=0
+	
 	if options != None:
+		options = options.strip('-')
+		print(options)
 		options = options.split(' ')
 		if "-soldiers" in options:
 			att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
@@ -648,7 +650,7 @@ async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,*,options:
 **Casualties:** 
 ```Attacker:\n\t-{att_casualties:,} planes\n\nDefender:\n\t-{def_casualties:,} planes"""
 	if options not in [None,'-b','-f']:
-		result = f"{result}\n\t-{def_troops_casualties} {options.strip('-')}```"
+		result = f"{result}\n\t-{def_troops_casualties} {options[0]}```"
 	else:
 		result =f"{result}```"	
 	await ctx.send(result)
