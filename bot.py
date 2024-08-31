@@ -614,19 +614,18 @@ async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,*,options:
 		options = options.strip('-')
 		print(options)
 		options = options.split(' ')
-		if "-soldiers" in options:
+		if "soldiers" in options:
 			att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
 			def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
 			def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+1000),((att_roll/3-def_roll/3)*0.5)*35*np.random.uniform(0.85,1.05,size=size)]),0)
 			def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
 
-		elif "-tanks" in options:
+		elif "tanks" in options:
 			att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
 			def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
 			def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+10),((att_roll/3-def_roll/3)*0.5)*1.25*np.random.uniform(0.85,1.05,size=size)]),0)
 			def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
-
-		elif "-ships" in options:
+		elif "ships" in options:
 			att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
 			def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
 			def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+4),((att_roll/3-def_roll/3)*0.5)*0.0285*np.random.uniform(0.85,1.05,size=size)]),0)
@@ -637,10 +636,10 @@ async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,*,options:
 			def_casualties=np.round(np.average(np.sum(att_roll*0.018337,axis=1)),2)
 
 
-		if "-b" in options:
+		if "b" in options:
 			def_casualties = def_casualties*1.1
 		
-		if "-f" in options:
+		if "f" in options:
 			att_casualties = att_casualties*1.25
 
 	wins = simulate_war(att_aircraft,def_aircraft,3)
