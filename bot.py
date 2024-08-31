@@ -608,7 +608,8 @@ async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,*,options:
 	max_num = 1000000
 	def_troops_casualties = None
 	logging.info(options)
-	
+	att_casualties,def_casualties=0,0
+	def_troops_casualties=0
 	if options != None:
 		options = options.split(' ')
 		if "-soldiers" in options:
