@@ -600,12 +600,11 @@ async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldi
 ```Attacker:\n\t-{ats_causalities:,} soldiers\n\t-{att_causalities:,} tanks \n\nDefender:\n\t-{dfs_causalities:,} soldiers\n\t-{dft_causalities:,} tanks```""")
 	
 @client.hybrid_command(name='air',with_app_command=True,description='Simulate a air attack')
-async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,*,options:str =None):
+async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,options:str =None,max_num=1000000):
 	
 	size=(10000,3)
 	att_roll = np.random.randint(0.4*att_aircraft*3,(att_aircraft+1)*3,size=size)
 	def_roll = np.random.randint(0.4*def_aircraft*3,(def_aircraft+1)*3,size=size)
-	max_num = 1000000
 	def_troops_casualties = None
 	logging.info(options)
 	att_casualties,def_casualties=0,0
