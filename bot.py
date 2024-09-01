@@ -602,37 +602,32 @@ async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldi
 @client.hybrid_command(name='air',with_app_command=True,description='Simulate a air attack')
 async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,options:str =None,max_num=1000000):
 	
-	size=(10000,3)
-	att_roll = np.random.randint(0.4*att_aircraft*3,(att_aircraft+1)*3,size=size)
-	def_roll = np.random.randint(0.4*def_aircraft*3,(def_aircraft+1)*3,size=size)
+	att_roll = 0.7 * att_aircraft*3
+	def_roll = 0.7 * def_aircraft*3
 	def_troops_casualties = None
 	logging.info(options)
 	att_casualties,def_casualties=0,0
 	
 	if options != None:
 		options = options.strip('-')
-		print(options)
 		options = options.split(' ')
 		if "soldiers" in options:
-			att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
-			def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
-			def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+1000),((att_roll/3-def_roll/3)*0.5)*35*np.random.uniform(0.85,1.05,size=size)]),0)
-			def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
-
+			att_casualties = def_roll*0.015385*3
+			def_casualties = att_roll*0.009091*3
+			def_troops_casualties = max(min(max_num,max_num*0.75+1000,(att_roll-def_roll*0.5)*35*0.95),0)
+		
 		elif "tanks" in options:
-			att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
-			def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
-			def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+10),((att_roll/3-def_roll/3)*0.5)*1.25*np.random.uniform(0.85,1.05,size=size)]),0)
-			def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
+			att_casualties = def_roll*0.015385*3
+			def_casualties = att_roll*0.009091*3
+			def_troops_casualties = max(min(max_num,max_num*0.75+10,(att_roll-def_roll*0.5)*1.25*0.95),0)
+		
 		elif "ships" in options:
-			att_casualties=np.round(np.average(np.sum(def_roll*0.015385,axis=1)),2)
-			def_casualties=np.round(np.average(np.sum(att_roll*0.009091,axis=1)),2)
-			def_troops_casualties = np.maximum(np.minimum.reduce([np.full(size,max_num),np.full(size,max_num*0.75+4),((att_roll/3-def_roll/3)*0.5)*0.0285*np.random.uniform(0.85,1.05,size=size)]),0)
-			def_troops_casualties = np.round(np.average(np.sum(def_troops_casualties,axis=1)))
-
+			att_casualties = def_roll*0.015385*3
+			def_casualties = att_roll*0.009091*3
+			def_troops_casualties = max(min(max_num,max_num*0.75+4,(att_roll-def_roll*0.5)*0.0285 *0.95),0)
 		else:
-			att_casualties=np.round(np.average(np.sum(def_roll*0.01,axis=1)),2)
-			def_casualties=np.round(np.average(np.sum(att_roll*0.018337,axis=1)),2)
+			att_casualties = def_roll*0.01*3
+			def_casualties = att_roll*0.018337*3
 
 
 		if "b" in options:
@@ -646,7 +641,7 @@ async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,options:st
 	result = f"""**Simulating {att_aircraft:,} planes vs {def_aircraft:,} planes:**
 ```Immense triumph: {wins[3]}%\nModerate Victory: {wins[2]}%\nPyrrhic Victory: {wins[1]}%\nUtter Failure: {wins[0]}%```
 **Casualties:** 
-```Attacker:\n\t-{att_casualties:,} planes\n\nDefender:\n\t-{def_casualties:,} planes"""
+```Attacker:\n\t-{att_casualties:,.2f} planes\n\nDefender:\n\t-{def_casualties:,.2f} planes"""
 	if options not in [None,'-b','-f']:
 		result = f"{result}\n\t-{def_troops_casualties} {options[0]}```"
 	else:
@@ -683,7 +678,7 @@ async def naval(ctx: commands.Context,att_ships:int,def_ships:int,*,modifiers:ty
 	await ctx.send(f"""**Simulating {att_ships:,} ships vs {def_ships:,} ships:**
 ```Immense triumph: {wins[3]}%\nModerate Victory: {wins[2]}%\nPyrrhic Victory: {wins[1]}%\nUtter Failure: {wins[0]}%```
 **Casualties:**
-```Attacker:\n\t{att_casualties:,} ships\n\nDefender:\n\t{def_casualties:,} ships```""")			
+```Attacker:\n\t{att_casualties:,.2f} ships\n\nDefender:\n\t{def_casualties:,.2f} ships```""")			
 
 @client.hybrid_command(name='pricehistory',with_app_command=True,description='Price history of the resource')
 async def pricehistory(ctx:commands.Context,resource:str,days:int):
