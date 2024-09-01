@@ -600,50 +600,53 @@ async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldi
 ```Attacker:\n\t-{ats_causalities:,} soldiers\n\t-{att_causalities:,} tanks \n\nDefender:\n\t-{dfs_causalities:,} soldiers\n\t-{dft_causalities:,} tanks```""")
 	
 @client.hybrid_command(name='air',with_app_command=True,description='Simulate a air attack')
-async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,options:str =None,max_num=1000000):
+async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,options=None,max_num=1000000):
 	
 	att_roll = 0.7 * att_aircraft*3
 	def_roll = 0.7 * def_aircraft*3
 	def_troops_casualties = None
 	logging.info(options)
 	att_casualties,def_casualties=0,0
-	
-	if options != None:
+	wins = simulate_war(att_aircraft,def_aircraft,3)
+	if options == None:
+		att_casualties = def_roll*0.01*3
+		def_casualties = att_roll*0.018337*3
+	else:	
 		options = options.strip('-')
 		options = options.split(' ')
 		if "soldiers" in options:
 			att_casualties = def_roll*0.015385*3
 			def_casualties = att_roll*0.009091*3
-			def_troops_casualties = max(min(max_num,max_num*0.75+1000,(att_roll-def_roll*0.5)*35*0.95),0)
+			max_causalities = max(min(max_num,max_num*0.75+1000,(att_roll-def_roll*0.5)*35*0.95),0)
+			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/100
 		
 		elif "tanks" in options:
 			att_casualties = def_roll*0.015385*3
 			def_casualties = att_roll*0.009091*3
-			def_troops_casualties = max(min(max_num,max_num*0.75+10,(att_roll-def_roll*0.5)*1.25*0.95),0)
+			max_causalities = max(min(max_num,max_num*0.75+10,(att_roll-def_roll*0.5)*1.25*0.95),0)
+			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/100
 		
 		elif "ships" in options:
 			att_casualties = def_roll*0.015385*3
 			def_casualties = att_roll*0.009091*3
-			def_troops_casualties = max(min(max_num,max_num*0.75+4,(att_roll-def_roll*0.5)*0.0285 *0.95),0)
-		else:
-			att_casualties = def_roll*0.01*3
-			def_casualties = att_roll*0.018337*3
-
+			max_causalities = max(min(max_num,max_num*0.75+4,(att_roll-def_roll*0.5)*0.0285 *0.95),0)
+			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/100
 
 		if "b" in options:
 			def_casualties = def_casualties*1.1
-		
+	
 		if "f" in options:
 			att_casualties = att_casualties*1.25
+		
 
-	wins = simulate_war(att_aircraft,def_aircraft,3)
+	
 	
 	result = f"""**Simulating {att_aircraft:,} planes vs {def_aircraft:,} planes:**
 ```Immense triumph: {wins[3]}%\nModerate Victory: {wins[2]}%\nPyrrhic Victory: {wins[1]}%\nUtter Failure: {wins[0]}%```
 **Casualties:** 
 ```Attacker:\n\t-{att_casualties:,.2f} planes\n\nDefender:\n\t-{def_casualties:,.2f} planes"""
 	if options not in [None,'-b','-f']:
-		result = f"{result}\n\t-{def_troops_casualties} {options[0]}```"
+		result = f"{result}\n\t-{def_troops_casualties:,.2f} {options[0]}```"
 	else:
 		result =f"{result}```"	
 	await ctx.send(result)
