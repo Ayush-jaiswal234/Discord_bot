@@ -449,9 +449,9 @@ class background_tasks:
 		safe_aa = top_aa.copy()
 		treaties = fetchdata["treaties"]["data"]	
 		for treaty in treaties:
-			if treaty["alliance1_id"] in top_aa and treaty["treaty_type"] in ['Protectorate','MDP','Extension','MDoAP']:
+			if (treaty["alliance1_id"] in top_aa and treaty["treaty_type"] in ['Protectorate','MDP','Extension','MDoAP']) or (treaty["alliance1_id"] in safe_aa and treaty["treaty_type"] in ['Extension']):
 				safe_aa.add(treaty["alliance2_id"])
-			elif treaty["alliance2_id"] in top_aa and treaty["treaty_type"] in ['Protectorate','MDP','Extension','MDoAP']:
+			elif (treaty["alliance2_id"] in top_aa and treaty["treaty_type"] in ['Protectorate','MDP','Extension','MDoAP']) or (treaty["alliance2_id"] in safe_aa and treaty["treaty_type"] in ['Extension']):
 				safe_aa.add(treaty["alliance1_id"])
 
 		async with aiosqlite.connect('pnw.db') as db:
@@ -459,9 +459,3 @@ class background_tasks:
 			await db.executemany('INSERT INTO safe_aa (alliance_id) VALUES (?)', [(alliance_id,) for alliance_id in safe_aa])
 			await db.commit()
 		pass			
-
-
-#run this on linux db
-#CREATE TABLE "safe_aa" (
-#	"alliance_id"	INTEGER
-#);
