@@ -29,12 +29,14 @@ class background_tasks:
 		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError)
 		self.update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
 		self.update_trade_price.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
+		self.update_safe_aa.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
 		self.audit_members.add_exception_type(OperationalError,KeyError,ConnectTimeout)
 		self.update_trade_price.start()
 		self.update_nation_data.start()	
 		self.update_loot_data.start()
 		self.copy_db.start()
 		self.audit_members.start()
+		self.update_safe_aa.start()
 		pass
 
 	@tasks.loop(minutes=5,reconnect=True)
@@ -430,3 +432,36 @@ class background_tasks:
 
 		if alert_text!="":
 			await self.channel.send(f"Weekly Reminder to Buy Spies!!!\n{alert_text}")
+
+	@tasks.loop(hours=4,reconnect=True)
+	async def update_safe_aa(self):
+		query ="""{alliances(first:30,orderBy:{order:DESC,column:SCORE}){
+					data{id}
+					}
+					treaties(first:1000){
+						data{alliance1_id,alliance2_id,treaty_type}
+					}
+					}"""
+		async with httpx.AsyncClient() as client:
+			fetchdata= await client.post(self.api_v3_link,json={'query':query})
+			fetchdata = fetchdata.json()["data"]	
+		top_aa = {x["id"] for x in fetchdata["alliances"]["data"]}
+		safe_aa = top_aa.copy()
+		treaties = fetchdata["treaties"]["data"]	
+		for treaty in treaties:
+			if treaty["alliance1_id"] in top_aa and treaty["treaty_type"] in ['Protectorate','MDP','Extension','MDoAP']:
+				safe_aa.add(treaty["alliance2_id"])
+			elif treaty["alliance2_id"] in top_aa and treaty["treaty_type"] in ['Protectorate','MDP','Extension','MDoAP']:
+				safe_aa.add(treaty["alliance1_id"])
+
+		async with aiosqlite.connect('pnw.db') as db:
+			await db.execute('DELETE FROM safe_aa')
+			await db.executemany('INSERT INTO safe_aa (alliance_id) VALUES (?)', [(alliance_id,) for alliance_id in safe_aa])
+			await db.commit()
+		pass			
+
+
+#run this on linux db
+#CREATE TABLE "safe_aa" (
+#	"alliance_id"	INTEGER
+#);

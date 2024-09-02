@@ -36,7 +36,7 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=Non
 		search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
 		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
 		targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {beige_turns} and date(last_active)<'{date}'"
-
+		
 		db.row_factory =aiosqlite.Row
 		cursor = await db.execute(targets_list)
 
@@ -74,25 +74,25 @@ async def last_bank_rec(nation_list):
 	async with httpx.AsyncClient() as client:
 		for nation in nation_list:
 			if len(query)<9900:
-				query=f"""{query} {re.sub("[- 0-9]","_",nation[1])}:bankrecs(sid:{nation[0]},orderBy:[{{column:DATE,order:DESC}}],first:1,rtype:2){{data{{date}}}}"""
+				query=f"""{query}i{i}:bankrecs(sid:{nation[0]},orderBy:{{column:DATE,order:DESC}},first:1,rtype:2){{data{{date}}}}"""
 			else:
 				query=f"{{ {query} }}"
 				fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
 				results.append(fetchdata.json()['data'])
 				query=''
-				query=f"""{query} {re.sub("[- 0-9]","_",nation[1])}:bankrecs(sid:{nation[0]},orderBy:[{{column:DATE,order:DESC}}],first:1,rtype:2){{data{{date}}}}"""
+				query=f"""{query}i{i}:bankrecs(sid:{nation[0]},orderBy:{{column:DATE,order:DESC}},first:1,rtype:2){{data{{date}}}}"""
 			i+=1	
 		query=f"{{ {query} }}"
 		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
 		results.append(fetchdata.json()['data'])	
 	fetchdata= {key:values for d in results for key,values in d.items()}
 	bankdata=[]	
-	for i in range(len(fetchdata)):	
-		nation_data = fetchdata[re.sub("[- 0-9]","_",nation_list[i][1])]['data']
+	for i in range(len(nation_list)):	
+		nation_data = fetchdata[f"i{i}"]["data"]
 		if not nation_data:
 			bankdata.append('N/A')
 		else:
-			bankdata.append((nation_data[0]['date']).split('+')[0])	
+			bankdata.append((nation_data[0]['date']).split('+')[0])
 	return bankdata
 
 async def get_prices(db):
@@ -339,6 +339,7 @@ class RaidFlags(commands.FlagConverter,delimiter= " ",prefix='-'):
 	beige: bool = True
 	beige_turns: int = 216
 	result: str = 'web'
+	fake_score: int = 0 
 
 @client.hybrid_command(name="raid",with_app_command=True,description="Finds the best raiding targets")
 async def raid(ctx:commands.Context, *,flags:RaidFlags):
@@ -347,15 +348,23 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 	logging.info(score)
 	page1=discord.Embed()
 	if score!=None:
+		if flags.fake_score!=0:
+			score = flags.fake_score
 		flags.alliances=flags.alliances.split(',')
 		logging.info(flags)
+		date=datetime.now(timezone.utc).replace(microsecond=0)
+		date = date -timedelta(days=10)
+		async with aiosqlite.connect('pnw.db') as db:
+			async with db.execute('select * from safe_aa') as cursor:
+				safe_aa = await cursor.fetchall()
+			safe_aa = tuple([x[0] for x in safe_aa])
 		if flags.beige:
 			flags.beige_turns=f'and beige_turns<{flags.beige_turns}'
 		else:
 			flags.beige_turns=''			
 		flags.beige='' if flags.beige==True else 'and color<>0'
-		if flags.alliances=='0' and flags.all_nations==False:
-			flags.alliances='and (alliance_id=0 or alliance_position=1)'	
+		if flags.alliances==['0'] and flags.all_nations==False:
+			flags.alliances=f"and (alliance_id not in {safe_aa} or (alliance_id in {safe_aa} and (alliance_position=1 or date(last_active)<'{date}')))"
 		elif flags.all_nations==False:
 			flags.alliances.append('0')
 			flags.alliances=tuple(flags.alliances)
