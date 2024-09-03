@@ -435,7 +435,7 @@ class background_tasks:
 
 	@tasks.loop(hours=4,reconnect=True)
 	async def update_safe_aa(self):
-		query ="""{alliances(first:30,orderBy:{order:DESC,column:SCORE}){
+		query ="""{alliances(first:25,orderBy:{order:DESC,column:SCORE}){
 					data{id}
 					}
 					treaties(first:1000){

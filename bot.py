@@ -36,7 +36,7 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=Non
 		search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
 		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
 		targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {beige_turns} and date(last_active)<'{date}'"
-		
+
 		db.row_factory =aiosqlite.Row
 		cursor = await db.execute(targets_list)
 
@@ -264,6 +264,7 @@ def create_jinja_env():
 		return env
 
 env = create_jinja_env()	
+updater_tasks = []
 graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 intents = discord.Intents.default()	
 intents.message_content = True
@@ -275,10 +276,9 @@ client.setup_hook = setup_hook
 
 @client.event
 async def on_ready():
-	global updater_tasks
 	logging.info('Bot is ready')
 	start_trade = trade_watcher(client=client)
-	updater_tasks = background_tasks(client)
+	updater_tasks.append(background_tasks(client))
 	await start_trade.start()
 	await client.change_presence(status=discord.Status.online, activity=activity)
 	await client.load_extension("commands.help")
@@ -335,11 +335,12 @@ async def loot(ctx:commands.Context,*,nation_id:str):
 class RaidFlags(commands.FlagConverter,delimiter= " ",prefix='-'):
 	all_nations: bool = False
 	inactivity_days: int = 0
-	alliances: str = '0'
+	alliances: str = 'Default'
 	beige: bool = True
 	beige_turns: int = 216
 	result: str = 'web'
 	fake_score: int = 0 
+	size:int = 50
 
 @client.hybrid_command(name="raid",with_app_command=True,description="Finds the best raiding targets")
 async def raid(ctx:commands.Context, *,flags:RaidFlags):
@@ -363,10 +364,9 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 		else:
 			flags.beige_turns=''			
 		flags.beige='' if flags.beige==True else 'and color<>0'
-		if flags.alliances==['0'] and flags.all_nations==False:
+		if flags.alliances==['Default'] and flags.all_nations==False:
 			flags.alliances=f"and (alliance_id not in {safe_aa} or (alliance_id in {safe_aa} and (alliance_position=1 or date(last_active)<'{date}')))"
 		elif flags.all_nations==False:
-			flags.alliances.append('0')
 			flags.alliances=tuple(flags.alliances)
 			flags.alliances=f'and alliance_id in {flags.alliances}'
 		else:
@@ -400,7 +400,7 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 		elif flags.result=='sheets':
 			if ctx.interaction:
 				await ctx.interaction.response.defer(thinking='Calculating')
-			list_of_targets=await targets(war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns)
+			list_of_targets=await targets(war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns,result_size=flags.size)
 			keys = ['beige_loot','war_end_date','alliance','cities','beige_turns','soldiers','tanks','aircraft','ships','last_active','last_deposit_date']
 			for i in range(len(list_of_targets)):
 				recreate_target = [f'=HYPERLINK("https://politicsandwar.com/nation/id={list_of_targets[i]["nation_id"]}","{list_of_targets[i]["nation"]}")']
@@ -417,7 +417,7 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 		elif flags.result=='web':
 			endpoint = str(ctx.message.author)
 			endpoint = re.sub('[\W_]+', '', endpoint)
-			unique_link = web_flask.generate_link(endpoint, [war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns])
+			unique_link = web_flask.generate_link(endpoint, [war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns,flags.size])
 			await ctx.send(unique_link)
 	else:
 		page1.title='Register'
@@ -782,18 +782,30 @@ async def lootval(ctx:commands.Context,*,message:str):
 	
 @client.hybrid_command(name='beigealerts',with_app_command=True,description='Alerts about the targets leaving beige')
 async def beigealerts(ctx:commands.Context,city_range:str,alliance_id:typing.Optional[str]):
-	global updater_tasks
 	channel = ctx.channel
 	logging.info(channel.id)
 	if alliance_id == None:
-		alliance_search = ''
+		async with aiosqlite.connect('pnw.db') as db:
+			async with db.execute('select * from safe_aa') as cursor:
+				safe_aa = await cursor.fetchall()
+			safe_aa = tuple([x[0] for x in safe_aa])
+		date=datetime.now(timezone.utc).replace(microsecond=0)
+		date = date -timedelta(days=10)
+		alliance_search =  f"and (alliance_id not in {safe_aa} or (alliance_id in {safe_aa} and (alliance_position=1 or date(last_active)<'{date}')))"	
 	else:
 		alliance_id = tuple(alliance_id.split(','))
 		alliance_search = f"and alliance_id in {alliance_id}" if len(alliance_id)>1 else f"alliance_id = {alliance_id[0]}"
-    
+
 	city_range = city_range.split('-')
 	city_text = f"and cities>{city_range[0]} and cities<{city_range[1]}"
+	set_new_alerts.start(city_text,alliance_search,channel)
+	updater_tasks[0].update_nation_data.change_interval(minutes=2.5)
+	check_for_beigealerts.start()
+	await ctx.send(f"Alerts have been registered for nations with cities {city_range[0]}-{city_range[1]}.")
 
+
+@tasks.loop(hours=2)
+async def set_new_alerts(city_text,alliance_search,channel):
 	async with aiosqlite.connect('pnw.db') as db:
 		db.row_factory = lambda cursor,row: list(row)
 		async with db.execute(f'select nation_id,beige_turns from all_nations_data where vmode=0 and defensive_wars<>3 and color=0 {city_text} {alliance_search}') as cursor:
@@ -801,11 +813,9 @@ async def beigealerts(ctx:commands.Context,city_range:str,alliance_id:typing.Opt
 		[nations.append(channel.id) for nations in beige_nations]
 		await db.executemany("insert into beige_alerts values (?,?,?)",beige_nations)
 		await db.commit()
-	await ctx.send(f"Alerts have been registered for {len(beige_nations)} nations with cities {city_range[0]}-{city_range[1]}.")
+	
 	logging.info(beige_nations)			
-	updater_tasks.update_nation_data.change_interval(minutes=2.5)
-	logging.info("test")
-	check_for_beigealerts.start()
+	
 
 @tasks.loop(minutes=2.5)
 async def check_for_beigealerts():
@@ -848,7 +858,8 @@ async def check_for_beigealerts():
 										f"Aircraft: {data[12]:<8,}"
 										f"Ships: {data[13]:<8,}```",
 										inline=False)	
-					await channel.send(embed=embed)
+					if int(result[0])>1000000:
+						await channel.send(embed=embed)
 					if data[2]>0:
 						await channel.send("This nation came out of beige prematurely.")
 								
