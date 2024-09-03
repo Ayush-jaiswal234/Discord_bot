@@ -858,10 +858,11 @@ async def check_for_beigealerts():
 										f"Aircraft: {data[12]:<8,}"
 										f"Ships: {data[13]:<8,}```",
 										inline=False)	
-					if int(result[0])>1000000:
-						await channel.send(embed=embed)
 					if data[2]>0:
-						await channel.send("This nation came out of beige prematurely.")
+						await embed.set_footer("This nation came out of beige prematurely.")
+					if int(result[0])>10000000:
+						await channel.send(embed=embed)
+					
 								
 					await db.execute(f'delete from beige_alerts where nation_id={data[0]}')
 	
