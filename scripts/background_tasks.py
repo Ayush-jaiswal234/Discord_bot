@@ -1,7 +1,7 @@
 import aiosqlite,httpx,time,logging
 from discord.ext import tasks
 from sqlite3 import OperationalError
-from httpx import ReadTimeout,ConnectTimeout
+from httpx import ReadTimeout,ConnectTimeout,RemoteProtocolError
 import datetime as dt
 from googleapiclient.http import MediaFileUpload 
 from google.oauth2 import service_account
@@ -26,18 +26,20 @@ class background_tasks:
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
 
 		self.scheduler.start()
-		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError)
-		self.update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
-		self.update_trade_price.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
+		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError,RemoteProtocolError)
+		self.update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,RemoteProtocolError)
+		self.update_trade_price.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,RemoteProtocolError)
 		self.update_safe_aa.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout)
 		self.audit_members.add_exception_type(OperationalError,KeyError,ConnectTimeout)
+		pass
+
+	def run(self):	
 		self.update_trade_price.start()
 		self.update_nation_data.start()	
 		self.update_loot_data.start()
 		self.copy_db.start()
 		self.audit_members.start()
 		self.update_safe_aa.start()
-		pass
 
 	@tasks.loop(minutes=5,reconnect=True)
 	async def update_nation_data(self):
