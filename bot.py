@@ -233,6 +233,42 @@ async def loot_calculator(nation_id):
 	else:
 		return None 
 
+async def monitor_targets(city_text,alliance_search,loot,search_only=False):
+	search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
+	search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
+	targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where vmode=0 and defensive_wars<>3 and color=0 {city_text} {alliance_search}"
+	async with aiosqlite.connect('pnw.db') as db:
+		db.row_factory =aiosqlite.Row
+		cursor = await db.execute(targets_list)
+
+		all_targets= await cursor.fetchall()
+		all_targets = [dict(x) for x in all_targets]
+		await cursor.close()
+		prices=await get_prices(db)
+	prices = dict(prices)
+	for target_nation in all_targets:
+		beige_amount = target_nation["money"]*0.14
+		del target_nation["money"]
+		for rss,price in prices.items():
+			beige_amount += target_nation[rss]*0.14*price
+			del target_nation[rss]
+		target_nation["beige_loot"] = round(beige_amount,2)
+	all_targets = [x for x in all_targets if x["beige_loot"]>=loot]	
+	if search_only:
+		all_targets.sort(key=lambda x:x["beige_loot"],reverse=True)
+		deposit_data_list=await last_bank_rec([[x["nation_id"],x["nation"]] for x in all_targets])
+		for x in range(len(all_targets)):
+			if deposit_data_list[x]!='N/A':
+				all_targets[x]["last_deposit_date"] = nation_data_converter.time_converter(datetime.strptime(deposit_data_list[x],"%Y-%m-%dT%H:%M:%S"))
+			else:
+				all_targets[x]["last_deposit_date"] = 'N/A'	
+			all_targets[x]["war_end_date"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["war_end_date"],"%Y-%m-%dT%H:%M:%S"))
+			all_targets[x]["last_active"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["last_active"],"%Y-%m-%d %H:%M:%S"))																   
+			all_targets[x]["alliance_position"] = nation_data_converter.position(all_targets[x]["alliance_position"])	
+
+	return all_targets
+
+
 def is_guild(ctx):
 	if ctx.guild is None:
 		return False
@@ -267,7 +303,7 @@ env = create_jinja_env()
 graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 intents = discord.Intents.default()	
 intents.message_content = True
-client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=intents)
+client=commands.AutoShardedBot(command_prefix='!',help_command=None,intents=intents)
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook

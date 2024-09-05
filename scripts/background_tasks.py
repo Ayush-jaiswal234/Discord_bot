@@ -25,7 +25,6 @@ class background_tasks:
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
 
-		self.scheduler.start()
 		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError,RemoteProtocolError)
 		self.update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,RemoteProtocolError)
 		self.update_trade_price.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,RemoteProtocolError)
@@ -34,6 +33,7 @@ class background_tasks:
 		pass
 
 	def run(self):	
+		self.scheduler.start()
 		self.update_trade_price.start()
 		self.update_nation_data.start()	
 		self.update_loot_data.start()

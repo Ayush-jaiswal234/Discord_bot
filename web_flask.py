@@ -3,7 +3,7 @@ from threading import Thread
 import os
 import jinja2
 import datetime
-from bot import targets
+from bot import targets,monitor_targets
 
 app = Flask('')
 
@@ -37,6 +37,11 @@ def generate_link(user_id, parameters, expiration_time=30):  # Adjust expiration
     user_data[unique_id] = (parameters, datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=expiration_time))
     return f"http://{os.getenv('web_address')}:5000/raids/{unique_id}"
 
+def beige_link(city_id,parameters,expiration_time=30):
+    unique_id = str(city_id)
+    user_data[unique_id] = (parameters, datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=expiration_time))
+    return f"http://{os.getenv('web_address')}:5000/beige_monitor/{unique_id}"
+
 @app.route('/raids/<unique_id>')
 async def raid_view(unique_id):
     print('start')
@@ -60,6 +65,20 @@ async def war_view(unique_id):
     list_of_targets = await targets(*parameters)
     #del user_data[unique_id]  # Remove data after use
     template = env.get_template('war.html')
+    result = template.render(targets=list_of_targets)
+    return str(result)
+
+@app.route('/beige_monitor/<city_id>')
+async def beige_view(city_id):
+    print('start')
+    if city_id not in user_data:
+        return "Invalid link or data expired.", 404
+    parameters, _ = user_data[city_id]
+    # Fetch data based on parameters
+    list_of_targets = await monitor_targets(*parameters,search_only=True)
+    list_of_targets = [x for x in list_of_targets]
+    #del user_data[unique_id]  # Remove data after use
+    template = env.get_template('beige_monitor.html')
     result = template.render(targets=list_of_targets)
     return str(result)
 
