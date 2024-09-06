@@ -6,7 +6,7 @@ import datetime as dt
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sqlite3 import OperationalError
 from httpx import ConnectTimeout
-from discord import tasks
+from discord.ext import tasks
 import logging,httpx,aiosqlite
 
 info_time = dt.time(hour=22,minute=0,tzinfo=dt.timezone.utc)
