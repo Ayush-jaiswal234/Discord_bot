@@ -1,8 +1,9 @@
 import os,discord,sqlite3,logging,re
-from discord.ext import commands,tasks
+from discord.ext import commands
 import typing
 from scripts import nation_data_converter,sheets,war_stats
-from scripts.background_tasks import background_tasks	
+from scripts.db_tasks import db_tasks
+from scripts.bot_bg_tasks import Bot_bg_Tasks	
 from scripts.pagination import Pagination
 from datetime import datetime,timedelta,timezone
 import aiosqlite,asyncio,httpx
@@ -12,8 +13,6 @@ from itertools import combinations_with_replacement
 from commands.role_view import MyPersistentView
 from scripts.trade_bot import trade_watcher
 from dotenv import load_dotenv
-from jinja2 import Environment, PackageLoader, select_autoescape
-from flask.views import MethodView
 import web_flask
 from math import ceil
 
@@ -291,15 +290,6 @@ async def setup_hook():
 		role =  guild.get_role(view[1])	
 		client.add_view(MyPersistentView(role),message_id= view[2])
 
-def create_jinja_env():
-		env = Environment(
-			loader=PackageLoader("web_flask"),
-			autoescape=select_autoescape()
-		)
-		env.filters['comma'] = lambda value: f"{value:,}"
-		return env
-
-env = create_jinja_env()	
 graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 intents = discord.Intents.default()	
 intents.message_content = True
@@ -307,13 +297,15 @@ client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=inte
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook
-client.updater= background_tasks(client)
+client.updater= db_tasks()
 
 @client.event
 async def on_ready():
 	logging.info('Bot is ready')
-	start_trade = trade_watcher(client=client)
 	client.updater.run()
+	start_trade = trade_watcher(client=client)
+	Bot_bg_Tasks(client)
+	
 	await start_trade.start()
 	await client.change_presence(status=discord.Status.online, activity=activity)
 	await client.load_extension("commands.help")
