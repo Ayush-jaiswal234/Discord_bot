@@ -7,7 +7,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sqlite3 import OperationalError
 from httpx import ConnectTimeout
 from discord.ext import tasks
-import logging,httpx,aiosqlite
+import logging,httpx,aiosqlite,random
 
 info_time = dt.time(hour=22,minute=0,tzinfo=dt.timezone.utc)
 
@@ -56,9 +56,8 @@ class Bot_bg_Tasks:
 		data_dict["mmr_buildings"]={"barracks":0,"factory":2,"hangar":5,"drydock":0}
 		data_dict["raiders_buildings"]={"barracks":5,"factory":0,"hangar":0,"drydock":0}
 		data_dict["color"]=fetchdata["color"]
-		
+		block_messages = ["You shouldn't have blocked me you silly baka!!💢","Why did you block me you absolute fucking retard?!?!\nYou unblock me RIGHT MEOW you fucking idiot or else I'm coming to your house!","Let me in your DMs, or Shinji will shit in your mailbox."]
 		#data_dict["war"]=war
-		audit_text_dict = {}
 		for nation in fetchdata["nations"]:
 			if nation["alliance_position"]!="APPLICANT" and nation["vacation_mode_turns"]==0:
 				alert_required,message = await self.alert_checker(nation,data_dict)	
@@ -74,7 +73,7 @@ class Bot_bg_Tasks:
 						try:
 							await user.send(message)
 						except Forbidden:
-							await self.channel.send(f"<@{discord_id}> Why did you block me??? Please enable dm for the people you share the server with(For gov ref: https://politicsandwar.com/nation/id={nation['id']}).\nAs for the rest of the message:\n{message}")
+							await self.channel.send(f"<@{discord_id}> {random.choice(block_messages)}\nP.S.{message}")
 					else:
 						logging.info(f'{nation["id"]} not registered')	
 

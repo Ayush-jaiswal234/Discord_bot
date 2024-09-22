@@ -101,44 +101,6 @@ async def get_prices(db):
 	return price	
 pass
 
-def update_subscriptions(server_id,command_name,date_time):
-	connection=sqlite3.connect('pnw.db')
-	cursor=connection.cursor()
-	days=date_time.find('d')
-	hours=date_time.find('h')
-	mins=date_time.find('m')
-	if mins!=-1:
-		mins=date_time[hours+1:mins]
-	else:
-		mins=0	
-	if hours!=-1:
-		hours=date_time[days+1:hours]
-	else:
-		hours=0	
-	if days!=-1:
-		days=date_time[:days]	
-	else:
-		days=0
-	current_date=datetime.now().replace(microsecond=0)
-	end_date=current_date+timedelta(days=int(days),hours=int(hours),minutes=int(mins))
-	update_table="insert into subscriptions values(%s,'%s','%s') on conflict(server_id,command_name) do update set end_date='%s'" % (server_id,command_name,end_date,end_date)
-	cursor.execute(update_table)
-	connection.commit()
-	cursor.close()
-	connection.close()
-pass
-
-def check_subscriptions(server_id,command_name):
-	connection=sqlite3.connect('pnw.db')
-	cursor=connection.cursor()
-	search_subs=("select * from subscriptions where server_id=%s and command_name='%s'") %(server_id,command_name)
-	cursor.execute(search_subs)
-	validity=cursor.fetchone()
-	cursor.close()
-	connection.close()	
-	return validity
-pass		
-
 async def beige_calculator(params,resistance,reverse):
 	cost_dict = {10:(3,'Gd'),12:(4,'Ar'),14:(4,'Nv')}
 	if params !=None:
@@ -319,13 +281,6 @@ async def on_command_error(ctx, error):
 		await ctx.send("Greetings Outsider,\nAll commands can only be used in the WAP server\nNOOT NOOT")
 	else:
 		raise error
-
-
-@commands.is_owner()
-@client.command()
-async def add_subscription(ctx,command_name,time):
-	update_subscriptions(ctx.guild.id,command_name,time)
-	await ctx.send('Subscriptions updated')	
 
 @commands.is_owner()
 @client.command()
@@ -629,10 +584,11 @@ async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldi
 	def_army_value = dfsr + dftr
 
 	win_outcomes=np.greater(att_army_value,def_army_value)
-	wins = np.round(np.bincount(np.sum(win_outcomes,axis=1))/size[0]*100,2)
+	wins= np.unique(np.sum(win_outcomes,axis=1),return_counts=True)
+	wins = {wins[0][i]:round(wins[1][i]/size[0]*100,2) for i in range(len(wins[0]))}
 	
 	await ctx.send(f"""**Simulating {att_soldiers:,} soldiers and {att_tanks:,} tanks vs {def_soldiers:,} soldiers and {def_tanks:,} tanks:**
-```Immense triumph: {wins[3]}%\nModerate Victory: {wins[2]}%\nPyrrhic Victory: {wins[1]}%\nUtter Failure: {wins[0]}%```
+```Immense triumph: {wins.get(3,0)}%\nModerate Victory: {wins.get(2,0)}%\nPyrrhic Victory: {wins.get(1,0)}%\nUtter Failure: {wins.get(0,0)}%```
 **Casualties:**
 ```Attacker:\n\t-{ats_causalities:,} soldiers\n\t-{att_causalities:,} tanks \n\nDefender:\n\t-{dfs_causalities:,} soldiers\n\t-{dft_causalities:,} tanks```""")
 	
