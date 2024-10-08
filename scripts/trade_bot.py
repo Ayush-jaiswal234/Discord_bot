@@ -14,7 +14,7 @@ class trade_watcher:
 		self.track_ids = []
 		self.result = {}
 		self.embed = discord.Embed()
-		self.update_trades.add_exception_type(KeyError,ReadTimeout,ConnectTimeout,RemoteProtocolError)
+		self.update_trades.add_exception_type(KeyError,ReadTimeout,ConnectTimeout,RemoteProtocolError,TypeError)
 		self.update_trades.start()
 
 	async def send_message(self,role,type_of_trade,profit,subscribe_data): 

@@ -48,14 +48,12 @@ class db_tasks:
 		async with aiosqlite.connect('pnw.db',timeout=20.0) as db:
 			query="""{wars(active:false,first:1000,status:INACTIVE){
 						data{
-							id,end_date,winner_id,att_id,def_id,war_type
+							id,end_date,winner_id,att_id,def_id,war_type,att_alliance_position,def_alliance_position
 							attacker{
-								alliance_position,war_policy,advanced_pirate_economy
-							}  
+										war_policy,advanced_pirate_economy}  
 							defender{
-								alliance_position,war_policy,advanced_pirate_economy
+               						war_policy,advanced_pirate_economy}
 							}
-						}
 						}	}"""
 			async with httpx.AsyncClient() as client:
 				fetchdata=await client.post(self.api_v3_link,json={'query':query})
@@ -84,7 +82,7 @@ class db_tasks:
 							war_type = war['war_type']
 							if war['winner_id']==war['att_id']:
 								if war['defender']!=None:
-									loser_aa_position = war['defender']['alliance_position']
+									loser_aa_position = war['def_alliance_position']
 									loser_war_policy = war['defender']['war_policy']
 								else:
 									loser_aa_position = "NOALLIANCE"
@@ -98,7 +96,7 @@ class db_tasks:
 								attrition_def_win = False
 							else:
 								if war['attacker']!=None:
-									loser_aa_position = war['attacker']['alliance_position']
+									loser_aa_position = war['att_alliance_position']
 									loser_war_policy = war['attacker']['war_policy']
 								else:
 									loser_aa_position = "NOALLIANCE"
