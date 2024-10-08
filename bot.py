@@ -196,7 +196,7 @@ async def loot_calculator(nation_id):
 
 async def monitor_targets(city_text,alliance_search,loot,search_only=False):
 	search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
-	search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
+	search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','score','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
 	targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where vmode=0 and defensive_wars<>3 and color=0 {city_text} {alliance_search}"
 	async with aiosqlite.connect('pnw.db') as db:
 		db.row_factory =aiosqlite.Row
@@ -255,7 +255,7 @@ async def setup_hook():
 graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 intents = discord.Intents.default()	
 intents.message_content = True
-client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=intents)
+client=commands.AutoShardedBot(command_prefix='!',help_command=None,intents=intents)
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook
@@ -549,7 +549,7 @@ async def war_vis(interaction: discord.Interaction, allies:str,enemies:str):
 	await interaction.followup.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
 
 @client.hybrid_command(name='ground', with_app_command=True,description="Simulate a ground attack")
-async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldiers:int,def_tanks:int,att_use_munitions:bool= True,def_use_munitions:bool= True):
+async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldiers:int,def_tanks:int,population:int= 0,att_use_munitions:bool= True,def_use_munitions:bool= True):
 	att_soldiers_multiplier=1.75 if att_use_munitions else 1
 	def_soldiers_multiplier=1.75 if def_use_munitions else 1
 	size=(10000,3)
@@ -560,7 +560,7 @@ async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldi
 	dftr = np.random.randint(0.4*def_tanks*40,(def_tanks+1)*40,size=size)
 
 	att_army_value=atsr+attr
-	def_army_value=dfsr+dftr
+	def_army_value=dfsr+dftr+population/400
 	outcomes=np.greater(att_army_value,def_army_value)
 
 	ats_causalities=np.round(np.average(np.sum(dfsr*0.0084+dftr*0.0092,axis=1)),2)
