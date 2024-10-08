@@ -1,4 +1,4 @@
-import os,discord,sqlite3,logging,re
+import os,discord,logging,re
 from discord.ext import commands
 import typing
 from scripts import nation_data_converter,sheets,war_stats
@@ -196,7 +196,7 @@ async def loot_calculator(nation_id):
 
 async def monitor_targets(city_text,alliance_search,loot,search_only=False):
 	search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
-	search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
+	search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','score','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
 	targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where vmode=0 and defensive_wars<>3 and color=0 {city_text} {alliance_search}"
 	async with aiosqlite.connect('pnw.db') as db:
 		db.row_factory =aiosqlite.Row
@@ -549,7 +549,7 @@ async def war_vis(interaction: discord.Interaction, allies:str,enemies:str):
 	await interaction.followup.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
 
 @client.hybrid_command(name='ground', with_app_command=True,description="Simulate a ground attack")
-async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldiers:int,def_tanks:int,att_use_munitions:bool= True,def_use_munitions:bool= True):
+async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldiers:int,def_tanks:int,population:int= 0,att_use_munitions:bool= True,def_use_munitions:bool= True):
 	att_soldiers_multiplier=1.75 if att_use_munitions else 1
 	def_soldiers_multiplier=1.75 if def_use_munitions else 1
 	size=(10000,3)
@@ -560,7 +560,7 @@ async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldi
 	dftr = np.random.randint(0.4*def_tanks*40,(def_tanks+1)*40,size=size)
 
 	att_army_value=atsr+attr
-	def_army_value=dfsr+dftr
+	def_army_value=dfsr+dftr+population/400
 	outcomes=np.greater(att_army_value,def_army_value)
 
 	ats_causalities=np.round(np.average(np.sum(dfsr*0.0084+dftr*0.0092,axis=1)),2)
@@ -962,7 +962,102 @@ async def spies(ctx,att_spies:int,def_spies:int,level=3,filter=None):
 		result = f"{result}{value[1]} {spy_type.capitalize()}: Success chance {round(value[0],2)}%, Caught chance {round(100-value[0]/102 *100,2)}%\n"
 	await ctx.send(result)	
 
+@client.hybrid_command(name="tiering",description="Gives a tiering chart of the target coalitions",with_app_command=True)
+async def tiering(ctx,coalition_1,coalition_2,filters=None):
+	query = f"""{{alliances(id:[{coalition_1},{coalition_2}]){{
+				data{{
+					id
+					nations{"(vmode:false)" if filters!='-vm' else ""}{{
+						num_cities,alliance_position,last_active
+						}}
+					}}
+				}} }}"""
+	async with httpx.AsyncClient() as client:
+		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+		fetchdata = fetchdata.json()['data']['alliances']['data']
+	coalition_1_ids = coalition_1.split(',')	
+	coalition_1_nation_list,coalition_2_nation_list = [],[]
+	
+	def classify_nations(alliance, tier_list):
+		now_datetime = datetime.now(timezone.utc)
+		timediff = timedelta(days=7)
+		for nation in alliance['nations']:
+			if nation["alliance_position"] != "APPLICANT" and (filter!="-excludeinactive" or  now_datetime-datetime.strptime(nation["last_active"],"%Y-%m-%d %H:%M:%S")<timediff):
+				tier_list.append(nation["num_cities"])
 
+	for alliance in fetchdata:
+		if alliance['id'] in coalition_1_ids:
+			classify_nations(alliance, coalition_1_nation_list)
+		else:
+			classify_nations(alliance, coalition_2_nation_list)
+
+	tier_ranges = [
+		(1, 10, 'c1-10'),
+		(11, 15, 'c11-15'),
+		(16, 20, 'c16-20'),
+		(21, 25, 'c21-25'),
+		(26, 30, 'c26-30'),
+		(31, 35, 'c31-35'),
+		(36, 40, 'c36-40'),
+		(41, 45, 'c41-45'),
+		(46, 50, 'c46-50'),
+		(51, float('inf'), 'c51+'),
+	]
+
+	def count_tiers(tier_list):
+		tiers = {tier[2]: 0 for tier in tier_ranges}  # Initialize tier counts
+		for cities in tier_list:
+			for lower, upper, tier_name in tier_ranges:
+				if lower <= cities <= upper:
+					tiers[tier_name] += 1
+					break
+		return tiers
+
+	coalition_1_tiers = count_tiers(coalition_1_nation_list)
+	coalition_2_tiers = count_tiers(coalition_2_nation_list)		
+	sheetID=sheets.create('Tier Chart',[{"properties":{"sheetId":0,'title':'Tiers'}}])
+	values = [['',*list(coalition_1_tiers.keys()),'Total'],['Coalition 1',*list(coalition_1_tiers.values()),len(coalition_1_nation_list)],['Coalition 2',*list(coalition_2_tiers.values()),len(coalition_2_nation_list)]]
+	rules_dict_list = [{"startRowIndex": 1,"endRowIndex": 2,"userEnteredValue":"=GT(B2,B3)","backgroundColor":{"green":1}},
+	{"startRowIndex": 1,"endRowIndex": 2,"userEnteredValue":"=LTE(B2,B3)","backgroundColor":{"red":1}},
+	{"startRowIndex": 2,"endRowIndex": 3,"userEnteredValue":"=GT(B3,B2)","backgroundColor":{"green":1}},
+	{"startRowIndex": 2,"endRowIndex": 3,"userEnteredValue":"=LTE(B3,B2)","backgroundColor":{"red":1}}]
+	sheets.write_ranges(sheetID,f'Tiers!A1:L3',values)
+	
+	rules=[]
+	for rules_dict in rules_dict_list:
+			rule={
+			"addConditionalFormatRule": {
+					"rule": {
+						"ranges": [
+							{
+								"sheetId": 0,  
+								"startRowIndex": rules_dict['startRowIndex'],
+								"endRowIndex": rules_dict['endRowIndex'], 
+								"startColumnIndex": 1,
+								"endColumnIndex": 11
+							}
+						],
+						"booleanRule": {
+							"condition": {
+								"type": "CUSTOM_FORMULA",
+								"values": [
+									{
+										"userEnteredValue": rules_dict['userEnteredValue']
+									}
+								]
+							},
+							"format": {
+								"backgroundColor": rules_dict['backgroundColor']
+							}
+						}
+					},
+					"index": 0
+				}
+			}
+			rules.append(rule)	
+	sheets.conditional_formatting(sheetID,rules)
+	await ctx.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
+				
 if __name__=='__main__':
 	web_flask.run()
 	client.run(os.getenv('DISCORD_TOKEN'))		
