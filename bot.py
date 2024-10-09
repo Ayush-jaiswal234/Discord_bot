@@ -964,7 +964,7 @@ async def spies(ctx,att_spies:int,def_spies:int,level=3,filter=None):
 
 @client.hybrid_command(name="tiering",description="Gives a tiering chart of the target coalitions",with_app_command=True)
 async def tiering(ctx,coalition_1,coalition_2,filters=None):
-	query = f"""{{alliances(id:[{coalition_1},{coalition_2}]){{
+	query = f"""{{alliances(id:[{coalition_1},{coalition_2}],first:500){{
 				data{{
 					id
 					nations{"(vmode:false)" if filters!='-vm' else ""}{{
