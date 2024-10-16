@@ -100,7 +100,7 @@ class Bot_bg_Tasks:
 			alert_text = f"{alert_text}**Color:**\n```Please change your color {data_dict['color']}.```\n"
 		
 		inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%dT%H:%M:%S')).split('d')[0]
-		if int(inactive_days)>5:
+		if int(inactive_days)>3:
 			alert_required = True
 			alert_text = f"{alert_text}**Inactivity:**\n```Please login you have been inactive for {inactive_days} day(s).```\n"
 		
