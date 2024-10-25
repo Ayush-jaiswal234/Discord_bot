@@ -42,7 +42,7 @@ class beige_alerts(commands.Cog):
 	@commands.hybrid_command(name='beigealerts',with_app_command=True,description='Alerts about the targets leaving beige')
 	async def beigealerts(self,ctx:commands.Context,city_range:str,*,flags:MonitorFlags):
 		async with aiosqlite.connect('pnw.db') as db:
-			await db.execute(f"INSERT INTO persistent_alerts values {(ctx.channel.id,city_range,int(flags.all_nations),flags.alliances,flags.loot)}")
+			await db.execute(f"INSERT OR REPLACE INTO persistent_alerts values {(ctx.channel.id,city_range,int(flags.all_nations),flags.alliances,flags.loot)}")
 			await db.commit()
 		
 		city_text,alliance_search = await self.flags_parser(city_range,flags.all_nations,flags.alliances)
@@ -191,7 +191,7 @@ class beige_alerts(commands.Cog):
 					city_text,alliance_search = await self.flags_parser(alert['city_range'],alert['all_nations'],alert['alliances'])
 					if alert['loot']!=0:
 						targets = await monitor_targets(city_text,alliance_search,alert['loot'])	
-						beige_nations = [(x["nation_id"],x["beige_turns"],self.channel.id,None) for x in targets]
+						beige_nations = [(x["nation_id"],x["beige_turns"],alert['channel_id'],None) for x in targets]
 							
 					else:
 						async with db.execute(f'select nation_id,beige_turns from all_nations_data where vmode=0 and defensive_wars<>3 and color=0 {city_text} {alliance_search}') as cursor:
