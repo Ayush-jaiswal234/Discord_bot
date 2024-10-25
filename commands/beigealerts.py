@@ -11,6 +11,7 @@ class beige_alerts(commands.Cog):
 		self.bot = bot
 		self.updater = bot.updater
 		self.check_for_beigealerts.start()
+		self.set_new_alerts.start()
 
 	class MonitorFlags(commands.FlagConverter,delimiter= " ",prefix='-'):
 		all_nations: bool = False
@@ -84,7 +85,7 @@ class beige_alerts(commands.Cog):
 			elif beige_turns[0]==0:
 				await ctx.send("The nation is already out of beige")
 			else:
-				await db.execute(f'INSERT INTO beige_alerts values {tuple(nation_id,beige_turns[0],ctx.channel.id,ctx.author.id)}')		
+				await db.execute(f'INSERT INTO beige_alerts values {tuple([nation_id,beige_turns[0],ctx.channel.id,ctx.author.id])}')		
 				await db.commit()
 				if not self.check_for_beigealerts.is_running():
 					self.check_for_beigealerts.start()	
@@ -187,7 +188,7 @@ class beige_alerts(commands.Cog):
 				all_alerts = await cursor.fetchall()
 			if all_alerts	:
 				for alert in all_alerts:
-					city_text,alliance_search = self.flags_parser(alert['city_range'],alert['all_nations'],alert['alliances'])
+					city_text,alliance_search = await self.flags_parser(alert['city_range'],alert['all_nations'],alert['alliances'])
 					if alert['loot']!=0:
 						targets = await monitor_targets(city_text,alliance_search,alert['loot'])	
 						beige_nations = [(x["nation_id"],x["beige_turns"],self.channel.id,None) for x in targets]
