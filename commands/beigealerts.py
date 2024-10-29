@@ -10,6 +10,7 @@ class beige_alerts(commands.Cog):
 	def __init__(self,bot,):
 		self.bot = bot
 		self.updater = bot.updater
+		self.safe_aa = {}
 		self.check_for_beigealerts.start()
 		self.set_new_alerts.start()
 
@@ -20,14 +21,10 @@ class beige_alerts(commands.Cog):
 
 	async def flags_parser(self,city_range,all_nations,alliances):
 		
-		if alliances== 'Default' and all_nations==0:
-			async with aiosqlite.connect('pnw.db') as db:
-				async with db.execute('select * from safe_aa') as cursor:
-					safe_aa = await cursor.fetchall()
-			safe_aa = tuple([x[0] for x in safe_aa])	
+		if alliances== 'Default' and all_nations==0:	
 			date=datetime.now(timezone.utc).replace(microsecond=0)
 			date = date -timedelta(days=10)
-			alliance_search =  f"and (alliance_id not in {safe_aa} or (alliance_id in {safe_aa} and (alliance_position=1 or date(last_active)<'{date}')))"	
+			alliance_search =  f"and (alliance_id not in {self.safe_aa} or (alliance_id in {self.safe_aa} and (alliance_position=1 or date(last_active)<'{date}')))"	
 		elif all_nations==1:
 			alliance_search = ""
 		else:
@@ -89,12 +86,12 @@ class beige_alerts(commands.Cog):
 				await db.commit()
 				if not self.check_for_beigealerts.is_running():
 					self.check_for_beigealerts.start()	
-				await ctx.send(f"Alert for {link} has been set.")		
+				await ctx.send(f"Alert for <{link}> has been set.")		
 
-	def is_alert_needed(self, nation_data, city_range, alliance_condition, loot_condition):
+	def is_alert_needed(self, nation_data, city_range, alliance_condition,all_nations_condition, loot_condition):
     	# Check city range condition
 		min_cities, max_cities = map(int, city_range.split('-'))
-		if not (min_cities <= nation_data["cities"] <= max_cities):
+		if not (min_cities <= nation_data[8] <= max_cities):
 			return False
 		
 		# Check alliance condition
@@ -125,7 +122,7 @@ class beige_alerts(commands.Cog):
 					all_nations_data.cities, all_nations_data.last_active, 
 					all_nations_data.soldiers, all_nations_data.tanks, 
 					all_nations_data.aircraft, all_nations_data.ships, 
-					persistent_alerts.city_range, persistent_alerts.alliances, persistent_alerts.loot
+					persistent_alerts.city_range, persistent_alerts.alliances,persistent_alerts.all_nations, persistent_alerts.loot
 				FROM beige_alerts
 				INNER JOIN all_nations_data ON all_nations_data.nation_id = beige_alerts.nation_id
 				INNER JOIN persistent_alerts ON persistent_alerts.channel_id = beige_alerts.channel_id
@@ -138,9 +135,10 @@ class beige_alerts(commands.Cog):
 					if data[1] ==0 or data[2]==0:
 						city_range = data[14]
 						alliance_condition = data[15]
-						loot_condition = data[16]
+						all_nations_condition = data[16]
+						loot_condition = data[17]
 						# Check if the current nation matches the conditions set for this alert
-						if self.is_alert_needed(data, city_range, alliance_condition, loot_condition):
+						if self.is_alert_needed(data,city_range, alliance_condition,all_nations_condition, loot_condition):
 							# Send the alert if conditions are met
 							await self.send_alert(data)
 
@@ -199,7 +197,11 @@ class beige_alerts(commands.Cog):
 						[nations.extend(self.channel.id,None) for nations in beige_nations]
 					await db.executemany("insert into beige_alerts values (?,?,?,?)",beige_nations)
 					await db.commit()
-	
+
+			async with db.execute('select * from safe_aa') as cursor:
+				safe_aa = await cursor.fetchall()
+			safe_aa = tuple([x[0] for x in safe_aa])
+			self.safe_aa = safe_aa
 
 
 async def setup(bot):

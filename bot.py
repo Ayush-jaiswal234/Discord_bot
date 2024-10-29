@@ -72,14 +72,12 @@ async def last_bank_rec(nation_list):
 	i=0
 	async with httpx.AsyncClient() as client:
 		for nation in nation_list:
-			if len(query)<9900:
-				query=f"""{query}i{i}:bankrecs(sid:{nation[0]},orderBy:{{column:DATE,order:DESC}},first:1,rtype:2){{data{{date}}}}"""
-			else:
+			if len(query)>9900:
 				query=f"{{ {query} }}"
 				fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
 				results.append(fetchdata.json()['data'])
 				query=''
-				query=f"""{query}i{i}:bankrecs(sid:{nation[0]},orderBy:{{column:DATE,order:DESC}},first:1,rtype:2){{data{{date}}}}"""
+			query=f"""{query}i{i}:bankrecs(sid:{nation[0]},orderBy:{{column:DATE,order:DESC}},first:1,rtype:2){{data{{date}}}}"""
 			i+=1	
 		query=f"{{ {query} }}"
 		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
@@ -418,7 +416,7 @@ async def register(ctx,link):
 		query= f"{{nations(id:{nation_id}){{ data{{discord}} }} }}"
 		fetchdata = await client.post(graphql_link,json={'query':query})
 		fetchdata = fetchdata.json()['data']['nations']['data'][0]
-	if fetchdata["discord"]==str(ctx.message.author):	
+	if fetchdata["discord"].capitalize()==str(ctx.message.author).capitalize():	
 		await update_registered_nations(ctx.author.id,ctx.message.author,nation_id)
 		await ctx.send("Successfully registered")		
 	else:
