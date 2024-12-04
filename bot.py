@@ -1055,7 +1055,32 @@ async def tiering(ctx,coalition_1,coalition_2,filters=None):
 			rules.append(rule)	
 	sheets.conditional_formatting(sheetID,rules)
 	await ctx.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
-				
+
+@client.hybrid_command(name='aamil',description="Returns the current military info of the given alliances",with_app_command=True)
+async def aamil(ctx,alliance_ids,filters=None):
+	query = f"""{{alliances(id:[{alliance_ids}],first:500){{
+				data{{
+					name
+					nations(vmode:false){{
+						id,nation_name,num_cities,score,war_policy,last_active,defensive_wars_count,beige_turns,offensive_wars_count
+						soldiers,tanks,aircraft,ships,missiles,nukes,spies,spy_satellite,espionage_available
+						}}
+					}}
+				}} }}"""
+	async with httpx.AsyncClient() as client:
+		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+		fetchdata = fetchdata.json()['data']['alliances']['data']
+	sheetID=sheets.create('Milcom Sheet',[{"properties":{"sheetId":0,'title':'Milcom'}}])
+	values = [('Nation','Alliance','Cities','Score','War Policy','Last Actvie','Beige','Off Wars','Def Wars','Soldiers','Tanks','Planes','Ships','Missiles','Nukes','Spies','Spy Sat','Spy Slot')]
+	for alliance in fetchdata:
+		for nation in alliance['nations']:
+			values.append((f'=HYPERLINK("https://politicsandwar.com/nation/id={nation["id"]}","{nation["nation_name"]}")',alliance["name"],nation["num_cities"],
+				nation['score'],nation['war_policy'],nation_data_converter.time_converter(datetime.strptime(nation["last_active"].split('+')[0],"%Y-%m-%dT%H:%M:%S")),
+				'Yes' if nation['beige_turns']>0 else 'No',nation['offensive_wars_count'],nation['defensive_wars_count'],nation['soldiers'],nation['tanks'],nation['aircraft'],
+				nation['ships'],nation['missiles'],nation['nukes'],nation['spies'],'Yes' if nation['spy_satellite'] else 'No', 'Yes' if nation['espionage_available'] else 'No'))
+	sheets.write_ranges(sheetID,f'Milcom!A1:R{len(values)+1}',values)
+	await ctx.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
+
 if __name__=='__main__':
 	web_flask.run()
 	client.run(os.getenv('DISCORD_TOKEN'))		
