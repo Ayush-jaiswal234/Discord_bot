@@ -1,9 +1,9 @@
-from flask import Flask,render_template
+from flask import Flask,render_template,request,jsonify
 from threading import Thread
 import os
 import jinja2
 import datetime
-from bot import targets,monitor_targets
+from bot import targets,monitor_targets,aa_stalker
 
 app = Flask('')
 
@@ -19,6 +19,25 @@ def commands():
 @app.route('/guides')
 def guides():
     return render_template('guides.html')
+
+@app.route('/stalker', methods=['GET'])
+def stalker():
+    return render_template('stalker.html')
+
+@app.route('/stalker', methods=['POST'])
+async def stalker_post():
+    if not request.is_json:
+        return jsonify({"error": "Invalid Content-Type, expected application/json"}), 415
+
+    # Parse the JSON payload
+    data = request.get_json()
+    alliance_ids = data.get('alliance_ids', '') 
+
+    if not alliance_ids:
+        return jsonify({"error": "No alliance IDs provided"}), 400
+
+    fetchdata = await aa_stalker(alliance_ids)
+    return jsonify(fetchdata)   
 
 def run():
     Thread(target=lambda: app.run(host=os.getenv('web_address'), port=5000)).start()

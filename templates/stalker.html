@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Alliance Stalker</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            padding: 0;
+        }
+
+        table {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 80%;
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #2e2e2e;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #383838;
+            color: white;
+        }
+
+        th:hover {
+            background-color: #606060;
+        }
+
+        tr:nth-child(even) {
+            background-color: #3e3e3e;
+        }
+
+        a {
+            color: #1e90ff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .table-container {
+            padding: 20px;
+        }
+
+        #allianceForm {
+            text-align: center;
+            padding: 20px;
+        }
+
+        #allianceForm input {
+            width: 300px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        #allianceForm button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #1e90ff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #allianceForm button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="my-4">Alliance Stalker</h1>
+        <form id="allianceForm">
+            <input type="text" id="allianceIds" placeholder="Enter Alliance IDs (comma-separated)">
+            <button type="submit">Fetch</button>
+        </form>
+
+        <div class="table-container">
+            <table id="targetTable" class="table table-striped tablesorter">
+                <thead>
+                    <tr>
+                        <th>Nation</th>
+                        <th>Alliance</th>
+                        <th>Cities</th>
+                        <th>Score</th>
+                        <th>War Policy</th>
+                        <th>Last Active</th>
+                        <th>Beige</th>
+                        <th>Off Wars</th>
+                        <th>Def Wars</th>
+                        <th>Soldiers</th>
+                        <th>Tanks</th>
+                        <th>Aircraft</th>
+                        <th>Ships</th>
+                        <th>Missiles</th>
+                        <th>Nukes</th>
+                        <th>Spies</th>
+                        <th>Spy Sat</th>
+                        <th>Spy Slot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data rows will be inserted here dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function formatTimeDifference(lastActive) {
+            const lastActiveDate = new Date(lastActive);
+            const now = new Date();
+            const differenceInMilliseconds = now - lastActiveDate;
+
+            const seconds = Math.floor(differenceInMilliseconds / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours   
+            / 24);
+
+            if (days > 0) {
+                return `${days}d ${hours % 24}h   
+            ago`;
+            } else if (hours > 0) {
+                return `${hours}h ${minutes % 60}m ago`;
+            } else if (minutes > 0) {
+                return `${minutes}m ago`;
+            } else {
+                return "Just now";
+            }
+        }
+        $(document).ready(function () {
+            $("#targetTable").tablesorter();
+            $("#allianceForm").submit(function (e) {
+                e.preventDefault(); // Prevent default form submission behavior
+
+                const allianceIds = $("#allianceIds").val().trim();
+                if (!allianceIds) {
+                alert("Please enter at least one Alliance ID.");
+                return;
+                }
+
+                // Send data to Flask using POST request
+                $.ajax({
+                url: "/stalker",
+                type: "POST", // Ensure POST method here
+                contentType: "application/json", // Send as JSON
+                dataType: "json",
+                data: JSON.stringify({ alliance_ids: allianceIds }), // Wrap in a JSON object
+                success: function (response) {
+                    console.log("Data received from server:", response);
+                        // Update the table with the response data
+                        $("#targetTable tbody").empty(); // Clear existing table data
+                        response.forEach(alliance => {
+                            alliance.nations.forEach(target => {
+                            $("#targetTable tbody").append(`
+                                <tr>
+                                    <td><a href="https://politicsandwar.com/nation/id=${target.id}",target="_blank">${target.nation_name}</a></td>
+                                    <td>${alliance.name}</td>
+                                    <td>${target.num_cities}</td>
+                                    <td>${target.score}</td>
+                                    <td>${target.war_policy}</td>
+                                    <td>${formatTimeDifference(target.last_active)}</td>
+                                    <td>${target.beige_turns > 0 ? "Yes" : "No"}</td>
+                                    <td>${target.offensive_wars_count}</td>
+                                    <td>${target.defensive_wars_count}</td> 
+                                    <td>${target.soldiers}</td>
+                                    <td>${target.tanks}</td>
+                                    <td>${target.aircraft}</td>
+                                    <td>${target.ships}</td>
+                                    <td>${target.missiles}</td>
+                                    <td>${target.nukes}</td>
+                                    <td>${target.spies}</td>
+                                    <td>${target.spy_satellite ? "Yes" : "No"}</td>
+                                    <td>${target.espionage_available ? "Yes" : "No"}</td>
+                                </tr>
+                            `);
+                            $("#targetTable").tablesorter();    
+
+                        });
+                    });
+                   
+                },
+                    error: function (xhr, status, error) {
+                        console.error("Error fetching data:", error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
