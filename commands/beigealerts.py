@@ -95,11 +95,7 @@ class beige_alerts(commands.Cog):
 			return False
 		
 		# Check alliance condition
-		if alliance_condition != "Default" and nation_data["alliance_id"] not in alliance_condition:
-			return False
-		
-		# Check loot condition (if any)
-		if loot_condition > 0 and nation_data["loot"] < loot_condition:
+		if alliance_condition != "Default" and nation_data[6] not in alliance_condition:
 			return False
 		
 		return True
