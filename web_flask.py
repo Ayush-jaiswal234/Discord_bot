@@ -20,24 +20,39 @@ def commands():
 def guides():
     return render_template('guides.html')
 
-@app.route('/stalker', methods=['GET'])
-def stalker():
-    return render_template('stalker.html')
+@app.route('/stalker', methods=['GET', 'POST'])
+async def stalker():
+    if request.method == 'GET':
+        return render_template('stalker.html')
+    elif request.method == 'POST':
+        if not request.is_json:
+            return jsonify({"error": "Invalid Content-Type, expected application/json"}), 415
 
-@app.route('/stalker', methods=['POST'])
-async def stalker_post():
-    if not request.is_json:
-        return jsonify({"error": "Invalid Content-Type, expected application/json"}), 415
+        # Parse the JSON payload
+        data = request.get_json()
+        alliance_ids = data.get('alliance_ids', '') 
 
-    # Parse the JSON payload
-    data = request.get_json()
-    alliance_ids = data.get('alliance_ids', '') 
+        if not alliance_ids:
+            return jsonify({"error": "No alliance IDs provided"}), 400
 
-    if not alliance_ids:
-        return jsonify({"error": "No alliance IDs provided"}), 400
+        fetchdata = await aa_stalker(alliance_ids)
+        return jsonify(fetchdata)
 
-    fetchdata = await aa_stalker(alliance_ids)
-    return jsonify(fetchdata)   
+@app.route('/spysheet', methods=['GET', 'POST'])
+async def spysheet():
+    if request.method == 'GET':
+        return render_template('spysheet.html')
+    elif request.method == 'POST':
+        if not request.is_json:
+            return jsonify({"error": "Invalid Content-Type, expected application/json"}), 415
+
+        # Parse the JSON payload
+        data = request.get_json()
+        att_ids = data.get('attids', '') 
+        def_ids = data.get('defids','')
+
+        fetchdata = await spysheet(att_ids,def_ids)
+        return jsonify(fetchdata)
 
 def run():
     Thread(target=lambda: app.run(host=os.getenv('web_address'), port=5000)).start()

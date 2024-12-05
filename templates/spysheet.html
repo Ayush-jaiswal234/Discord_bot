@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Alliance Stalker</title>
+    <title>Spy Sheet</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.3/js/jquery.tablesorter.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -98,34 +98,33 @@
 
 <body>
     <div class="container">
-        <h1 class="my-4">Alliance Stalker</h1>
-        <form id="allianceForm">
-            <input type="text" id="allianceIds" placeholder="Enter Alliance IDs (comma-separated)">
+        <h1 class="my-4">Spy Sheet</h1>
+        <form id="spyform">
+            <input type="text" id="attids" placeholder="Enter Attacking Alliance IDs (comma-separated)">
+            <input type="text" id="defids" placeholder="Enter Defending Alliance IDs (comma-separated)">
             <button type="submit">Fetch</button>
         </form>
 
         <div class="table-container">
             <table id="targetTable" class="table table-striped tablesorter">
                 <thead>
+                    <!-- Main Header -->
                     <tr>
+                        <th colspan="5">Defenders</th>
+                        <th colspan="3">Attackers</th>
+                    </tr>
+                    <!-- Sub Headers -->
+                    <tr>
+                        <!-- Defenders Columns -->
                         <th>Nation</th>
                         <th>Alliance</th>
-                        <th>Cities</th>
                         <th>Score</th>
-                        <th>War Policy</th>
-                        <th>Last Active</th>
-                        <th>Beige</th>
-                        <th>Off Wars</th>
-                        <th>Def Wars</th>
-                        <th>Soldiers</th>
-                        <th>Tanks</th>
-                        <th>Aircraft</th>
-                        <th>Ships</th>
-                        <th>Missiles</th>
                         <th>Nukes</th>
                         <th>Spies</th>
-                        <th>Spy Sat</th>
-                        <th>Spy Slot</th>
+                        <!-- Attackers Columns -->
+                        <th>Attacker 1</th>
+                        <th>Attacker 2</th>
+                        <th>Attacker 3</th>
                     </tr>
                 </thead>
                 <tbody>
