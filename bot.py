@@ -1147,7 +1147,6 @@ def calculate_adjusted_odds(att_spies, def_spies,def_policy,att_policy, attack_t
 def find_top_attackers_efficiently(attackers, defenders):
     # Tracker for attacker usage
 	attacker_usage = {attacker['id']: 0 for attacker in attackers}
-	defender_slot = {defender['id']:0 for defender in defenders}
 	# Result sheet for top attackers
 	result = []
 
@@ -1182,7 +1181,7 @@ def find_top_attackers_efficiently(attackers, defenders):
 			for entry in odds_list:
 				if len(top_attackers) >= 3:
 					break	 
-				if attacker_usage[attacker_id] < 2:  # Ensure attacker can still be used
+				if attacker_usage[entry['attacker']['id']] < 2:  # Ensure attacker can still be used
 					if  defender['spies']>45:
 						if entry['attacker']['spies']-defender['spies']>=0 and entry['optimal_attack']['odds']>70:
 							attacker_id = entry['attacker']['id']
@@ -1193,7 +1192,6 @@ def find_top_attackers_efficiently(attackers, defenders):
 							attacker_id = entry['attacker']['id']	
 							top_attackers.append(entry)
 							attacker_usage[attacker_id] += 1
-
 			# Append results for this defender
 			result.append({
 				"defender": defender,
