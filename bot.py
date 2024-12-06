@@ -1133,8 +1133,8 @@ def calculate_adjusted_odds(att_spies, def_spies,def_policy,att_policy, attack_t
 		odds = [x/5 for x in odds]    # Adjust for nukes
 	
 	attack={"odds":odds[2],"level":3,"type":attack_type}	
-	if odds[2]-odds[1]<5 or odds[2]>100:
-		if odds[1]-odds[0]<5 or (odds[1]>100 and odds[0]>95):
+	if odds[2]-odds[1]<6 or odds[2]>100:
+		if odds[1]-odds[0]<6 or (odds[1]>100 and odds[0]>95):
 			attack['odds']=odds[0]
 			attack['level']=1
 		else:
@@ -1149,7 +1149,7 @@ def find_top_attackers_efficiently(attackers, defenders):
 	attacker_usage = {attacker['id']: 0 for attacker in attackers}
 	# Result sheet for top attackers
 	result = []
-
+	switcher = {1:'quick',2:'normal',3:'covert'}
 	for defender in defenders:
 		defender_spies = defender['spies']
 
@@ -1167,14 +1167,16 @@ def find_top_attackers_efficiently(attackers, defenders):
 					match_info = calculate_adjusted_odds(att_spies, defender_spies,defender['war_policy'],attacker['war_policy'], attack_type="nuke")
 				elif defender_spies>0:
 					match_info = calculate_adjusted_odds(att_spies, defender_spies,defender['war_policy'],attacker['war_policy'], attack_type="spy")
+				
 				if match_info:	
+					defender_spies -=  min((att_spies- (defender_spies* 0.4)) * 0.335*0.95,(defender_spies*0.25) + 4)
 					odds_list.append({
 						"attacker": attacker,
 						"optimal_attack":match_info
 					})
 		if odds_list:
 			# Sort attackers by the highest adjusted odds
-			odds_list.sort(key=lambda x: (-x['attacker']['spies'],-x['optimal_attack']['odds']))
+			odds_list.sort(key=lambda x: (x['attacker']['spies'],x['optimal_attack']['type'],x['optimal_attack']['level'],x['optimal_attack']['odds']),reverse=True)
 
 			# Select top 3 attackers for this defender
 			top_attackers = []
@@ -1185,11 +1187,13 @@ def find_top_attackers_efficiently(attackers, defenders):
 					if  defender['spies']>45:
 						if entry['attacker']['spies']-defender['spies']>=0 and entry['optimal_attack']['odds']>70:
 							attacker_id = entry['attacker']['id']
+							entry['optimal_attack']['level'] = switcher.get(entry['optimal_attack']['level'])
 							top_attackers.append(entry)
 							attacker_usage[attacker_id] += 1
 					else:
 						if	entry['optimal_attack']['odds']>70:
 							attacker_id = entry['attacker']['id']	
+							entry['optimal_attack']['level'] = switcher.get(entry['optimal_attack']['level'])
 							top_attackers.append(entry)
 							attacker_usage[attacker_id] += 1
 			# Append results for this defender
@@ -1197,7 +1201,6 @@ def find_top_attackers_efficiently(attackers, defenders):
 				"defender": defender,
 				"top_attackers": top_attackers
 			})
-
 	return result
 
 

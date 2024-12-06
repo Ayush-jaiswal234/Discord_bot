@@ -68,19 +68,19 @@
             padding: 20px;
         }
 
-        #allianceForm {
+        #spyform {
             text-align: center;
             padding: 20px;
         }
 
-        #allianceForm input {
+        #spyform input {
             width: 300px;
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
         }
 
-        #allianceForm button {
+        #spyform button {
             padding: 10px 20px;
             margin-left: 10px;
             border-radius: 5px;
@@ -90,9 +90,14 @@
             cursor: pointer;
         }
 
-        #allianceForm button:hover {
+        #spyform button:hover {
             background-color: #0056b3;
         }
+
+        thead tr:first-child th {
+            text-align: center;
+        }
+
     </style>
 </head>
 
@@ -102,9 +107,13 @@
         <form id="spyform">
             <input type="text" id="attids" placeholder="Enter Attacking Alliance IDs (comma-separated)">
             <input type="text" id="defids" placeholder="Enter Defending Alliance IDs (comma-separated)">
+            <input type="text" id="password" placeholder="If you know you know">
             <button type="submit">Fetch</button>
         </form>
-
+        <div style="text-align: right; padding-right: 20px;">
+            <label for="searchInput" style="color: white; font-size: 16px; padding-right: 10px;">Filter:</label>
+            <input type="text" id="searchInput" placeholder="Search in table..." style="width: 20%; padding: 10px;">
+        </div>
         <div class="table-container">
             <table id="targetTable" class="table table-striped tablesorter">
                 <thead>
@@ -129,6 +138,23 @@
                 </thead>
                 <tbody>
                     <!-- Data rows will be inserted here dynamically -->
+                    {% if old_data %}  
+                    {% for target in old_data %}
+                    <tr>
+                        <td><a href="https://politicsandwar.com/nation/espionage/eid={{target.defender.id}}">{{target.defender.nation_name}}</a></td>
+                        <td>{{target.defender.alliance}}</td>
+                        <td>{{target.defender.score}}</td>
+                        <td>{{target.defender.nukes}}</td>
+                        <td>{{target.defender.spies}}</td>
+                        {% for attacker in target.top_attackers %}
+                        <td><a href="https://politicsandwar.com/nation/id={{attacker.attacker.id}}">{{attacker.attacker.nation_name}}({{attacker.optimal_attack.type}})({{attacker.optimal_attack.level}})({{attacker.attacker.spies}})</td>
+                        {% endfor %}        
+                        {% for i in range(3 - target.top_attackers.__len__()) %}
+                        <td></td>
+                        {% endfor %}    
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
                 </tbody>
             </table>
         </div>
@@ -137,47 +163,53 @@
     <script>
         $(document).ready(function () {
             $("#targetTable").tablesorter();
-            function getOperationType(level) {
-                switch (level) {
-                    case 1:
-                        return "quick";
-                    case 2:
-                        return "normal";
-                    case 3:
-                        return "covert";
-                    default:
-                        return null; // Handle unexpected levels
-                }
-            }
+            $("#searchInput").on("keyup", function () {
+            var value = $(this).val().toLowerCase(); // Get the search value and convert it to lowercase
+            $("#targetTable tbody tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1); // Show or hide rows based on the match
+                });
+            });
             $("#spyform").submit(function (e) {
                 e.preventDefault(); // Prevent default form submission behavior
 
                 const attids = $("#attids").val().trim(); // Fetch attacking alliance IDs
                 const defids = $("#defids").val().trim(); // Fetch defending alliance IDs
-
+                const password = $("#password").val().trim();
                 // Ensure the user has entered some data
                 if (!attids && !defids) {
                     alert("Please enter at least one Alliance ID for either attackers or defenders.");
                     return;
                 }   
-
+                if (!password){
+                    alert("You don't know");
+                    return;
+                }
                 // Send data to Flask using POST request
                 $.ajax({
                 url: "/spysheet",
                 type: "POST", // Ensure POST method here
                 contentType: "application/json", // Send as JSON
                 dataType: "json",
-                data: JSON.stringify({ attids: attids,defids:defids }), // Wrap in a JSON object
+                data: JSON.stringify({ attids: attids,defids:defids,password:password }), // Wrap in a JSON object
                 success: function (response) {
                     console.log("Data received from server:", response);
+                    if (response.response === "I told you, you don't know") {
+                            alert("I told you, you don't know");
+                            return; // Stop further processing
+                        }
+                    else{    
                         // Update the table with the response data
                         $("#targetTable tbody").empty(); // Clear existing table data
                         response.forEach(target => {
                             const defender = target.defender
                             let attackersHtml = '';
                             target.top_attackers.forEach(attacker => {
-                                attackersHtml += `<td><a href="https://politicsandwar.com/nation/id=${attacker.attacker.id}">${attacker.attacker.nation_name}(${attacker.optimal_attack.type})(${getOperationType(attacker.optimal_attack.level)})(${attacker.attacker.spies})</td>`; // Add each attacker to the row
+                                attackersHtml += `<td><a href="https://politicsandwar.com/nation/id=${attacker.attacker.id}">${attacker.attacker.nation_name}(${attacker.optimal_attack.type})(${attacker.optimal_attack.level})(${attacker.attacker.spies})</td>`; // Add each attacker to the row
                             });
+                            const missingAttackers = 3 - target.top_attackers.length;
+                            for (let i = 0; i < missingAttackers; i++) {
+                                attackersHtml += `<td></td>`;
+                            }
                             $("#targetTable tbody").append(`
                                 <tr>
                                     <td><a href="https://politicsandwar.com/nation/espionage/eid=${defender.id}">${defender.nation_name}</a></td>
@@ -189,6 +221,7 @@
                                 </tr>
                             `); 
                     });
+                }
                     $("#targetTable").trigger("update");
                 },
                     error: function (xhr, status, error) {

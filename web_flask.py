@@ -38,10 +38,12 @@ async def stalker():
         fetchdata = await aa_stalker(alliance_ids)
         return jsonify(fetchdata)
 
+spy_data = {}
+
 @app.route('/spysheet', methods=['GET', 'POST'])
 async def spysheet():
     if request.method == 'GET':
-        return render_template('spysheet.html')
+        return render_template('spysheet.html', old_data=spy_data.get('old_data'))  # Pass old_data to template
     elif request.method == 'POST':
         if not request.is_json:
             return jsonify({"error": "Invalid Content-Type, expected application/json"}), 415
@@ -50,9 +52,14 @@ async def spysheet():
         data = request.get_json()
         att_ids = data.get('attids', '') 
         def_ids = data.get('defids','')
-        fetchdata = await spy_target_finder(att_ids,def_ids)
-        return jsonify(fetchdata)
-
+        password = data.get('password','')
+        if password=='idontcare12':
+            fetchdata = await spy_target_finder(att_ids,def_ids)
+            spy_data['old_data'] = fetchdata
+            return jsonify(fetchdata)
+        else: 
+            return {'response':"I told you, you don't know"}
+        
 def run():
     Thread(target=lambda: app.run(host=os.getenv('web_address'), port=5000)).start()
 
