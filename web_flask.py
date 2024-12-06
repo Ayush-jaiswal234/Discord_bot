@@ -3,7 +3,7 @@ from threading import Thread
 import os
 import jinja2
 import datetime
-from bot import targets,monitor_targets,aa_stalker
+from bot import targets,monitor_targets,aa_stalker,spy_target_finder
 
 app = Flask('')
 
@@ -50,8 +50,7 @@ async def spysheet():
         data = request.get_json()
         att_ids = data.get('attids', '') 
         def_ids = data.get('defids','')
-
-        fetchdata = await spysheet(att_ids,def_ids)
+        fetchdata = await spy_target_finder(att_ids,def_ids)
         return jsonify(fetchdata)
 
 def run():
