@@ -253,7 +253,7 @@ async def setup_hook():
 graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 intents = discord.Intents.default()	
 intents.message_content = True
-client=commands.AutoShardedBot(command_prefix=';',help_command=None,intents=intents)
+client=commands.AutoShardedBot(command_prefix='!',help_command=None,intents=intents)
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.add_check(is_guild)
 client.setup_hook = setup_hook
@@ -1126,7 +1126,7 @@ def calculate_adjusted_odds(attacker, def_spies,defender, attack_type):
 		odds = [x * 0.85 for x in odds]
 	if attacker['war_policy']=="COVERT":
 		odds = [x * 1.15 for x in odds]
-	
+
 	if defender['surveillance_network']:	
 		odds = [x/1.1 for x in odds]
 

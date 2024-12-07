@@ -10,7 +10,7 @@ class beige_alerts(commands.Cog):
 	def __init__(self,bot,):
 		self.bot = bot
 		self.updater = bot.updater
-		self.safe_aa = {}
+		self.safe_aa = []
 		self.check_for_beigealerts.start()
 		self.set_new_alerts.start()
 
@@ -74,6 +74,7 @@ class beige_alerts(commands.Cog):
 			nation_id=int(link[37:])
 		else:
 			nation_id=link
+		link =f'https://politicsandwar.com/nation/id={nation_id}'	
 		async with aiosqlite.connect('pnw.db') as db:
 			async with db.execute(f'select beige_turns from all_nations_data where nation_id={nation_id}') as cursor:
 				beige_turns =  await cursor.fetchone()
@@ -88,14 +89,16 @@ class beige_alerts(commands.Cog):
 					self.check_for_beigealerts.start()	
 				await ctx.send(f"Alert for <{link}> has been set.")		
 
-	def is_alert_needed(self, nation_data, city_range, alliance_condition,all_nations_condition, loot_condition):
+	def is_alert_needed(self, nation_data):
+		if nation_data['user_id']!=0:
+			return True
     	# Check city range condition
-		min_cities, max_cities = map(int, city_range.split('-'))
+		min_cities, max_cities = map(int, nation_data['city_range'].split('-'))
 		if not (min_cities <= nation_data[8] <= max_cities):
 			return False
 		
 		# Check alliance condition
-		if alliance_condition != "Default" and nation_data[6] not in alliance_condition:
+		if nation_data['alliances'] != "Default" and nation_data['alliance_id'] not in nation_data['alliances']:
 			return False
 		
 		return True
@@ -108,11 +111,10 @@ class beige_alerts(commands.Cog):
 			if now_time.hour % 2 == 1 and now_time.minute >= 51 and (now_time.minute + now_time.second / 60) < 53.5:
 				await db.execute(f"UPDATE beige_alerts SET beige_turns = beige_turns - 1")
 				await db.commit()
-			
+			db.row_factory = aiosqlite.Row
 			# Fetch all the registered alerts
 			async with db.execute("""
-				SELECT beige_alerts.nation_id, all_nations_data.beige_turns, 
-					beige_alerts.beige_turns, beige_alerts.channel_id, 
+				SELECT beige_alerts.nation_id, beige_alerts.beige_turns,beige_alerts.channel_id, beige_alerts.user_id,
 					all_nations_data.nation, all_nations_data.alliance, 
 					all_nations_data.alliance_id, all_nations_data.score, 
 					all_nations_data.cities, all_nations_data.last_active, 
@@ -122,33 +124,25 @@ class beige_alerts(commands.Cog):
 				FROM beige_alerts
 				INNER JOIN all_nations_data ON all_nations_data.nation_id = beige_alerts.nation_id
 				INNER JOIN persistent_alerts ON persistent_alerts.channel_id = beige_alerts.channel_id
-			""") as cursor:
+			WHERE all_nations_data.beige_turns in (0) or beige_alerts.beige_turns in (0)""") as cursor:
 				beige_data = await cursor.fetchall()
 
 			# Loop through each alert and evaluate its conditions
 			if beige_data:
 				for data in beige_data:
-					if data[1] ==0 or data[2]==0:
-						city_range = data[14]
-						alliance_condition = data[15]
-						all_nations_condition = data[16]
-						loot_condition = data[17]
-						# Check if the current nation matches the conditions set for this alert
-						if self.is_alert_needed(data,city_range, alliance_condition,all_nations_condition, loot_condition):
-							# Send the alert if conditions are met
-							await self.send_alert(data)
+					# Check if the current nation matches the conditions set for this alert
+					if self.is_alert_needed(data):
+						# Send the alert if conditions are met
+						await self.send_alert(data)
 
-						await db.execute(f'delete from beige_alerts where nation_id={data[0]}')
-						await db.commit()
-			else:
-				self.check_for_beigealerts.stop()
+					await db.execute(f'delete from beige_alerts where nation_id={data[0]}')
+					await db.commit()
 
 	async def send_alert(self,data):
-		channel = self.bot.get_channel(data[3])
-		
+		channel = self.bot.get_channel(data['channel_id']) or  self.bot.fetch_channel(data['channel_id'])
 		embed = discord.Embed()
-		embed.title = f"Target: {data[4]}"
-		result = await loot_calculator(data[0])
+		embed.title = f"Target: {data['nation']}"
+		result = await loot_calculator(data['nation_id'])
 		if result!= None:
 			embed.description = f"Total loot: ${result[0]:,.2f}"
 		else:
@@ -156,48 +150,51 @@ class beige_alerts(commands.Cog):
 			result = [0]
 
 		embed.add_field(name="Nation info",
-						value=f"Target: [{data[4]}](https://politicsandwar.com/nation/war/declare/id={data[0]})\n"
-							f"Alliance: [{data[5]}](https://politicsandwar.com/alliance/id={data[6]})\n"
+						value=f"Target: [{data['nation']}](https://politicsandwar.com/nation/war/declare/id={data['nation_id']})\n"
+							f"Alliance: [{data['alliance']}](https://politicsandwar.com/alliance/id={data['alliance_id']})\n"
 							"```js\n"
-							f"War Range: {data[7]*0.75:,.2f}-{data[7]*2.5:,.2f} " 
-							f" Cities: {data[8]} \n"
-							f"Last Active: {nation_data_converter.time_converter(datetime.strptime(data[9],'%Y-%m-%d %H:%M:%S'))}```",
+							f"War Range: {data['score']*0.75:,.2f}-{data['score']*2.5:,.2f} " 
+							f" Cities: {data['cities']} \n"
+							f"Last Active: {nation_data_converter.time_converter(datetime.strptime(data['last_active'],'%Y-%m-%d %H:%M:%S'))}```",
 							inline=False)
 		embed.add_field(name="Military info",
 						value=f"```js\n"
-							f"Soldiers: {data[10]:<8,}"
-							f"Tanks: {data[11]:<8,}\n"
-							f"Aircraft: {data[12]:<8,}"
-							f"Ships: {data[13]:<8,}```",
+							f"Soldiers: {data['soldiers']:<8,}"
+							f"Tanks: {data['tanks']:<8,}\n"
+							f"Aircraft: {data['aircraft']:<8,}"
+							f"Ships: {data['ships']:<8,}```",
 							inline=False)	
-		if data[2]>0:
+		if data['beige_turns']>0:
 			embed.set_footer(text="This nation came out of beige prematurely.")
-		await channel.send(embed=embed)			
+		if data['user_id']!=0:
+			await channel.send(f'<@{data["user_id"]}>',embed=embed)	
+		else:
+			await channel.send(embed=embed)			
 			
 	@tasks.loop(hours=2)
 	async def set_new_alerts(self):
 		async with aiosqlite.connect('pnw.db') as db:
 			db.row_factory = aiosqlite.Row
-			async with db.execute('select * from persistent_alerts') as cursor:
-				all_alerts = await cursor.fetchall()
-			if all_alerts	:
-				for alert in all_alerts:
-					city_text,alliance_search = await self.flags_parser(alert['city_range'],alert['all_nations'],alert['alliances'])
-					if alert['loot']!=0:
-						targets = await monitor_targets(city_text,alliance_search,alert['loot'])	
-						beige_nations = [(x["nation_id"],x["beige_turns"],alert['channel_id'],None) for x in targets]
-							
-					else:
-						async with db.execute(f'select nation_id,beige_turns from all_nations_data where vmode=0 and defensive_wars<>3 and color=0 {city_text} {alliance_search}') as cursor:
-							beige_nations = await cursor.fetchall()
-						[nations.extend(self.channel.id,None) for nations in beige_nations]
-					await db.executemany("insert into beige_alerts values (?,?,?,?)",beige_nations)
-					await db.commit()
-
 			async with db.execute('select * from safe_aa') as cursor:
 				safe_aa = await cursor.fetchall()
 			safe_aa = tuple([x[0] for x in safe_aa])
 			self.safe_aa = safe_aa
+			async with db.execute('select * from persistent_alerts') as cursor:
+				all_alerts = await cursor.fetchall()
+			if all_alerts:
+				for alert in all_alerts:
+					city_text,alliance_search = await self.flags_parser(alert['city_range'],alert['all_nations'],alert['alliances'])
+					if alert['loot']!=0:
+						targets = await monitor_targets(city_text,alliance_search,alert['loot'])	
+						beige_nations = [(x["nation_id"],x["beige_turns"],alert['channel_id'],0) for x in targets]
+							
+					else:
+						async with db.execute(f'select nation_id,beige_turns from all_nations_data where vmode=0 and defensive_wars<>3 and color=0 {city_text} {alliance_search}') as cursor:
+							beige_nations = await cursor.fetchall()
+						[nations.extend(alert['channel_id'],0) for nations in beige_nations]
+					await db.executemany("insert into beige_alerts values (?,?,?,?)",beige_nations)
+					await db.commit()
+
 
 
 async def setup(bot):
