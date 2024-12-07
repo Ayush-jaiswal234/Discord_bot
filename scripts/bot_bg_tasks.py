@@ -52,7 +52,7 @@ class Bot_bg_Tasks:
 		fetchdata = fetchdata["alliances"]["data"][0]	
 			
 		data_dict["mmr"] = {"soldiers":0 * 3000 ,"tanks":2 * 250,"aircraft":5 * 15,"ships": 0 * 5}	
-		data_dict["mmr_raiders"] = {"soldiers":5 * 3000 ,"tanks":0 * 250,"aircraft":0 * 15,"ships": 0 * 5}		
+		data_dict["mmr_raiders"] = {"soldiers":5 * 3000*0.8 ,"tanks":0 * 250,"aircraft":0 * 15,"ships": 0 * 5}		
 		data_dict["mmr_buildings"]={"barracks":0,"factory":2,"hangar":5,"drydock":0}
 		data_dict["raiders_buildings"]={"barracks":5,"factory":0,"hangar":0,"drydock":0}
 		data_dict["color"]=fetchdata["color"]

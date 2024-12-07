@@ -1091,7 +1091,7 @@ async def spy_target_finder(att_ids,def_ids):
 				data{{
 					name,id
 					nations(vmode:false){{
-						id,nation_name,alliance_position,score,nukes,spies,espionage_available,war_policy
+						id,nation_name,alliance_position,score,nukes,spies,espionage_available,war_policy,central_intelligence_agency,surveillance_network,spy_satellite
 						}}
 					}}
 				}} }}"""
@@ -1116,16 +1116,19 @@ async def spy_target_finder(att_ids,def_ids):
 	result = find_top_attackers_efficiently(attackers, defenders)
 	return result
 
-def calculate_adjusted_odds(att_spies, def_spies,def_policy,att_policy, attack_type):
+def calculate_adjusted_odds(attacker, def_spies,defender, attack_type):
     # Base odds calculation
-	odds =[level * 25 + (att_spies * 100 / ((def_spies * 3) + 1)) for level in range(1,4)]
+	odds =[level * 25 + (attacker['spies'] * 100 / ((def_spies * 3) + 1)) for level in range(1,4)]
 
-	if def_policy=='ARCANE':
+	if defender['war_policy']=='ARCANE':
 		odds = [x * 1.15 for x in odds]
-	elif def_policy=='TACTICIAN':	
+	elif defender['war_policy']=='TACTICIAN':	
 		odds = [x * 0.85 for x in odds]
-	if att_policy=="COVERT":
+	if attacker['war_policy']=="COVERT":
 		odds = [x * 1.15 for x in odds]
+	
+	if defender['surveillance_network']:	
+		odds = [x/1.1 for x in odds]
 
 	if attack_type == "spy":
 		odds = [x/1.5 for x in odds] # Adjust for spy kills
@@ -1133,8 +1136,8 @@ def calculate_adjusted_odds(att_spies, def_spies,def_policy,att_policy, attack_t
 		odds = [x/5 for x in odds]    # Adjust for nukes
 	
 	attack={"odds":odds[2],"level":3,"type":attack_type}	
-	if odds[2]-odds[1]<6 or odds[2]>100:
-		if odds[1]-odds[0]<6 or (odds[1]>100 and odds[0]>95):
+	if odds[2]-odds[1]<5 or odds[2]>100:
+		if odds[1]-odds[0]<5 or (odds[1]>100 and odds[0]>95):
 			attack['odds']=odds[0]
 			attack['level']=1
 		else:
@@ -1146,7 +1149,7 @@ def calculate_adjusted_odds(att_spies, def_spies,def_policy,att_policy, attack_t
 # Find top attackers with adjusted odds
 def find_top_attackers_efficiently(attackers, defenders):
     # Tracker for attacker usage
-	attacker_usage = {attacker['id']: 0 for attacker in attackers}
+	attacker_slot = {attacker['id']: 2 if attacker['central_intelligence_agency'] else 1 for attacker in attackers}
 	# Result sheet for top attackers
 	result = []
 	switcher = {1:'quick',2:'normal',3:'covert'}
@@ -1157,16 +1160,16 @@ def find_top_attackers_efficiently(attackers, defenders):
 		odds_list = []
 		for attacker in attackers:
 			attacker_id = attacker['id']
-			if attacker_usage[attacker_id] < 2 and attacker['score']/2.5 <=defender['score']<=attacker['score']*2.5:  # Restrict attacker usage to 2 times
+			if attacker_slot[attacker_id] != 0 and attacker['score']/2.5 <=defender['score']<=attacker['score']*2.5:  # Restrict attacker usage to 2 times
 				att_spies = attacker['spies']
 				# Adjusted odds for spy attack
 				match_info = False
 				if defender_spies>5:
-					match_info = calculate_adjusted_odds(att_spies, defender_spies,defender['war_policy'],attacker['war_policy'], attack_type="spy")
+					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="spy")
 				elif defender['nukes']!=0:
-					match_info = calculate_adjusted_odds(att_spies, defender_spies,defender['war_policy'],attacker['war_policy'], attack_type="nuke")
+					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="nuke")
 				elif defender_spies>0:
-					match_info = calculate_adjusted_odds(att_spies, defender_spies,defender['war_policy'],attacker['war_policy'], attack_type="spy")
+					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="spy")
 				
 				if match_info:	
 					defender_spies -=  min((att_spies- (defender_spies* 0.4)) * 0.335*0.95,(defender_spies*0.25) + 4)
@@ -1183,19 +1186,19 @@ def find_top_attackers_efficiently(attackers, defenders):
 			for entry in odds_list:
 				if len(top_attackers) >= 3:
 					break	 
-				if attacker_usage[entry['attacker']['id']] < 2:  # Ensure attacker can still be used
+				if attacker_slot[entry['attacker']['id']] > 0:  # Ensure attacker can still be used
 					if  defender['spies']>45:
 						if entry['attacker']['spies']-defender['spies']>=0 and entry['optimal_attack']['odds']>70:
 							attacker_id = entry['attacker']['id']
 							entry['optimal_attack']['level'] = switcher.get(entry['optimal_attack']['level'])
 							top_attackers.append(entry)
-							attacker_usage[attacker_id] += 1
+							attacker_slot[attacker_id] -= 1
 					else:
-						if	entry['optimal_attack']['odds']>70:
+						if	entry['optimal_attack']['odds']>70 or (entry['optimal_attack']['odds']>65 and defender['surveillance_network']):
 							attacker_id = entry['attacker']['id']	
 							entry['optimal_attack']['level'] = switcher.get(entry['optimal_attack']['level'])
 							top_attackers.append(entry)
-							attacker_usage[attacker_id] += 1
+							attacker_slot[attacker_id] += 1
 			# Append results for this defender
 			result.append({
 				"defender": defender,
