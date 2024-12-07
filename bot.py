@@ -1198,7 +1198,7 @@ def find_top_attackers_efficiently(attackers, defenders):
 							attacker_id = entry['attacker']['id']	
 							entry['optimal_attack']['level'] = switcher.get(entry['optimal_attack']['level'])
 							top_attackers.append(entry)
-							attacker_slot[attacker_id] += 1
+							attacker_slot[attacker_id] -= 1
 			# Append results for this defender
 			result.append({
 				"defender": defender,
