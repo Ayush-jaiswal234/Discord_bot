@@ -119,7 +119,7 @@
                 <thead>
                     <!-- Main Header -->
                     <tr>
-                        <th colspan="5">Defenders</th>
+                        <th colspan="6">Defenders</th>
                         <th colspan="3">Attackers</th>
                     </tr>
                     <!-- Sub Headers -->
@@ -128,6 +128,7 @@
                         <th>Nation</th>
                         <th>Alliance</th>
                         <th>Score</th>
+                        <th>Cities</th>
                         <th>Nukes</th>
                         <th>Spies</th>
                         <!-- Attackers Columns -->
@@ -144,6 +145,7 @@
                         <td><a href="https://politicsandwar.com/nation/espionage/eid={{target.defender.id}}">{{target.defender.nation_name}}</a></td>
                         <td>{{target.defender.alliance}}</td>
                         <td>{{target.defender.score}}</td>
+                        <td>{{target.defender.num_cities}}</td>
                         <td>{{target.defender.nukes}}</td>
                         <td>{{target.defender.spies}}</td>
                         {% for attacker in target.top_attackers %}
@@ -215,6 +217,7 @@
                                     <td><a href="https://politicsandwar.com/nation/espionage/eid=${defender.id}">${defender.nation_name}</a></td>
                                     <td>${defender.alliance}</td>
                                     <td>${defender.score}</td>
+                                    <td>${defender.num_cities}</td>
                                     <td>${defender.nukes}</td>
                                     <td>${defender.spies}</td>
                                     ${attackersHtml} 

@@ -1091,7 +1091,7 @@ async def spy_target_finder(att_ids,def_ids):
 				data{{
 					name,id
 					nations(vmode:false){{
-						id,nation_name,alliance_position,score,nukes,spies,espionage_available,war_policy,central_intelligence_agency,surveillance_network,spy_satellite
+						num_cities,id,nation_name,alliance_position,score,nukes,spies,espionage_available,war_policy,central_intelligence_agency,surveillance_network,spy_satellite
 						}}
 					}}
 				}} }}"""
