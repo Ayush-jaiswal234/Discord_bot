@@ -1071,13 +1071,14 @@ async def aamil(ctx,alliance_ids):
 	sheets.write_ranges(sheetID,f'Milcom!A1:R{len(values)+1}',values)
 	await ctx.send(f'https://docs.google.com/spreadsheets/d/{sheetID}')
 
-async def aa_stalker(alliance_ids):
+async def aa_stalker(alliance_ids,filters={'include_vm':False}):
+	vmode = filters['include_vm']
 	query = f"""{{alliances(id:[{alliance_ids}],first:500){{
 			data{{
 				name
-				nations(vmode:false){{
+				nations(vmode:{str(vmode).lower()}){{
 					id,nation_name,num_cities,score,war_policy,last_active,defensive_wars_count,beige_turns,offensive_wars_count
-					soldiers,tanks,aircraft,ships,missiles,nukes,spies,spy_satellite,espionage_available
+					soldiers,tanks,aircraft,ships,missiles,nukes,spies,spy_satellite,espionage_available,alliance_position
 					}}
 				}}
 			}} }}"""

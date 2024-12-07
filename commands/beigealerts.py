@@ -123,7 +123,7 @@ class beige_alerts(commands.Cog):
 					persistent_alerts.city_range, persistent_alerts.alliances,persistent_alerts.all_nations, persistent_alerts.loot
 				FROM beige_alerts
 				INNER JOIN all_nations_data ON all_nations_data.nation_id = beige_alerts.nation_id
-				INNER JOIN persistent_alerts ON persistent_alerts.channel_id = beige_alerts.channel_id
+				LEFT JOIN persistent_alerts ON persistent_alerts.channel_id = beige_alerts.channel_id
 			WHERE all_nations_data.beige_turns in (0) or beige_alerts.beige_turns in (0)""") as cursor:
 				beige_data = await cursor.fetchall()
 

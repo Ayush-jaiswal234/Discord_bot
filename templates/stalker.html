@@ -69,30 +69,48 @@
         }
 
         #allianceForm {
-            text-align: center;
-            padding: 20px;
+        text-align: center;
+        padding: 20px;
         }
 
-        #allianceForm input {
+        #allianceIds {
             width: 300px;
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
+            margin-bottom: 10px; /* Adds spacing between the text box and checkboxes */
+        }
+
+        .checkboxes {
+            display: flex;
+            justify-content: center; /* Center the checkboxes */
+            align-items: center; /* Vertically align labels and inputs */
+            gap: 15px; /* Add space between checkboxes */
+            margin: 10px 0; /* Add vertical spacing */
+        }
+
+        .checkboxes label {
+            font-size: 14px;
+            color: #ffffff;
+            margin-left: 5px; /* Add space between checkbox and label text */
         }
 
         #allianceForm button {
             padding: 10px 20px;
-            margin-left: 10px;
             border-radius: 5px;
             border: none;
             background-color: #1e90ff;
             color: #fff;
             cursor: pointer;
+            margin-top: 15px; /* Adds spacing above the button */
+            transition: background-color 0.3s ease; /* Smooth hover transition */
+            margin-left: 10px;
         }
 
         #allianceForm button:hover {
             background-color: #0056b3;
         }
+
     </style>
 </head>
 
@@ -102,6 +120,11 @@
         <form id="allianceForm">
             <input type="text" id="allianceIds" placeholder="Enter Alliance IDs (comma-separated)">
             <button type="submit">Fetch</button>
+            <div class="checkboxes">
+                <label><input type="checkbox" id="include_vm" value="True"> Include VM players</label>
+
+                <label><input type="checkbox" id="include_applicants" value="True"> Include Applicants</label>
+            </div>
         </form>
 
         <div class="table-container">
@@ -164,6 +187,8 @@
                 e.preventDefault(); // Prevent default form submission behavior
 
                 const allianceIds = $("#allianceIds").val().trim();
+                const include_vm = $("#include_vm").prop("checked");
+                const include_applicants = $("#include_applicants").prop("checked");
                 if (!allianceIds) {
                 alert("Please enter at least one Alliance ID.");
                 return;
@@ -175,13 +200,14 @@
                 type: "POST", // Ensure POST method here
                 contentType: "application/json", // Send as JSON
                 dataType: "json",
-                data: JSON.stringify({ alliance_ids: allianceIds }), // Wrap in a JSON object
+                data: JSON.stringify({ alliance_ids: allianceIds,include_vm:include_vm}), // Wrap in a JSON object
                 success: function (response) {
                     console.log("Data received from server:", response);
                         // Update the table with the response data
                         $("#targetTable tbody").empty(); // Clear existing table data
                         response.forEach(alliance => {
                             alliance.nations.forEach(target => {
+                            if (target.alliance_position !="APPLICANT" || include_applicants){
                             $("#targetTable tbody").append(`
                                 <tr>
                                     <td><a href="https://politicsandwar.com/nation/id=${target.id}">${target.nation_name}</a></td>
@@ -204,7 +230,7 @@
                                     <td>${target.espionage_available ? "Yes" : "No"}</td>
                                 </tr>
                             `); 
-
+                            }
                         });
                     });
                     $("#targetTable").trigger("update");

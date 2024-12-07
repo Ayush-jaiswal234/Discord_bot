@@ -4,6 +4,7 @@ import os
 import jinja2
 import datetime
 from bot import targets,monitor_targets,aa_stalker,spy_target_finder
+import aiosqlite
 
 app = Flask('')
 
@@ -30,12 +31,12 @@ async def stalker():
 
         # Parse the JSON payload
         data = request.get_json()
-        alliance_ids = data.get('alliance_ids', '') 
+        alliance_ids = data.get('alliance_ids', '')
+        filters = {'include_vm':data.get('include_vm')}
 
         if not alliance_ids:
             return jsonify({"error": "No alliance IDs provided"}), 400
-
-        fetchdata = await aa_stalker(alliance_ids)
+        fetchdata = await aa_stalker(alliance_ids, filters)
         return jsonify(fetchdata)
 
 spy_data = {}
@@ -110,17 +111,37 @@ async def war_view(unique_id):
 
 @app.route('/beige_monitor/<city_id>')
 async def beige_view(city_id):
-    print('start')
-    if city_id not in user_data:
-        return "Invalid link or data expired.", 404
-    parameters, _ = user_data[city_id]
-    # Fetch data based on parameters
-    list_of_targets = await monitor_targets(*parameters,search_only=True)
-    list_of_targets = [x for x in list_of_targets]
-    #del user_data[unique_id]  # Remove data after use
-    template = env.get_template('beige_monitor.html')
-    result = template.render(targets=list_of_targets)
-    return str(result)
+	data = city_id.split('_')
+	city_range = data[0]
+	channel_id = data[1]
+	async with aiosqlite.connect('pnw.db') as db:
+		db.row_factory = aiosqlite.Row
+		async with db.execute(f'select city_range,all_nations,alliances,loot from persistent_alerts where city_range="{city_range}" and channel_id={channel_id}') as cursor:
+			parameters = await cursor.fetchone()     
+	if parameters:
+		if parameters['alliances']== 'Default' and parameters['all_nations']==0:	
+			date=datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
+			date = date -datetime.timedelta(days=10)
+			async with aiosqlite.connect('pnw.db') as db:
+				async with db.execute('select * from safe_aa') as cursor:
+					safe_aa = await cursor.fetchall()
+			safe_aa = tuple([x[0] for x in safe_aa])
+			alliance_search =  f"and (alliance_id not in {safe_aa} or (alliance_id in {safe_aa} and (alliance_position=1 or date(last_active)<'{date}')))"	
+		elif parameters['all_nations']==1:
+			alliance_search = ""
+		else:
+			alliance_id = tuple(parameters['alliances'].split(','))
+			alliance_search = f"and alliance_id in {alliance_id}" if len(alliance_id)>1 else f"alliance_id = {alliance_id[0]}"
+
+		city_text = city_range.split('-')
+		city_text = f"and cities>{city_text[0]} and cities<{city_text[1]}"       
+		list_of_targets = await monitor_targets(city_text,alliance_search,parameters['loot'],search_only=True)
+		list_of_targets = [x for x in list_of_targets]
+		template = env.get_template('beige_monitor.html')
+		result = template.render(targets=list_of_targets)
+		return str(result)
+	else:
+		return "Invalid link or data expired.", 404
 
 if __name__=='__main__':
     app.run(debug=True)
