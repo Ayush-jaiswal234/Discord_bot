@@ -398,6 +398,7 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 		elif flags.result=='web':
 			endpoint = str(ctx.message.author)
 			endpoint = re.sub('[\W_]+', '', endpoint)
+			logging.info([war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns,flags.size])
 			unique_link = web_flask.generate_link(endpoint, [war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns,flags.size])
 			await ctx.send(unique_link)
 	else:
