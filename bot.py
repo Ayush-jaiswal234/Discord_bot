@@ -35,7 +35,7 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=Non
 		search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
 		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
 		targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {beige_turns} and date(last_active)<'{date}'"
-
+		logging.info(targets_list)
 		db.row_factory =aiosqlite.Row
 		cursor = await db.execute(targets_list)
 
