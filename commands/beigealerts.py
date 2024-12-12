@@ -29,11 +29,10 @@ class beige_alerts(commands.Cog):
 			alliance_search = ""
 		else:
 			alliance_id = tuple(alliances.split(','))
-			alliance_search = f"and alliance_id in {alliance_id}" if len(alliance_id)>1 else f"alliance_id = {alliance_id[0]}"
+			alliance_search = f"and alliance_id in {alliance_id}" if len(alliance_id)>1 else f"and alliance_id = {alliance_id[0]}"
 
 		city_text = city_range.split('-')
 		city_text = f"and cities>{city_text[0]} and cities<{city_text[1]}"	
-
 		return city_text,alliance_search
 
 	@commands.hybrid_command(name='beigealerts',with_app_command=True,description='Alerts about the targets leaving beige')
@@ -190,8 +189,8 @@ class beige_alerts(commands.Cog):
 							
 					else:
 						async with db.execute(f'select nation_id,beige_turns from all_nations_data where vmode=0 and defensive_wars<>3 and color=0 {city_text} {alliance_search}') as cursor:
-							beige_nations = await cursor.fetchall()
-						[nations.extend(alert['channel_id'],0) for nations in beige_nations]
+							targets = await cursor.fetchall()
+						beige_nations = [(x["nation_id"],x["beige_turns"],alert['channel_id'],0) for x in targets]
 					await db.executemany("insert into beige_alerts values (?,?,?,?)",beige_nations)
 					await db.commit()
 

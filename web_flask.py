@@ -131,7 +131,7 @@ async def beige_view(city_id):
 			alliance_search = ""
 		else:
 			alliance_id = tuple(parameters['alliances'].split(','))
-			alliance_search = f"and alliance_id in {alliance_id}" if len(alliance_id)>1 else f"alliance_id = {alliance_id[0]}"
+			alliance_search = f"and alliance_id in {alliance_id}" if len(alliance_id)>1 else f"and alliance_id = {alliance_id[0]}"
 
 		city_text = city_range.split('-')
 		city_text = f"and cities>{city_text[0]} and cities<{city_text[1]}"       
