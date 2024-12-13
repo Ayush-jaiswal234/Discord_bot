@@ -57,7 +57,6 @@ class Bot_bg_Tasks:
 		data_dict["raiders_buildings"]={"barracks":5,"factory":0,"hangar":0,"drydock":0}
 		data_dict["color"]=fetchdata["color"]
 		block_messages = ["You shouldn't have blocked me you silly baka!!💢","Why did you block me you absolute fucking retard?!?!\nYou unblock me RIGHT MEOW you fucking idiot or else I'm coming to your house!","Let me in your DMs, or Shinji will shit in your mailbox."]
-		#data_dict["war"]=war
 		for nation in fetchdata["nations"]:
 			if nation["alliance_position"]!="APPLICANT" and nation["vacation_mode_turns"]==0:
 				alert_required,message = await self.alert_checker(nation,data_dict)	
@@ -94,7 +93,7 @@ class Bot_bg_Tasks:
 	async def alert_checker(self,nation,data_dict):
 		alert_required = False
 		alert_text = ""
-		
+		war = True
 		if nation["color"]!=data_dict["color"] and nation["color"]!="biege":
 			alert_required = True
 			alert_text = f"{alert_text}**Color:**\n```Please change your color {data_dict['color']}.```\n"
@@ -104,27 +103,28 @@ class Bot_bg_Tasks:
 			alert_required = True
 			alert_text = f"{alert_text}**Inactivity:**\n```Please login you have been inactive for {inactive_days} day(s).```\n"
 		
-		if nation["num_cities"]>10:
-			mmr_nation = {k:v* nation["num_cities"] for k,v in data_dict["mmr"].items()}
-			mmr_buildings ={k:v* nation["num_cities"] for k,v in data_dict["mmr_buildings"].items()}
-		else:
-			mmr_nation = {k:v* nation["num_cities"] for k,v in data_dict["mmr_raiders"].items()}
-			mmr_buildings ={k:v* nation["num_cities"] for k,v in data_dict["raiders_buildings"].items()}
-		
-		actual_mmr_buildings ={"barracks":0,"factory":0,"hangar":0,"drydock":0}
-		for city in nation["cities"]:
+		if not war:
+			if nation["num_cities"]>10:
+				mmr_nation = {k:v* nation["num_cities"] for k,v in data_dict["mmr"].items()}
+				mmr_buildings ={k:v* nation["num_cities"] for k,v in data_dict["mmr_buildings"].items()}
+			else:
+				mmr_nation = {k:v* nation["num_cities"] for k,v in data_dict["mmr_raiders"].items()}
+				mmr_buildings ={k:v* nation["num_cities"] for k,v in data_dict["raiders_buildings"].items()}
+			
+			actual_mmr_buildings ={"barracks":0,"factory":0,"hangar":0,"drydock":0}
+			for city in nation["cities"]:
+				for keys in actual_mmr_buildings:
+					actual_mmr_buildings[keys]+=city[keys]
+
+			for keys in mmr_nation:
+				if nation[keys]<mmr_nation[keys]:
+					alert_required = True
+					alert_text = f"{alert_text}**{keys.capitalize()}:**\n```You are missing {mmr_nation[keys]-nation[keys]} {keys} to reach the mmr.```\n"
+
 			for keys in actual_mmr_buildings:
-				actual_mmr_buildings[keys]+=city[keys]
-
-		for keys in mmr_nation:
-			if nation[keys]<mmr_nation[keys]:
-				alert_required = True
-				alert_text = f"{alert_text}**{keys.capitalize()}:**\n```You are missing {mmr_nation[keys]-nation[keys]} {keys} to reach the mmr.```\n"
-
-		for keys in actual_mmr_buildings:
-			if actual_mmr_buildings[keys]<mmr_buildings[keys]:
-				alert_required = True
-				alert_text = f"{alert_text}**{keys.capitalize()}:**\n```You are missing {mmr_buildings[keys]-actual_mmr_buildings[keys]} {keys} to reach mmr.```\n"
+				if actual_mmr_buildings[keys]<mmr_buildings[keys]:
+					alert_required = True
+					alert_text = f"{alert_text}**{keys.capitalize()}:**\n```You are missing {mmr_buildings[keys]-actual_mmr_buildings[keys]} {keys} to reach mmr.```\n"
 
 
 		muni_mod = 1

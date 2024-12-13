@@ -97,7 +97,7 @@ class beige_alerts(commands.Cog):
 			return False
 		
 		# Check alliance condition
-		if nation_data['alliances'] != "Default" and nation_data['alliance_id'] not in nation_data['alliances']:
+		if nation_data['alliances'] != "Default" and str(nation_data['alliance_id']) not in nation_data['alliances']:
 			return False
 		
 		return True
