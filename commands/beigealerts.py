@@ -5,6 +5,7 @@ import discord
 from scripts import nation_data_converter
 from bot import loot_calculator,monitor_targets
 from web_flask import beige_link
+import logging
 
 class beige_alerts(commands.Cog):
 	def __init__(self,bot,):
@@ -38,7 +39,7 @@ class beige_alerts(commands.Cog):
 	@commands.hybrid_command(name='beigealerts',with_app_command=True,description='Alerts about the targets leaving beige')
 	async def beigealerts(self,ctx:commands.Context,city_range:str,*,flags:MonitorFlags):
 		async with aiosqlite.connect('pnw.db') as db:
-			await db.execute(f"INSERT OR REPLACE INTO persistent_alerts values {(ctx.channel.id,city_range,int(flags.all_nations),flags.alliances,flags.loot)}")
+			await db.execute(f"INSERT OR REPLACE INTO persistent_alerts values {(ctx.channel.id,city_range,int(flags.all_nations),str(flags.alliances),flags.loot)}")
 			await db.commit()
 		
 		city_text,alliance_search = await self.flags_parser(city_range,flags.all_nations,flags.alliances)
@@ -88,7 +89,7 @@ class beige_alerts(commands.Cog):
 					self.check_for_beigealerts.start()	
 				await ctx.send(f"Alert for <{link}> has been set.")		
 
-	def is_alert_needed(self, nation_data):
+	async def is_alert_needed(self, nation_data):
 		if nation_data['user_id']!=0:
 			return True
     	# Check city range condition
@@ -97,8 +98,14 @@ class beige_alerts(commands.Cog):
 			return False
 		
 		# Check alliance condition
-		if nation_data['alliances'] != "Default" and str(nation_data['alliance_id']) not in nation_data['alliances']:
+		logging.info(nation_data['alliance_id'])
+		if nation_data['alliances'] != "Default" and nation_data['alliance_id'] not in (nation_data['alliances'].split[',']):
 			return False
+		
+		loot = await loot_calculator(nation_data['nation_id'])
+		if loot:
+			if nation_data['loot']!=0 and nation_data['loot']>loot:
+				return False
 		
 		return True
 
@@ -130,19 +137,19 @@ class beige_alerts(commands.Cog):
 			if beige_data:
 				for data in beige_data:
 					# Check if the current nation matches the conditions set for this alert
-					if self.is_alert_needed(data):
+					if await self.is_alert_needed(data):
 						# Send the alert if conditions are met
 						await self.send_alert(data)
 
 					await db.execute(f'delete from beige_alerts where nation_id={data[0]}')
 					await db.commit()
 
-	async def send_alert(self,data):
+	async def send_alert(self,data,loot):
 		channel = self.bot.get_channel(data['channel_id']) or  self.bot.fetch_channel(data['channel_id'])
 		embed = discord.Embed()
 		embed.title = f"Target: {data['nation']}"
-		result = await loot_calculator(data['nation_id'])
-		if result!= None:
+		loot = await loot_calculator(data['nation_id'])
+		if loot!= None:
 			embed.description = f"Total loot: ${result[0]:,.2f}"
 		else:
 			embed.description = "No loot info for this nation"

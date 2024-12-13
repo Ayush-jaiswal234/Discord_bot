@@ -327,13 +327,11 @@ class RaidFlags(commands.FlagConverter,delimiter= " ",prefix='-'):
 async def raid(ctx:commands.Context, *,flags:RaidFlags):
 
 	score= await nation_data_converter.get('score',ctx.author.id)
-	logging.info(score)
 	page1=discord.Embed()
 	if score!=None:
 		if flags.fake_score!=0:
 			score = flags.fake_score
 		flags.alliances=flags.alliances.split(',')
-		logging.info(flags)
 		date=datetime.now(timezone.utc).replace(microsecond=0)
 		date = date -timedelta(days=10)
 		async with aiosqlite.connect('pnw.db') as db:
