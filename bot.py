@@ -1112,7 +1112,7 @@ async def spy_target_finder(att_ids,def_ids):
 					if nation['espionage_available'] and (nation['spies']!=0 or nation['nukes']!=0):
 						defenders.append(nation)	
 	attackers = sorted(attackers, key=lambda x: (x['spies']),reverse=True)
-	defenders = sorted(defenders, key=lambda x: (x['spies']),reverse=True)
+	defenders = sorted(defenders, key=lambda x: (x['spies'],x['num_cities']),reverse=True)
 	result = find_top_attackers_efficiently(attackers, defenders)
 	return result
 
