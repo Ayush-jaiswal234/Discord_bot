@@ -99,12 +99,12 @@ class beige_alerts(commands.Cog):
 		
 		# Check alliance condition
 		logging.info(nation_data['alliance_id'])
-		if nation_data['alliances'] != "Default" and nation_data['alliance_id'] not in (nation_data['alliances'].split[',']):
+		if nation_data['alliances'] != "Default" and nation_data['alliance_id'] not in (nation_data['alliances'].split(',')):
 			return False
 		
 		loot = await loot_calculator(nation_data['nation_id'])
 		if loot:
-			if nation_data['loot']!=0 and nation_data['loot']>loot:
+			if nation_data['loot']!=0 and nation_data['loot']>loot[0]:
 				return False
 		
 		return True
@@ -144,16 +144,15 @@ class beige_alerts(commands.Cog):
 					await db.execute(f'delete from beige_alerts where nation_id={data[0]}')
 					await db.commit()
 
-	async def send_alert(self,data,loot):
+	async def send_alert(self,data):
 		channel = self.bot.get_channel(data['channel_id']) or  self.bot.fetch_channel(data['channel_id'])
 		embed = discord.Embed()
 		embed.title = f"Target: {data['nation']}"
 		loot = await loot_calculator(data['nation_id'])
 		if loot!= None:
-			embed.description = f"Total loot: ${result[0]:,.2f}"
+			embed.description = f"Total loot: ${loot[0]:,.2f}"
 		else:
 			embed.description = "No loot info for this nation"
-			result = [0]
 
 		embed.add_field(name="Nation info",
 						value=f"Target: [{data['nation']}](https://politicsandwar.com/nation/war/declare/id={data['nation_id']})\n"

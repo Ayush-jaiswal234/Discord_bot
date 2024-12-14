@@ -54,8 +54,11 @@ async def spysheet():
         att_ids = data.get('attids', '') 
         def_ids = data.get('defids','')
         password = data.get('password','')
+        show_empty_rows = data.get('empty_rows','')
         if password=='idontcare12':
             fetchdata = await spy_target_finder(att_ids,def_ids)
+            if not show_empty_rows:
+                fetchdata = [data for data in fetchdata if data['top_attackers']]
             spy_data['old_data'] = fetchdata
             return jsonify(fetchdata)
         else: 

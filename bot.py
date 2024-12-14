@@ -1091,7 +1091,7 @@ async def spy_target_finder(att_ids,def_ids):
 				data{{
 					name,id
 					nations(vmode:false){{
-						num_cities,id,nation_name,alliance_position,score,nukes,spies,espionage_available,war_policy,central_intelligence_agency,surveillance_network,spy_satellite
+						num_cities,id,nation_name,alliance_position,score,nukes,spies,espionage_available,war_policy,central_intelligence_agency,surveillance_network,spy_satellite,spy_attacks
 						}}
 					}}
 				}} }}"""
@@ -1149,7 +1149,7 @@ def calculate_adjusted_odds(attacker, def_spies,defender, attack_type):
 # Find top attackers with adjusted odds
 def find_top_attackers_efficiently(attackers, defenders):
     # Tracker for attacker usage
-	attacker_slot = {attacker['id']: 2 if attacker['central_intelligence_agency'] else 1 for attacker in attackers}
+	attacker_slot = {attacker['id']:2-attacker['spy_attacks'] if attacker['central_intelligence_agency'] else 1-attacker['spy_attacks'] for attacker in attackers}
 	# Result sheet for top attackers
 	result = []
 	switcher = {1:'quick',2:'normal',3:'covert'}
