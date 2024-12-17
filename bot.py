@@ -347,7 +347,10 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 			flags.alliances=f"and (alliance_id not in {safe_aa} or (alliance_id in {safe_aa} and (alliance_position=1 or date(last_active)<'{date}')))"
 		elif flags.all_nations==False:
 			flags.alliances=tuple(flags.alliances)
-			flags.alliances=f'and alliance_id in {flags.alliances}'
+			if len(flags.alliances)!=1:
+				flags.alliances = f'and alliance_id in {flags.alliances}'
+			else:
+				flags.alliances	= f'and alliance_id = {flags.alliances[0]}'
 		else:
 			flags.alliances=''		
 		war_range=score*0.75,score*2.5
@@ -1109,7 +1112,7 @@ async def spy_target_finder(att_ids,def_ids):
 				if alliances['id'] in att_ids.split(','):
 					attackers.append(nation)
 				else:
-					if nation['espionage_available'] and (nation['spies']!=0 or nation['nukes']!=0):
+					if nation['espionage_available'] and (nation['spies']>5 or nation['nukes']>=3):
 						defenders.append(nation)	
 	attackers = sorted(attackers, key=lambda x: (x['spies']),reverse=True)
 	defenders = sorted(defenders, key=lambda x: (x['spies'],x['num_cities']),reverse=True)
@@ -1166,10 +1169,8 @@ def find_top_attackers_efficiently(attackers, defenders):
 				match_info = False
 				if defender_spies>5:
 					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="spy")
-				elif defender['nukes']!=0:
+				else:
 					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="nuke")
-				elif defender_spies>0:
-					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="spy")
 				
 				if match_info:	
 					defender_spies -=  min((att_spies- (defender_spies* 0.4)) * 0.335*0.95,(defender_spies*0.25) + 4)
