@@ -71,7 +71,8 @@ env = jinja2.Environment(
         loader=jinja2.FileSystemLoader('templates'),
         autoescape=True
     )
-env.filters['comma'] = lambda value: f"{value:,}"
+env.filters['comma'] = lambda value: f"{value:,}" if isinstance(value, (int, float)) else value
+
 
 # Temporary storage for user data (replace with preferred method)
 user_data = {}  # Key: unique ID, Value: (parameters, expiration time)

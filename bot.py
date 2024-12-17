@@ -32,9 +32,9 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=Non
 	async with aiosqlite.connect('pnw.db') as db:
 		date=datetime.now(timezone.utc).replace(microsecond=0)
 		date = date -timedelta(days=inactivity_time)
-		search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
-		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
-		targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {beige_turns} and date(last_active)<'{date}'"
+		search_list1 = ','.join([f'loot_data.{x}' for x in [ 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
+		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation_id','nation','alliance','alliance_id','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
+		targets_list = f"select {search_list1},{search_list2} from all_nations_data left join loot_data on all_nations_data.nation_id =loot_data.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {beige_turns} and date(last_active)<'{date}'"
 		logging.info(targets_list)
 		db.row_factory =aiosqlite.Row
 		cursor = await db.execute(targets_list)
@@ -45,13 +45,14 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=Non
 		prices=await get_prices(db)
 	prices = dict(prices)
 	for target_nation in all_targets:
+		if not target_nation["money"]:
+			target_nation["beige_loot"] = "No loot data"
+			continue
 		beige_amount = target_nation["money"]*0.14
-		del target_nation["money"]
 		for rss,price in prices.items():
 			beige_amount += target_nation[rss]*0.14*price
-			del target_nation[rss]
 		target_nation["beige_loot"] = round(beige_amount,2)
-	all_targets.sort(key=lambda x:x["beige_loot"],reverse=True)
+	all_targets.sort(key=lambda x: (x["beige_loot"] == "No loot found", float(x["beige_loot"]) if x["beige_loot"] != "No loot data" else 0), reverse=True)
 	all_targets=all_targets[:result_size]
 	deposit_data_list=await last_bank_rec([[x["nation_id"],x["nation"]] for x in all_targets])
 	for x in range(len(all_targets)):
@@ -59,7 +60,10 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=Non
 			all_targets[x]["last_deposit_date"] = nation_data_converter.time_converter(datetime.strptime(deposit_data_list[x],"%Y-%m-%dT%H:%M:%S"))
 		else:
 			all_targets[x]["last_deposit_date"] = 'N/A'	
-		all_targets[x]["war_end_date"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["war_end_date"],"%Y-%m-%dT%H:%M:%S"))
+		if all_targets[x]["war_end_date"]!=None:
+			all_targets[x]["war_end_date"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["war_end_date"],"%Y-%m-%dT%H:%M:%S"))
+		else: 
+			all_targets[x]["war_end_date"] = "No war data found"	
 		all_targets[x]["last_active"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["last_active"],"%Y-%m-%d %H:%M:%S"))																   
 		all_targets[x]["alliance_position"] = nation_data_converter.position(all_targets[x]["alliance_position"])
 	return all_targets
@@ -1104,7 +1108,7 @@ async def spy_target_finder(att_ids,def_ids):
 		fetchdata = fetchdata.json()['data']['alliances']['data']
 	attackers= []
 	defenders = []
-	
+	total_spies=0
 	for alliances in fetchdata:
 		for nation in alliances['nations']:
 			if nation['alliance_position']!="APPLICANT":
@@ -1114,8 +1118,12 @@ async def spy_target_finder(att_ids,def_ids):
 				else:
 					if nation['espionage_available'] and (nation['spies']>5 or nation['nukes']>=3):
 						defenders.append(nation)	
+						total_spies+= nation['spies']
 	attackers = sorted(attackers, key=lambda x: (x['spies']),reverse=True)
-	defenders = sorted(defenders, key=lambda x: (x['spies'],x['num_cities']),reverse=True)
+	if total_spies/len(defenders)>10:
+		defenders = sorted(defenders, key=lambda x: (x['spies'],x['num_cities']),reverse=True)
+	else:
+		defenders = sorted(defenders, key=lambda x: (x['nukes']),reverse=True)	
 	result = find_top_attackers_efficiently(attackers, defenders)
 	return result
 
