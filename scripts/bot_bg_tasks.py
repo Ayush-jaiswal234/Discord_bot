@@ -245,7 +245,7 @@ class Bot_bg_Tasks:
 			await self.channel.send(f"Weekly Reminder to Buy Spies!!!\n{alert_text}")	
 
 
-	@tasks.loop(hours=24,reconnect=True)
+	@tasks.loop(time=dc_time,reconnect=True)
 	async def send_spy_alerts(self):
 		att_ids = '11189'
 		def_ids = '790,5012,12500,10523,9432,13058,10334,4567,12453,12544,13268,619,13344'
@@ -270,4 +270,4 @@ class Bot_bg_Tasks:
 				except Forbidden:
 					await self.channel.send(f"<@{discord_id}>{message}")
 			else:
-				logging.info(f'{nation["id"]} not registered')	
+				logging.info(f'{x["id"]} not registered')	

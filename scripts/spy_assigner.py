@@ -30,7 +30,7 @@ async def spy_target_finder(att_ids,def_ids):
 	if total_spies/(len(defenders)+1)>10:
 		defenders = sorted(defenders, key=lambda x: (x['spies'],x['num_cities']),reverse=True)
 	else:
-		defenders = sorted(defenders, key=lambda x: (x['nukes']),reverse=True)	
+		defenders = sorted(defenders, key=lambda x: (x['nukes'] >= 3,x['nukes'] if x['nukes'] >= 3 else x['spies']), reverse=True)
 	result = find_top_attackers_efficiently(attackers, defenders)
 	return result
 
@@ -84,7 +84,7 @@ def find_top_attackers_efficiently(attackers, defenders):
 				match_info = False
 				if defender_spies>5:
 					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="spy")
-				else:
+				elif defender['nukes']>=3:
 					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="nuke")
 				
 				if match_info:	
