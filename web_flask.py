@@ -3,7 +3,8 @@ from threading import Thread
 import os
 import jinja2
 import datetime
-from bot import targets,monitor_targets,aa_stalker,spy_target_finder
+from bot import targets,monitor_targets,aa_stalker
+from scripts.spy_assigner import spy_target_finder
 import aiosqlite
 
 app = Flask('')
@@ -44,7 +45,16 @@ spy_data = {}
 @app.route('/spysheet', methods=['GET', 'POST'])
 async def spysheet():
     if request.method == 'GET':
-        return render_template('spysheet.html', old_data=spy_data.get('old_data'))  # Pass old_data to template
+        attids = request.args.get('attids', '')  # Default to empty string if not provided
+        defids = request.args.get('defids', '')
+        show_empty_rows = request.args.get('empty_rows', 'false').lower() == 'true' # Pass old_data to template
+        auto_submit = request.args.get('auto_submit', 'false').lower() == 'true'
+        if auto_submit:  # Prevent unnecessary double rendering
+            fetchdata = await spy_target_finder(attids, defids)
+            if not show_empty_rows:
+                fetchdata = [data for data in fetchdata if data['top_attackers']]
+            return render_template('spysheet.html', old_data=fetchdata)
+        return render_template('spysheet.html', old_data=None)
     elif request.method == 'POST':
         if not request.is_json:
             return jsonify({"error": "Invalid Content-Type, expected application/json"}), 415
@@ -53,16 +63,12 @@ async def spysheet():
         data = request.get_json()
         att_ids = data.get('attids', '') 
         def_ids = data.get('defids','')
-        password = data.get('password','')
         show_empty_rows = data.get('empty_rows','')
-        if password=='idontcare12':
-            fetchdata = await spy_target_finder(att_ids,def_ids)
-            if not show_empty_rows:
-                fetchdata = [data for data in fetchdata if data['top_attackers']]
-            spy_data['old_data'] = fetchdata
-            return jsonify(fetchdata)
-        else: 
-            return {'response':"I told you, you don't know"}
+        fetchdata = await spy_target_finder(att_ids,def_ids)
+        if not show_empty_rows:
+            fetchdata = [data for data in fetchdata if data['top_attackers']]
+        spy_data['old_data'] = fetchdata
+        return jsonify(fetchdata)
         
 def run():
     Thread(target=lambda: app.run(host=os.getenv('web_address'), port=5000)).start()

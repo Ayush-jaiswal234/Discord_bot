@@ -121,7 +121,6 @@
         <form id="spyform">
             <input type="text" id="attids" placeholder="Enter Attacking Alliance IDs (comma-separated)">
             <input type="text" id="defids" placeholder="Enter Defending Alliance IDs (comma-separated)">
-            <input type="text" id="password" placeholder="If you know you know">
             <button type="submit">Fetch</button>
         </form>
         <div class="checkboxes">
@@ -180,51 +179,72 @@
     </div>
 
     <script>
+        function getQueryParams() {
+            const queryParams = {};
+            const queryString = window.location.search.substring(1);
+            const params = queryString.split("&");
+    
+            params.forEach(param => {
+                const [key, value] = param.split("=");
+                queryParams[decodeURIComponent(key)] = decodeURIComponent(value || "");
+            });
+    
+            return queryParams;
+        }
+    
         $(document).ready(function () {
+            const queryParams = getQueryParams();
+    
+            // Populate form fields based on query parameters
+            if (queryParams.attids) $("#attids").val(queryParams.attids);
+            if (queryParams.defids) $("#defids").val(queryParams.defids);
+            if (queryParams.empty_rows === "true") $("#empty_rows").prop("checked", true);
+    
+            // Auto-submit only if there's no rendered table data
+            const hasOldData = $("#targetTable tbody").children().length > 0;
+            if (queryParams.auto_submit === "true" && !hasOldData) {
+                // Trigger form submission
+                $("#spyform").trigger("submit");
+            }
+    
+            // Table sorter
             $("#targetTable").tablesorter();
+            
+            // Filter functionality
             $("#searchInput").on("keyup", function () {
-            var value = $(this).val().toLowerCase(); // Get the search value and convert it to lowercase
-            $("#targetTable tbody tr").filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1); // Show or hide rows based on the match
+                var value = $(this).val().toLowerCase(); // Get the search value and convert it to lowercase
+                $("#targetTable tbody tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1); // Show or hide rows based on the match
                 });
             });
+    
+            // Handle form submission
             $("#spyform").submit(function (e) {
                 e.preventDefault(); // Prevent default form submission behavior
-
+    
                 const attids = $("#attids").val().trim(); // Fetch attacking alliance IDs
                 const defids = $("#defids").val().trim(); // Fetch defending alliance IDs
-                const password = $("#password").val().trim();
                 const empty_rows = $("#empty_rows").prop("checked");
-                // Ensure the user has entered some data
                 if (!attids && !defids) {
                     alert("Please enter at least one Alliance ID for either attackers or defenders.");
                     return;
-                }   
-                if (!password){
-                    alert("You don't know");
-                    return;
                 }
+    
                 // Send data to Flask using POST request
                 $.ajax({
-                url: "/spysheet",
-                type: "POST", // Ensure POST method here
-                contentType: "application/json", // Send as JSON
-                dataType: "json",
-                data: JSON.stringify({ attids: attids,defids:defids,password:password,empty_rows:empty_rows }), // Wrap in a JSON object
-                success: function (response) {
-                    console.log("Data received from server:", response);
-                    if (response.response === "I told you, you don't know") {
-                            alert("I told you, you don't know");
-                            return; // Stop further processing
-                        }
-                    else{    
-                        // Update the table with the response data
+                    url: "/spysheet",
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify({ attids: attids, defids: defids, empty_rows: empty_rows }),
+                    success: function (response) {
+                        console.log("Data received from server:", response);
                         $("#targetTable tbody").empty(); // Clear existing table data
                         response.forEach(target => {
-                            const defender = target.defender
-                            let attackersHtml = '';
+                            const defender = target.defender;
+                            let attackersHtml = "";
                             target.top_attackers.forEach(attacker => {
-                                attackersHtml += `<td><a href="https://politicsandwar.com/nation/id=${attacker.attacker.id}">${attacker.attacker.nation_name}(${attacker.optimal_attack.type})(${attacker.optimal_attack.level})(${attacker.attacker.spies})</td>`; // Add each attacker to the row
+                                attackersHtml += `<td><a href="https://politicsandwar.com/nation/id=${attacker.attacker.id}">${attacker.attacker.nation_name} (${attacker.optimal_attack.type}) (${attacker.optimal_attack.level}) (${attacker.attacker.spies})</a></td>`;
                             });
                             const missingAttackers = 3 - target.top_attackers.length;
                             for (let i = 0; i < missingAttackers; i++) {
@@ -238,13 +258,12 @@
                                     <td>${defender.num_cities}</td>
                                     <td>${defender.nukes}</td>
                                     <td>${defender.spies}</td>
-                                    ${attackersHtml} 
+                                    ${attackersHtml}
                                 </tr>
-                            `); 
-                    });
-                }
-                    $("#targetTable").trigger("update");
-                },
+                            `);
+                        });
+                        $("#targetTable").trigger("update");
+                    },
                     error: function (xhr, status, error) {
                         console.error("Error fetching data:", error);
                     }
@@ -252,6 +271,7 @@
             });
         });
     </script>
+    
 </body>
 
 </html>

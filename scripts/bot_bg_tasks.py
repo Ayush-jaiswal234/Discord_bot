@@ -8,8 +8,10 @@ from sqlite3 import OperationalError
 from httpx import ConnectTimeout
 from discord.ext import tasks
 import logging,httpx,aiosqlite,random
+from scripts.spy_assigner import spy_target_finder
 
 info_time = dt.time(hour=22,minute=0,tzinfo=dt.timezone.utc)
+dc_time = dt.time(hour=2,minute=0,tzinfo=dt.timezone.utc)
 
 class Bot_bg_Tasks:
 
@@ -21,8 +23,9 @@ class Bot_bg_Tasks:
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
 
-		self.audit_members.add_exception_type(OperationalError,KeyError,ConnectTimeout)
-		
+		self.audit_members.add_exception_type(OperationalError,ConnectTimeout)
+		#self.send_spy_alerts.add_exception_type(OperationalError,ConnectTimeout)
+		self.send_spy_alerts.start()
 		self.audit_members.start()
 		self.scheduler.start()
 		pass
@@ -84,8 +87,6 @@ class Bot_bg_Tasks:
 				discord_id = await cursor.fetchone()
 		if discord_id!=None:
 			discord_id = discord_id[0]
-		else:
-			discord_id = nation["discord_id"]
 		
 		return discord_id
 			
@@ -94,7 +95,7 @@ class Bot_bg_Tasks:
 		alert_required = False
 		alert_text = ""
 		war = True
-		if nation["color"]!=data_dict["color"] and nation["color"]!="biege":
+		if nation["color"]!=data_dict["color"] and nation["color"]!="beige":
 			alert_required = True
 			alert_text = f"{alert_text}**Color:**\n```Please change your color {data_dict['color']}.```\n"
 		
@@ -242,3 +243,31 @@ class Bot_bg_Tasks:
 
 		if alert_text!="":
 			await self.channel.send(f"Weekly Reminder to Buy Spies!!!\n{alert_text}")	
+
+
+	@tasks.loop(hours=24,reconnect=True)
+	async def send_spy_alerts(self):
+		att_ids = '11189'
+		def_ids = '790,5012,12500,10523,9432,13058,10334,4567,12453,12544,13268,619,13344'
+		fetchdata = await spy_target_finder(att_ids,def_ids)
+		fetchdata = [data for data in fetchdata if data['top_attackers']]
+		alerts = {}
+		for spy_info in fetchdata:
+			for attackers in spy_info['top_attackers']:
+				kill_type = 'Assassinate spies' if attackers['optimal_attack']['type']=='spy' else 'Sabotage Nukes'
+				alerts[attackers['attacker']['id']] = f"- [{spy_info['defender']['nation_name']}](<https://politicsandwar.com/nation/espionage/eid={spy_info['defender']['id']}>) --> **{kill_type}** on **{attackers['optimal_attack']['level'].capitalize()}** using **{attackers['attacker']['spies']}** spies\n"
+		for nation,message in alerts.items():
+			x = {'id':nation}
+			discord_id = await self.member_info(x)
+			if discord_id!=None:
+				message = f"Spy targets for today:\n{message}\nIf these targets are already spy slotted use this link:\n http://162.19.228.4:5000/spysheet?attids=11189&defids=790,5012,12500,10523,9432,10334,4567,12453,12544,13268,619,13344,11339&auto_submit=true \nand filter using your nation name to get the best possible target for you"
+				try:
+					user = await self.bot.get_user(discord_id)
+				except:
+					user = await self.bot.fetch_user(discord_id)
+				try:
+					await user.send(message)
+				except Forbidden:
+					await self.channel.send(f"<@{discord_id}>{message}")
+			else:
+				logging.info(f'{nation["id"]} not registered')	
