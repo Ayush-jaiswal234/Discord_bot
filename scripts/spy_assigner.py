@@ -84,11 +84,11 @@ def find_top_attackers_efficiently(attackers, defenders):
 				match_info = False
 				if defender_spies>5:
 					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="spy")
+					defender_spies -=  min((att_spies- (defender_spies* 0.4)) * 0.335*0.95,(defender_spies*0.25) + 4)
 				elif defender['nukes']>=3:
 					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="nuke")
 				
 				if match_info:	
-					defender_spies -=  min((att_spies- (defender_spies* 0.4)) * 0.335*0.95,(defender_spies*0.25) + 4)
 					odds_list.append({
 						"attacker": attacker,
 						"optimal_attack":match_info
