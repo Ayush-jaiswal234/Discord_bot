@@ -18,16 +18,12 @@ class Bot_bg_Tasks:
 		self.bot = bot
 		self.channel = bot.get_channel(1147384907694354452)
 		self.scheduler = AsyncIOScheduler()
-		self.scheduler.add_job(self.spies_checker, trigger='cron',day_of_week='fri', hour=12, minute=00,timezone=dt.timezone.utc)
+		#self.scheduler.add_job(self.spies_checker, trigger='cron',day_of_week='fri', hour=12, minute=00,timezone=dt.timezone.utc)
+		self.scheduler.add_job(self.send_spy_alerts, trigger='cron', hour=2, minute=0,timezone=dt.timezone.utc)
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
-		self.dc_time = dt.time(hour=2,minute=0,tzinfo=dt.timezone.utc)
 
 		self.audit_members.add_exception_type(OperationalError,ConnectTimeout)
-		
-		self.send_alerts = tasks.loop(time=self.dc_time, reconnect=True)(self.send_spy_alerts)
-		#self.send_alerts.add_exception_type(OperationalError,ConnectTimeout)
-		self.send_alerts.start()
 		self.audit_members.start()
 		self.scheduler.start()
 		pass
@@ -255,7 +251,7 @@ class Bot_bg_Tasks:
 		for spy_info in fetchdata:
 			for attackers in spy_info['top_attackers']:
 				kill_type = 'Assassinate spies' if attackers['optimal_attack']['type']=='spy' else 'Sabotage Nukes'
-				alerts[attackers['attacker']['id']] = f"- [{spy_info['defender']['nation_name']}](<https://politicsandwar.com/nation/espionage/eid={spy_info['defender']['id']}>) --> **{kill_type}** on **{attackers['optimal_attack']['level'].capitalize()}** using **{attackers['attacker']['spies']}** spies\n"
+				alerts[attackers['attacker']['id']] = f"{alerts.get(attackers['attacker']['id'],'')}- [{spy_info['defender']['nation_name']}](<https://politicsandwar.com/nation/espionage/eid={spy_info['defender']['id']}>) --> **{kill_type}** on **{attackers['optimal_attack']['level'].capitalize()}** using **{attackers['attacker']['spies']}** spies\n"
 		for nation,message in alerts.items():
 			x = {'id':nation}
 			discord_id = await self.member_info(x)
