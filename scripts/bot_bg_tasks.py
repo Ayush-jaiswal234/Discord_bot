@@ -263,6 +263,8 @@ class Bot_bg_Tasks:
 					user = await self.bot.fetch_user(discord_id)
 				try:
 					await user.send(message)
+					channel2 = await self.bot.get_channel(1250388820780781578)
+					channel2.send(f'<@{discord_id}> has recieved his daily targets')
 				except Forbidden:
 					await self.channel.send(f"<@{discord_id}>{message}")
 			else:
