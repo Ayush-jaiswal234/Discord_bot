@@ -244,7 +244,7 @@ class Bot_bg_Tasks:
 
 	async def send_spy_alerts(self):
 		att_ids = '11189'
-		def_ids = '790,5012,12500,10523,9432,13058,10334,4567,12453,12544,13268,619,13344'
+		def_ids = '790,5012,12500,10523,9432,10334,4567,12453,12544,13268,619,13344,11339'
 		fetchdata = await spy_target_finder(att_ids,def_ids)
 		fetchdata = [data for data in fetchdata if data['top_attackers']]
 		alerts = {}
@@ -256,15 +256,13 @@ class Bot_bg_Tasks:
 			x = {'id':nation}
 			discord_id = await self.member_info(x)
 			if discord_id!=None:
-				message = f"Spy targets for today:\n{message}\nIf these targets are already spy slotted use this link:\n http://162.19.228.4:5000/spysheet?attids=11189&defids=790,5012,12500,10523,9432,10334,4567,12453,12544,13268,619,13344,11339&auto_submit=true \nand filter using your nation name to get the best possible target for you"
+				message = f"Spy targets for today:\n{message}\nIf these targets are already spy slotted use this link:\n http://162.19.228.4:5000/spysheet?attids={att_ids}&defids={def_ids}&auto_submit=true \nand filter using your nation name to get the best possible target for you"
 				try:
 					user = await self.bot.get_user(discord_id)
 				except:
 					user = await self.bot.fetch_user(discord_id)
 				try:
 					await user.send(message)
-					channel2 = await self.bot.get_channel(1250388820780781578)
-					channel2.send(f'<@{discord_id}> has recieved his daily targets')
 				except Forbidden:
 					await self.channel.send(f"<@{discord_id}>{message}")
 			else:
