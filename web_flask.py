@@ -40,7 +40,7 @@ async def stalker():
         fetchdata = await aa_stalker(alliance_ids, filters)
         return jsonify(fetchdata)
 
-spy_data = {}
+
 
 @app.route('/spysheet', methods=['GET', 'POST'])
 async def spysheet():
@@ -67,7 +67,6 @@ async def spysheet():
         fetchdata = await spy_target_finder(att_ids,def_ids)
         if not show_empty_rows:
             fetchdata = [data for data in fetchdata if data['top_attackers']]
-        spy_data['old_data'] = fetchdata
         return jsonify(fetchdata)
         
 def run():

@@ -187,7 +187,6 @@ async def loot_calculator(nation_id):
 		prices = await get_prices(db)	
 		async with db.execute(f'select * from loot_data where nation_id={nation_id}') as cursor:
 			loot = await cursor.fetchone()
-	logging.info(loot)
 	if loot!=None:
 		total_worth = loot[2]*0.14
 		for x in range(0,len(prices)):
