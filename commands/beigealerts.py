@@ -94,6 +94,7 @@ class beige_alerts(commands.Cog):
 					user_info = await cursor.fetchall()
 				
 				for target in beige_data:
+					target = dict(target)
 					loot = await loot_calculator(target['nation_id'])
 					if loot:
 						target['loot'] = loot[0]
