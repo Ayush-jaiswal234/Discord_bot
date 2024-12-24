@@ -118,15 +118,18 @@ async def war_view(unique_id):
     result = template.render(targets=list_of_targets)
     return str(result)
 
-@app.route('/beige_monitor/<city_id>')
-async def beige_view(city_id):
-	data = city_id.split('_')
-	city_range = data[0]
-	channel_id = data[1]
+@app.route('/beige_monitor/<discord_id>')
+async def beige_view(discord_id):
 	async with aiosqlite.connect('pnw.db') as db:
 		db.row_factory = aiosqlite.Row
-		async with db.execute(f'select city_range,all_nations,alliances,loot from persistent_alerts where city_range="{city_range}" and channel_id={channel_id}') as cursor:
-			parameters = await cursor.fetchone()     
+		async with db.execute(f"""
+			SELECT  beige_alerts.all_nations,beige_alerts.alliances,beige_alerts.loot,beige_alerts.alert_time,
+					all_nations_data.score
+					FROM beige_alerts
+					INNER JOIN registered_nations ON beige_alerts.user_id = registered_nations.discord_id
+					INNER JOIN all_nations_data ON registered_nations.nation_id = all_nations_data.nation_id
+					WHERE beige_alerts.user_id={discord_id}""") as cursor:
+			parameters = await cursor.fetchone()    
 	if parameters:
 		if parameters['alliances']== 'Default' and parameters['all_nations']==0:	
 			date=datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
@@ -142,9 +145,8 @@ async def beige_view(city_id):
 			alliance_id = tuple(parameters['alliances'].split(','))
 			alliance_search = f"and alliance_id in {alliance_id}" if len(alliance_id)>1 else f"and alliance_id = {alliance_id[0]}"
 
-		city_text = city_range.split('-')
-		city_text = f"and cities>{city_text[0]} and cities<{city_text[1]}"       
-		list_of_targets = await monitor_targets(city_text,alliance_search,parameters['loot'],search_only=True)
+		war_range = f"and score>{parameters['score']*0.75} and score<{parameters['score']*2.5}"
+		list_of_targets = await monitor_targets(war_range,alliance_search,parameters['loot'],search_only=True)
 		list_of_targets = [x for x in list_of_targets]
 		template = env.get_template('beige_monitor.html')
 		result = template.render(targets=list_of_targets)

@@ -73,7 +73,7 @@ def find_top_attackers_efficiently(attackers, defenders):
 	switcher = {1:'quick',2:'normal',3:'covert'}
 	for defender in defenders:
 		defender_spies = defender['spies']
-
+		defender_nukes = defender['nukes']
 		# Calculate adjusted odds for all attackers against this defender
 		odds_list = []
 		for attacker in attackers:
@@ -85,8 +85,9 @@ def find_top_attackers_efficiently(attackers, defenders):
 				if defender_spies>5:
 					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="spy")
 					defender_spies -=  min((att_spies- (defender_spies* 0.4)) * 0.335*0.95,(defender_spies*0.25) + 4)
-				elif defender['nukes']>=3:
+				elif defender_nukes>=3:
 					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="nuke")
+					defender_nukes -= 1
 				
 				if match_info:	
 					odds_list.append({

@@ -44,7 +44,7 @@ class beige_alerts(commands.Cog):
 		self.updater.update_nation_data.change_interval(minutes=2.5)
 		if not self.check_for_beigealerts.is_running():
 			self.check_for_beigealerts.start()	
-		endpoint = f"{ctx.author}"	
+		endpoint = f"{ctx.author.id}"	
 		unique_link = beige_link(endpoint, [alliance_search,flags.loot])
 		
 		await ctx.send(f"Alerts have been set. Use this link to plan when you need to be online:\n{unique_link}")
@@ -60,10 +60,12 @@ class beige_alerts(commands.Cog):
 
 	async def is_alert_needed(self, target,user):
 		if not bool(user['all_nations']):
-			if user['alliances'] != "Default" and target['alliance_id'] not in (user['alliances'].split(',')):
-				return False
-			elif target['alliance_id'] in self.safe_aa:
-				return False
+			if user['alliances'] != "Default":  
+				if str(target['alliance_id']) not in (user['alliances'].split(',')):
+					return False
+			else:
+				if target['alliance_id'] in self.safe_aa:
+					return False
 		
 		if user['loot']>target['loot']:
 			return False
@@ -73,7 +75,7 @@ class beige_alerts(commands.Cog):
 	@tasks.loop(minutes=2.5)
 	async def check_for_beigealerts(self):
 		now_time = datetime.now(timezone.utc).time()
-		if now_time.hour % 2 == 1 and now_time.minute >= 57 and (now_time.minute + now_time.second / 60) < 59.5:
+		if now_time.hour % 2 == 1 and now_time.minute >= 50 and (now_time.minute + now_time.second / 60) <= 52.5:
 			async with aiosqlite.connect("pnw.db") as db:
 				db.row_factory = aiosqlite.Row
 				async with db.execute('select * from safe_aa') as cursor:
@@ -82,7 +84,7 @@ class beige_alerts(commands.Cog):
 				self.safe_aa = safe_aa
 				async with db.execute("""
 					SELECT nation_id, nation, alliance, alliance_id, score,cities, last_active, soldiers, tanks, aircraft, ships
-					FROM all_nations_data WHERE beige_turns = 1""") as cursor:
+					FROM all_nations_data WHERE beige_turns = 1 and defensive_wars<>3""") as cursor:
 					beige_data = await cursor.fetchall()
 
 				async with db.execute("""
@@ -93,28 +95,32 @@ class beige_alerts(commands.Cog):
 							INNER JOIN all_nations_data ON registered_nations.nation_id = all_nations_data.nation_id;""") as cursor:
 					user_info = await cursor.fetchall()
 				
+				updated_targets = []
 				for target in beige_data:
 					target = dict(target)
 					loot = await loot_calculator(target['nation_id'])
 					if loot:
-						target['loot'] = loot[0]
+						target['loot'] = int(loot[0])
 					else:
 						target['loot'] = 'No loot info found'	
+					updated_targets.append(target)		
 				# Loop through each alert and evaluate its conditions
 				dm_dict = {}
 				if beige_data:
 					for user in user_info:
-						for target in beige_data:
+						for target in updated_targets:
 							if target['score']>user['score']*0.75 and target['score']<user['score']*2.5:
 								if await self.is_alert_needed(target,user):
 									dm_dict.setdefault(user['user_id'], []).append(target)
-
-				for user,targets in dm_dict:
+									
+				for user,targets in dm_dict.items():
 					await self.send_alert(user,targets)
 
 	async def send_alert(self,user,targets):
-		dm_channel = self.bot.get_user(user) or  self.bot.fetch_user(user)
-		
+		try:
+			dm_channel = await self.bot.get_user(user) 
+		except:
+			dm_channel = await self.bot.fetch_user(user)
 		emb_list = []
 		for target in targets:
 			embed = discord.Embed()

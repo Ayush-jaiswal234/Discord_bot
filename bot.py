@@ -195,10 +195,10 @@ async def loot_calculator(nation_id):
 	else:
 		return None 
 
-async def monitor_targets(city_text,alliance_search,loot,search_only=False):
+async def monitor_targets(war_range,alliance_search,loot,search_only=False):
 	search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
 	search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','score','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
-	targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where vmode=0 and defensive_wars<>3 and color=0 {city_text} {alliance_search}"
+	targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where vmode=0 and defensive_wars<>3 and color=0 {war_range} {alliance_search}"
 	async with aiosqlite.connect('pnw.db') as db:
 		db.row_factory =aiosqlite.Row
 		cursor = await db.execute(targets_list)
@@ -210,10 +210,8 @@ async def monitor_targets(city_text,alliance_search,loot,search_only=False):
 	prices = dict(prices)
 	for target_nation in all_targets:
 		beige_amount = target_nation["money"]*0.14
-		del target_nation["money"]
 		for rss,price in prices.items():
 			beige_amount += target_nation[rss]*0.14*price
-			del target_nation[rss]
 		target_nation["beige_loot"] = round(beige_amount,2)
 	all_targets = [x for x in all_targets if x["beige_loot"]>=loot]	
 	if search_only:
@@ -300,7 +298,6 @@ async def loot(ctx:commands.Context,*,nation_id:str):
 	nation_id=await nation_data_converter.nation_id_finder(ctx,nation_id)
 	result = await loot_calculator(nation_id)	
 	if result!=None:
-		logging.info(result)
 		embed=discord.Embed()
 		embed.title=f'Loot info for {await nation_data_converter.get_unregistered("nation",nation_id)}'
 		list_of_things_to_find=['Money','Food','Coal','Oil','Uranium','Lead','Iron','Bauxite','Gasoline','Munitions','Steel','Aluminum']
@@ -721,7 +718,6 @@ async def spyopval(ctx:commands.Context, *,message:str):
 		if nation_id!=None and (message.count(nation)==2 or message.count(nation)==3):
 			find_stuffs_orig = ['food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum']
 			actual_loot,prices = await loot_from_text(message,2)    
-			logging.info(actual_loot)
 			text=', '.join(actual_loot)
 			conflict_text=', '.join(f"{find_stuffs_orig[x]}={actual_loot[x+1]}" for x in range(len(find_stuffs_orig)))
 			now_time = str(datetime.now().replace(microsecond=0)).replace(' ','T')
