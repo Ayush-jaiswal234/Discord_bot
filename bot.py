@@ -924,9 +924,9 @@ async def range_command(ctx,target,user_nation='Default'):
 				else:
 					reduce_score -= user_nation_stats[keys[i]] *score_val[keys[i]]	
 					result = f"{result}Decom {user_nation_stats[keys[i]]} {keys[i].capitalize()}\n"
-			print(result)		
-			i+=1		
 				
+			i+=1		
+		print(result)			
 		if reduce_score>0:
 			result = f"{result}Decom {round(reduce_score*40,2)} Infrastructure"
 		await ctx.send(result)	

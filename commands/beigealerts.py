@@ -5,7 +5,7 @@ import discord
 from scripts import nation_data_converter
 from bot import loot_calculator,last_bank_rec
 from web_flask import beige_link
-import pnwkit,logging
+import pnwkit,logging,httpx
 
 class beige_alerts(commands.Cog):
 	def __init__(self,bot,):
@@ -82,7 +82,7 @@ class beige_alerts(commands.Cog):
 	@tasks.loop(minutes=2.5,reconnect=True)
 	async def check_for_beigealerts(self):
 		now_time = datetime.now(timezone.utc).time()
-		if now_time.hour % 2 == 1 and now_time.minute >= 50 and (now_time.minute + now_time.second / 60) <= 59.5:
+		if now_time.hour % 2 == 1 and now_time.minute >= 50 and (now_time.minute + now_time.second / 60) <= 52.5:
 			async with aiosqlite.connect("pnw.db") as db:
 				db.row_factory = aiosqlite.Row
 				async with db.execute('select * from safe_aa') as cursor:
@@ -95,7 +95,7 @@ class beige_alerts(commands.Cog):
 					INNER JOIN loot_data on all_nations_data.nation_id = loot_data.nation_id
 					WHERE beige_turns = 1 and defensive_wars<>3 and vmode=0""") as cursor:
 					beige_data = await cursor.fetchall()
-
+					beige_data.sort(key=lambda x:x['nation_id'])
 				async with db.execute("""
 					SELECT beige_alerts.user_id, beige_alerts.all_nations,beige_alerts.alliances,beige_alerts.loot,beige_alerts.alert_time,
 							all_nations_data.score
@@ -103,32 +103,42 @@ class beige_alerts(commands.Cog):
 							INNER JOIN registered_nations ON beige_alerts.user_id = registered_nations.discord_id
 							INNER JOIN all_nations_data ON registered_nations.nation_id = all_nations_data.nation_id;""") as cursor:
 					user_info = await cursor.fetchall()
-				bank_data = await last_bank_rec(beige_data)
-				updated_targets = []
-				for i in range(len(beige_data)):
-					target = dict(beige_data[i])
-					loot = await loot_calculator(target['nation_id'])
-					if loot:
-						target['loot'] = int(loot[0])
-					else:
-						target['loot'] = 'No loot info found'	
-					if bank_data[i]!='NA':
-						target['last_deposit'] = {nation_data_converter.time_converter(datetime.strptime(bank_data[i],'%Y-%m-%dT%H:%M:%S'))}
-					else:	
-						target['last_deposit'] = bank_data[i]	
-					updated_targets.append(target)		
-				# Loop through each alert and evaluate its conditions
-				dm_dict = {}
-				print(dm_dict)
-				if beige_data:
-					for user in user_info:
-						for target in updated_targets:
-							if target['score']>user['score']*0.75 and target['score']<user['score']*2.5:
-								if await self.is_alert_needed(target,user):
-									dm_dict.setdefault(user['user_id'], []).append(target)
+			bank_data = await last_bank_rec(beige_data)
+			updated_targets = []
+			query = f"""{{nations(id:{[x['nation_id'] for x in beige_data]},first:500){{
+			data{{
+				cities{{infrastructure}}
+				}}
+			}} }}"""
+			async with httpx.AsyncClient() as client:
+				fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+				fetchdata = fetchdata.json()['data']['nations']['data']
+			
+			for i in range(len(beige_data)):
+				target = dict(beige_data[i])
+				loot = await loot_calculator(target['nation_id'])
+				if loot:
+					target['loot'] = int(loot[0])
+				else:
+					target['loot'] = 'No loot info found'	
+				if bank_data[i] not in ['N/A','']:
+					target['last_deposit'] = nation_data_converter.time_converter(datetime.strptime(bank_data[i],'%Y-%m-%dT%H:%M:%S'))
+				else:	
+					target['last_deposit'] = bank_data[i]		
+				
+				target['avg_infra'] = round(sum([x['infrastructure'] for x in fetchdata[i]['cities']])/target['cities'],2) 
+				updated_targets.append(target)		
+			# Loop through each alert and evaluate its conditions
+			dm_dict = {}
+			if beige_data:
+				for user in user_info:
+					for target in updated_targets:
+						if target['score']>user['score']*0.75 and target['score']<user['score']*2.5:
+							if await self.is_alert_needed(target,user):
+								dm_dict.setdefault(user['user_id'], []).append(target)
 
-				for user,targets in dm_dict.items():
-					await self.send_alert(user,targets)
+			for user,targets in dm_dict.items():
+				await self.send_alert(user,targets)
 
 	async def send_alert(self,user,targets):
 		try:
@@ -149,7 +159,8 @@ class beige_alerts(commands.Cog):
 								f"Alliance: [{target['alliance']}](https://politicsandwar.com/alliance/id={target['alliance_id']})\n"
 								"```js\n"
 								f"Cities: {target['cities']} \n"
-								f"Last Deposit: {nation_data_converter.time_converter(datetime.strptime(target['last_deposit'],'%Y-%m-%dT%H:%M:%S'))}\n"
+								f"Average Infra: {target['avg_infra']}\n"
+								f"Last Deposit: {target['last_deposit']}\n"
 								f"Last War Loss: {nation_data_converter.time_converter(datetime.strptime(target['war_end_date'],'%Y-%m-%dT%H:%M:%S'))}```",
 								inline=False)
 			embed.add_field(name="Military info",
@@ -161,8 +172,10 @@ class beige_alerts(commands.Cog):
 								inline=False)	
 			
 			emb_list.append(embed)
-
-		await dm_channel.send(f'These nations are coming out of beige next turn which is in ....',embeds=emb_list)	
+		now = datetime.now(timezone.utc)
+		next_hour = (now + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+		time_difference = int((next_hour - now).total_seconds())
+		await dm_channel.send(f'These nations are coming out of beige next turn which is in {int(time_difference//60)}m {int(time_difference%60)}s',embeds=emb_list)	
 				
 	async def beige_watcher(self):
 		subscription = await self.kit.subscribe("nation","update",{},self.beige_leave_handler)
