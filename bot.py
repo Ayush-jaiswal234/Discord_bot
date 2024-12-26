@@ -272,6 +272,8 @@ async def on_ready():
 	await client.load_extension("commands.help")
 	await client.load_extension("commands.nation_audit")
 	await client.load_extension("commands.beigealerts")
+	cog = client.get_cog("beige_alerts")
+	await cog.on_ready()
 
 @client.event
 async def on_command_error(ctx, error):
