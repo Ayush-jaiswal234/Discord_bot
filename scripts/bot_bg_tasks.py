@@ -250,7 +250,12 @@ class Bot_bg_Tasks:
 		alerts = {}
 		for spy_info in fetchdata:
 			for attackers in spy_info['top_attackers']:
-				kill_type = 'Assassinate spies' if attackers['optimal_attack']['type']=='spy' else 'Sabotage Nukes'
+				if attackers['optimal_attack']['type']=='spy':
+					kill_type = 'Assassinate spies'  
+				elif attackers['optimal_attack']['type']=='nukes':
+					kill_type = 'Sabotage Nukes'
+				else:
+					kill_type = 'Sabotage Missiles'	
 				alerts[attackers['attacker']['id']] = f"{alerts.get(attackers['attacker']['id'],'')}- [{spy_info['defender']['nation_name']}](<https://politicsandwar.com/nation/espionage/eid={spy_info['defender']['id']}>) --> **{kill_type}** on **{attackers['optimal_attack']['level'].capitalize()}** using **{attackers['attacker']['spies']}** spies\n"
 		for nation,message in alerts.items():
 			x = {'id':nation}

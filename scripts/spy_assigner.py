@@ -5,7 +5,7 @@ async def spy_target_finder(att_ids,def_ids):
 				data{{
 					name,id
 					nations(vmode:false){{
-						num_cities,id,nation_name,alliance_position,score,nukes,spies,espionage_available,war_policy,central_intelligence_agency,surveillance_network,spy_satellite,spy_attacks
+						num_cities,id,nation_name,alliance_position,score,missiles,nukes,spies,espionage_available,war_policy,central_intelligence_agency,surveillance_network,spy_satellite,spy_attacks
 						}}
 					}}
 				}} }}"""
@@ -30,7 +30,7 @@ async def spy_target_finder(att_ids,def_ids):
 	if total_spies/(len(defenders)+1)>10:
 		defenders = sorted(defenders, key=lambda x: (x['spies'],x['num_cities']),reverse=True)
 	else:
-		defenders = sorted(defenders, key=lambda x: (x['nukes'] >= 3,x['nukes'] if x['nukes'] >= 3 else x['spies']), reverse=True)
+		defenders = sorted(defenders, key=lambda x: (x['nukes'] >= 3,x['nukes'] if x['nukes'] >= 3 else x['spies'],x['missiles']), reverse=True)
 	result = find_top_attackers_efficiently(attackers, defenders)
 	return result
 
@@ -52,7 +52,9 @@ def calculate_adjusted_odds(attacker, def_spies,defender, attack_type):
 		odds = [x/1.5 for x in odds] # Adjust for spy kills
 	elif attack_type == "nuke":
 		odds = [x/5 for x in odds]    # Adjust for nukes
-	
+	else:	
+		odds = [x/4 for x in odds]
+
 	attack={"odds":odds[2],"level":3,"type":attack_type}	
 	if odds[2]-odds[1]<5 or odds[2]>100:
 		if odds[1]-odds[0]<5 or (odds[1]>100 and odds[0]>95):
@@ -74,6 +76,7 @@ def find_top_attackers_efficiently(attackers, defenders):
 	for defender in defenders:
 		defender_spies = defender['spies']
 		defender_nukes = defender['nukes']
+		defender_missiles = defender['missiles']
 		# Calculate adjusted odds for all attackers against this defender
 		odds_list = []
 		for attacker in attackers:
@@ -88,7 +91,9 @@ def find_top_attackers_efficiently(attackers, defenders):
 				elif defender_nukes>=3:
 					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="nuke")
 					defender_nukes -= 1
-				
+				elif defender_missiles>=3:	
+					match_info = calculate_adjusted_odds(attacker, defender_spies,defender, attack_type="missiles")
+					defender_missiles -=1
 				if match_info:	
 					odds_list.append({
 						"attacker": attacker,

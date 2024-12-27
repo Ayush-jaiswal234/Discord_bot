@@ -135,7 +135,7 @@
                 <thead>
                     <!-- Main Header -->
                     <tr>
-                        <th colspan="6">Defenders</th>
+                        <th colspan="7">Defenders</th>
                         <th colspan="3">Attackers</th>
                     </tr>
                     <!-- Sub Headers -->
@@ -145,6 +145,7 @@
                         <th>Alliance</th>
                         <th>Score</th>
                         <th>Cities</th>
+                        <th>Missiles</th>
                         <th>Nukes</th>
                         <th>Spies</th>
                         <!-- Attackers Columns -->
@@ -162,6 +163,7 @@
                         <td>{{target.defender.alliance}}</td>
                         <td>{{target.defender.score}}</td>
                         <td>{{target.defender.num_cities}}</td>
+                        <td>{{target.defender.missiles}}</td>
                         <td>{{target.defender.nukes}}</td>
                         <td>{{target.defender.spies}}</td>
                         {% for attacker in target.top_attackers %}
@@ -256,6 +258,7 @@
                                     <td>${defender.alliance}</td>
                                     <td>${defender.score}</td>
                                     <td>${defender.num_cities}</td>
+                                    <td>${defender.missiles}</td>
                                     <td>${defender.nukes}</td>
                                     <td>${defender.spies}</td>
                                     ${attackersHtml}
