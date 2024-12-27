@@ -54,7 +54,7 @@ class beige_alerts(commands.Cog):
 		endpoint = f"{ctx.author.id}"	
 		unique_link = beige_link(endpoint, [alliance_search,flags.loot])
 		
-		await ctx.send(f"Alerts have been set. Use this link to plan when you need to be online:\n{unique_link}")
+		await ctx.send(f"Alerts have been set. Use this link to plan when you need to be online:\n{unique_link}",ephemeral=True)
 
 	@commands.hybrid_command(name='stopalerts',with_app_command=True,description='Stops all alerts in the channel')
 	async def stopalerts(self,ctx:commands.context):
