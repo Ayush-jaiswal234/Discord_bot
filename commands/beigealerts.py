@@ -175,8 +175,12 @@ class beige_alerts(commands.Cog):
 		now = datetime.now(timezone.utc)
 		next_hour = (now + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
 		time_difference = int((next_hour - now).total_seconds())
-		await dm_channel.send(f'These nations are coming out of beige next turn which is in {int(time_difference//60)}m {int(time_difference%60)}s',embeds=emb_list)	
-				
+		if len(emb_list)<=10:
+			await dm_channel.send(f'These nations are coming out of beige next turn which is in {int(time_difference//60)}m {int(time_difference%60)}s',embeds=emb_list)	
+		else:
+			for i in range(0,len(emb_list),10):
+				await dm_channel.send(f'These nations are coming out of beige next turn which is in {int(time_difference//60)}m {int(time_difference%60)}s',embeds=emb_list[i:i+10])	
+	
 	async def beige_watcher(self):
 		subscription = await self.kit.subscribe("nation","update",{},self.beige_leave_handler)
 
