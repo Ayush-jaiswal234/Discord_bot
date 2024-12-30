@@ -243,32 +243,35 @@ class Bot_bg_Tasks:
 			await self.channel.send(f"Weekly Reminder to Buy Spies!!!\n{alert_text}")	
 
 	async def send_spy_alerts(self):
-		att_ids = '11189'
-		def_ids = '790,5012,12500,10523,9432,10334,4567,12453,12544,13268,619,13344,11339'
-		fetchdata = await spy_target_finder(att_ids,def_ids)
-		fetchdata = [data for data in fetchdata if data['top_attackers']]
-		alerts = {}
-		for spy_info in fetchdata:
-			for attackers in spy_info['top_attackers']:
-				if attackers['optimal_attack']['type']=='spy':
-					kill_type = 'Assassinate spies'  
-				elif attackers['optimal_attack']['type']=='nukes':
-					kill_type = 'Sabotage Nukes'
+		try:
+			att_ids = '11189'
+			def_ids = '790,5012,12500,10523,9432,10334,4567,12453,12544,13268,619,13344,11339,4150'
+			fetchdata = await spy_target_finder(att_ids,def_ids)
+			fetchdata = [data for data in fetchdata if data['top_attackers']]
+			alerts = {}
+			for spy_info in fetchdata:
+				for attackers in spy_info['top_attackers']:
+					if attackers['optimal_attack']['type']=='spy':
+						kill_type = 'Assassinate spies'  
+					elif attackers['optimal_attack']['type']=='nukes':
+						kill_type = 'Sabotage Nukes'
+					else:
+						kill_type = 'Sabotage Missiles'	
+					alerts[attackers['attacker']['id']] = f"{alerts.get(attackers['attacker']['id'],'')}- [{spy_info['defender']['nation_name']}](<https://politicsandwar.com/nation/espionage/eid={spy_info['defender']['id']}>) --> **{kill_type}** on **{attackers['optimal_attack']['level'].capitalize()}** using **{attackers['attacker']['spies']}** spies\n"
+			for nation,message in alerts.items():
+				x = {'id':nation}
+				discord_id = await self.member_info(x)
+				if discord_id!=None:
+					message = f"Spy targets for today:\n{message}\nIf these targets are already spy slotted use this link:\n http://162.19.228.4:5000/spysheet?attids={att_ids}&defids={def_ids}&auto_submit=true \nand filter using your nation name to get the best possible target for you"
+					try:
+						user = await self.bot.get_user(discord_id)
+					except:
+						user = await self.bot.fetch_user(discord_id)
+					try:
+						await user.send(message)
+					except Forbidden:
+						await self.channel.send(f"<@{discord_id}>{message}")
 				else:
-					kill_type = 'Sabotage Missiles'	
-				alerts[attackers['attacker']['id']] = f"{alerts.get(attackers['attacker']['id'],'')}- [{spy_info['defender']['nation_name']}](<https://politicsandwar.com/nation/espionage/eid={spy_info['defender']['id']}>) --> **{kill_type}** on **{attackers['optimal_attack']['level'].capitalize()}** using **{attackers['attacker']['spies']}** spies\n"
-		for nation,message in alerts.items():
-			x = {'id':nation}
-			discord_id = await self.member_info(x)
-			if discord_id!=None:
-				message = f"Spy targets for today:\n{message}\nIf these targets are already spy slotted use this link:\n http://162.19.228.4:5000/spysheet?attids={att_ids}&defids={def_ids}&auto_submit=true \nand filter using your nation name to get the best possible target for you"
-				try:
-					user = await self.bot.get_user(discord_id)
-				except:
-					user = await self.bot.fetch_user(discord_id)
-				try:
-					await user.send(message)
-				except Forbidden:
-					await self.channel.send(f"<@{discord_id}>{message}")
-			else:
-				await self.channel.send(f"{x['id']} is not registered. They were assigned the targets:{message}")	
+					await self.channel.send(f"{x['id']} is not registered. They were assigned the targets:{message}")	
+		except Exception as e:
+			logging.info(e)

@@ -195,7 +195,7 @@ async def loot_calculator(nation_id):
 	else:
 		return None 
 
-async def monitor_targets(war_range,alliance_search,loot,search_only=False):
+async def monitor_targets(war_range,alliance_search,api_search,score_range,search_only=False):
 	search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
 	search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','score','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
 	targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where vmode=0 and defensive_wars<>3 and color=0 {war_range} {alliance_search}"
@@ -224,8 +224,8 @@ async def monitor_targets(war_range,alliance_search,loot,search_only=False):
 				all_targets[x]["last_deposit_date"] = 'N/A'	
 			all_targets[x]["war_end_date"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["war_end_date"],"%Y-%m-%dT%H:%M:%S"))
 			all_targets[x]["last_active"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["last_active"],"%Y-%m-%d %H:%M:%S"))																   
-			all_targets[x]["alliance_position"] = nation_data_converter.position(all_targets[x]["alliance_position"])	
-
+			all_targets[x]["alliance_position"] = nation_data_converter.position(all_targets[x]["alliance_position"])
+		
 	return all_targets
 
 
