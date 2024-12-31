@@ -149,7 +149,7 @@ async def beige_view(discord_id):
 			api_search = parameters['alliances'].split(',')
 
 		war_range = f"and score>{parameters['score']*0.75} and score<{parameters['score']*2.5}"
-		list_of_targets = await monitor_targets(war_range,alliance_search,parameters['loot'],api_search,[parameters['score']*0.75,parameters['score']*2.5],search_only=True)
+		list_of_targets = await monitor_targets(war_range,alliance_search,parameters['loot'],search_only=True)
 		list_of_targets = [x for x in list_of_targets]
 		template = env.get_template('beige_monitor.html')
 		result = template.render(targets=list_of_targets)
