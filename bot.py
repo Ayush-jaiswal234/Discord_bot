@@ -185,12 +185,20 @@ async def loot_from_text(message,length_of_param):
 async def loot_calculator(nation_id):
 	async with aiosqlite.connect('pnw.db') as db:
 		prices = await get_prices(db)	
+		db.row_factory =aiosqlite.Row
 		async with db.execute(f'select * from loot_data where nation_id={nation_id}') as cursor:
 			loot = await cursor.fetchone()
+			loot = list(loot)
+		async with db.execute(f'select war_policy from all_nations_data where nation_id ={nation_id}') as cursor:	
+			war_policy = await cursor.fetchone()
 	if loot!=None:
-		total_worth = loot[2]*0.14
+		policy_modifer = 1 
+		if war_policy['war_policy'] ==5:
+			policy_modifer = 1.4
+		total_worth = loot[2]*0.14/policy_modifer
 		for x in range(0,len(prices)):
-			total_worth+= (int(loot[x+3]*0.14)*prices[x])	
+			total_worth+= (int(loot[x+3]*0.14/policy_modifer)*prices[x])
+			loot[x+3] = loot[x+3]/policy_modifer
 		return (total_worth,loot)
 	else:
 		return None 
@@ -711,12 +719,12 @@ async def slowbeige(ctx:commands.Context,resistance:commands.Range[int, 1,100],*
 async def spyopval(ctx:commands.Context, *,message:str):
 	x=re.match("You successfully gathered intelligence about [\w $'-.]+[\w $'-.]*. Your spies discovered that [\w $'-.]+ has [\w $'-.]{26,}. Your agents were [\w '-]{26,}. The operation cost you [$,.0-9]{2,} and [0-9]+ of your spies were captured and executed.",message)
 
-	logging.info(message,bool(x))
 	if bool(x):
 		full_stop=message.find('.')
 		nation=(message)[45:full_stop]
 		logging.info(nation)
-		nation_id = await nation_data_converter.get_unregistered('nation_id',nation,'nation')
+		nation_data = await nation_data_converter.get_unregistered('nation_id,war_policy',nation,'nation')
+		nation_id =nation_data[0]
 		if nation_id!=None and (message.count(nation)==2 or message.count(nation)==3):
 			find_stuffs_orig = ['food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum']
 			actual_loot,prices = await loot_from_text(message,2)    
@@ -726,7 +734,10 @@ async def spyopval(ctx:commands.Context, *,message:str):
 			async with aiosqlite.connect('pnw.db') as db:
 				await db.execute(f"insert into loot_data values (0,{nation_id},{text},'{now_time}') on conflict (nation_id) do update set war_id=0,money={actual_loot[0]},{conflict_text},war_end_date='{now_time}'")
 				await db.commit()
-			actual_loot=[str(int(0.14*float(x))) for x in actual_loot]
+			policy_modifier = 1
+			if nation_data[1] ==5:
+				policy_modifier = 1.4
+			actual_loot=[str(int(0.14*float(x)/policy_modifier)) for x in actual_loot]
 			loot_worth=int(actual_loot[0])
 			for x in range(0,len(prices)):
 				loot_worth= loot_worth+(int(actual_loot[x+1])*prices[x])
