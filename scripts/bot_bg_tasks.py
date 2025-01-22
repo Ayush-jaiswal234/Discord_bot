@@ -245,7 +245,7 @@ class Bot_bg_Tasks:
 	async def send_spy_alerts(self):
 		try:
 			att_ids = '11189'
-			def_ids = '790,5012,12500,10523,9432,10334,4567,12453,12544,13268,619,13344,11339,4150'
+			def_ids = '790,5012,12500,10523,9432,10334,4567,12453,12544,13268,619,13344,11339,4150,8236'
 			fetchdata = await spy_target_finder(att_ids,def_ids)
 			fetchdata = [data for data in fetchdata if data['top_attackers']]
 			alerts = {}

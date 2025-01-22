@@ -965,7 +965,7 @@ async def spies(ctx,att_spies:int,def_spies:int,level=3,filter=None):
 	odds = level * 25 + (att_spies*100/((def_spies*3)+1))
 	filter_odd = 1
 	filter_odds = {"tactician":1.15,"arcane":0.85,"covert":1.15}
-	type_odds = {"intel":[1,":brain:"],"soldiers":[1,":military_helmet:"],"spies":[1.5,":detective:"],"tanks":[1.5,":articulated_lorry:"],"aircraft":[2,":airplane:"],"ships":[3,":ship:"],"missiles":[4,":rocket:"],"nukes":[5,":flag_jp:"]}
+	type_odds = {"intel":[1,":brain:"],"soldiers":[1,":military_helmet:"],"spies":[1.5,":detective:"],"tanks":[1.5,":articulated_lorry:"],"aircraft":[2,":airplane:"],"ships":[3,":ship:"],"missiles":[4,":rocket:"],"nukes":[5,":radioactive:"]}
 	if filter!=None:	
 		filter_odd = filter_odds[filter] 	
 	all_odds = {k:[min((odds/v[0])*filter_odd,99),v[1]] for k,v in type_odds.items()}
