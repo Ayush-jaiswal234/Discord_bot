@@ -18,8 +18,8 @@ class Bot_bg_Tasks:
 		self.bot = bot
 		self.channel = bot.get_channel(1147384907694354452)
 		self.scheduler = AsyncIOScheduler()
-		#self.scheduler.add_job(self.spies_checker, trigger='cron',day_of_week='fri', hour=12, minute=00,timezone=dt.timezone.utc)
-		self.scheduler.add_job(self.send_spy_alerts, trigger='cron', hour=2, minute=0,timezone=dt.timezone.utc)
+		self.scheduler.add_job(self.spies_checker, trigger='cron',day_of_week='fri', hour=12, minute=00,timezone=dt.timezone.utc)
+		#self.scheduler.add_job(self.send_spy_alerts, trigger='cron', hour=2, minute=0,timezone=dt.timezone.utc)
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
 
@@ -92,7 +92,7 @@ class Bot_bg_Tasks:
 	async def alert_checker(self,nation,data_dict):
 		alert_required = False
 		alert_text = ""
-		war = True
+		war = False
 		if nation["color"]!=data_dict["color"] and nation["color"]!="beige":
 			alert_required = True
 			alert_text = f"{alert_text}**Color:**\n```Please change your color {data_dict['color']}.```\n"
