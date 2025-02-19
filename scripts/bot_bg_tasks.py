@@ -42,7 +42,7 @@ class Bot_bg_Tasks:
 						cities{
 							date,barracks,factory,hangar,drydock,coal_power,oil_power,farm,aluminum_refinery,munitions_factory,oil_refinery,nuclear_power,steel_mill,coal_mine,oil_well,lead_mine,uranium_mine,iron_mine,bauxite_mine,infrastructure,land
 						}  
-						central_intelligence_agency,arms_stockpile,bauxite_works,emergency_gasoline_reserve,iron_works,mass_irrigation,uranium_enrichment_program
+						central_intelligence_agency,arms_stockpile,bauxite_works,emergency_gasoline_reserve,iron_works,mass_irrigation,uranium_enrichment_program,fallout_shelter
 					}}
 				}}"""
 		async with httpx.AsyncClient() as client:
@@ -153,6 +153,11 @@ class Bot_bg_Tasks:
 			food_mod = food_mod*0.5
 		
 		rad_mod = (data_dict["radiation"]["global"]+data_dict["radiation"][continent(nation["continent"])])/1000
+		if rad_mod!=0 and nation["fallout_shelter"]:
+			if rad_mod<0.15:
+				rad_mod = 0
+			else:
+				rad_mod -= 0.15	
 
 		raws_rev ={"food":0,"uranium":0,"coal":0,"oil":0,"iron":0,"lead":0,"bauxite":0}
 		
