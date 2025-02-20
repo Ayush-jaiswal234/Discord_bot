@@ -159,7 +159,7 @@ class Bot_bg_Tasks:
 			else:
 				rad_mod -= 0.15	
 
-		raws_rev ={"food":0,"uranium":0,"coal":0,"oil":0,"iron":0,"lead":0,"bauxite":0}
+		raws_rev ={"uranium":0,"coal":0,"oil":0,"iron":0,"lead":0,"bauxite":0} #removed "food":0, for now add after correcting
 		
 		for city in nation["cities"]:
 			base_pop = city["infrastructure"]*100 #later add crime and disease
