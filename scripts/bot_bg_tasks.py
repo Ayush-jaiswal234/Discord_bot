@@ -159,7 +159,7 @@ class Bot_bg_Tasks:
 			else:
 				rad_mod -= 0.15	
 
-		raws_rev ={"uranium":0,"coal":0,"oil":0,"iron":0,"lead":0,"bauxite":0} #removed "food":0, for now add after correcting
+		raws_rev ={"uranium":0,"coal":0,"oil":0,"iron":0,"lead":0,"food":0,"bauxite":0} #removed  for now add after correcting
 		
 		for city in nation["cities"]:
 			base_pop = city["infrastructure"]*100 #later add crime and disease
@@ -211,7 +211,7 @@ class Bot_bg_Tasks:
 		
 		for rss,revenue in raws_rev.items():
 			if revenue<0:
-				if nation[rss]<-revenue*3: 
+				if nation[rss]<-revenue*3 and rss != "food": #temp delete food until fix
 					alert_text = f"{alert_text}**{rss.capitalize()}:**\n```You only have {nation[rss]} {rss} remaining which will last for {round(abs(nation[rss]/revenue),2)} days.```\n"
 					alert_required = True								
 		
