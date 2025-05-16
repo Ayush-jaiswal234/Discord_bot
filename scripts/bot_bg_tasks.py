@@ -9,6 +9,7 @@ from httpx import ConnectTimeout
 from discord.ext import tasks
 import logging,httpx,aiosqlite,random
 from scripts.spy_assigner import spy_target_finder
+from discord import AllowedMentions
 
 info_time = dt.time(hour=22,minute=0,tzinfo=dt.timezone.utc) 
 
@@ -20,6 +21,7 @@ class Bot_bg_Tasks:
 		self.scheduler = AsyncIOScheduler()
 		self.scheduler.add_job(self.spies_checker, trigger='cron',day_of_week='fri', hour=12, minute=00,timezone=dt.timezone.utc)
 		#self.scheduler.add_job(self.send_spy_alerts, trigger='cron', hour=2, minute=0,timezone=dt.timezone.utc)
+		self.scheduler.add_job(self.inactivity_checker,trigger='cron',hour=15, minute=30,timezone=dt.timezone.utc)
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
 
@@ -27,6 +29,33 @@ class Bot_bg_Tasks:
 		self.audit_members.start()
 		self.scheduler.start()
 		pass
+
+	async def inactivity_checker(self):
+		query="""{
+				alliances(id:11189){
+  					data{
+					nations{
+						last_active
+					} }
+				} }"""
+		async with httpx.AsyncClient() as client:
+			fetchdata=await client.post(self.whitlisted_api_link,json={'query':query},timeout=None)
+			fetchdata = fetchdata.json()["data"]
+		
+		alert_text=""
+		for nation in fetchdata:
+			inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%dT%H:%M:%S')).split('d')[0]
+			if int(inactive_days)>2:
+				discord_id = await self.member_info(nation)
+				if discord_id!=None:
+					discord_id = f"<@{discord_id}>"
+				else:
+					discord_id = f"[{nation['nation_name']}](<https://politicsandwar.com/nation/id={nation['id']}>)"
+				alert_text=f"{alert_text}{discord_id} "
+
+		if alert_text!="":
+			await self.channel.send(f"Today's Couch Potatoes!!!\n{alert_text}",allowed_mentions=AllowedMentions(users=False))	
+		print("check done")	
 
 	@tasks.loop(time=info_time,reconnect=True)
 	async def audit_members(self):
@@ -98,7 +127,7 @@ class Bot_bg_Tasks:
 			alert_text = f"{alert_text}**Color:**\n```Please change your color {data_dict['color']}.```\n"
 		
 		inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%dT%H:%M:%S')).split('d')[0]
-		if int(inactive_days)>3:
+		if int(inactive_days)>2:
 			alert_required = True
 			alert_text = f"{alert_text}**Inactivity:**\n```Please login you have been inactive for {inactive_days} day(s).```\n"
 		
@@ -153,6 +182,8 @@ class Bot_bg_Tasks:
 			food_mod = food_mod*0.5
 		
 		rad_mod = (data_dict["radiation"]["global"]+data_dict["radiation"][continent(nation["continent"])])/1000
+		if rad_mod>1:
+			rad_mod = 1
 		if rad_mod!=0 and nation["fallout_shelter"]:
 			if rad_mod<0.15:
 				rad_mod = 0
@@ -211,7 +242,7 @@ class Bot_bg_Tasks:
 		
 		for rss,revenue in raws_rev.items():
 			if revenue<0:
-				if nation[rss]<-revenue*3 and rss != "food": #temp delete food until fix
+				if nation[rss]<-revenue*3:
 					alert_text = f"{alert_text}**{rss.capitalize()}:**\n```You only have {nation[rss]} {rss} remaining which will last for {round(abs(nation[rss]/revenue),2)} days.```\n"
 					alert_required = True								
 		
