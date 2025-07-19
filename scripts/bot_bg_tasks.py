@@ -17,7 +17,7 @@ class Bot_bg_Tasks:
 
 	def __init__(self,bot) -> None:
 		self.bot = bot
-		self.channel = bot.get_channel(1147384907694354452)
+		self.channel = bot.get_channel(1377328335297712262)
 		self.scheduler = AsyncIOScheduler()
 		self.scheduler.add_job(self.spies_checker, trigger='cron',day_of_week='fri', hour=12, minute=00,timezone=dt.timezone.utc)
 		#self.scheduler.add_job(self.send_spy_alerts, trigger='cron', hour=2, minute=0,timezone=dt.timezone.utc)
@@ -32,7 +32,7 @@ class Bot_bg_Tasks:
 
 	async def inactivity_checker(self):
 		query="""{
-				alliances(id:11189){
+				alliances(id:14000){
   					data{
 					nations{
 						last_active
@@ -55,14 +55,14 @@ class Bot_bg_Tasks:
 
 		if alert_text!="":
 			await self.channel.send(f"Today's Couch Potatoes!!!\n{alert_text}",allowed_mentions=AllowedMentions(users=False))	
-		print("check done")	
+		logging.info("check done")	
 
 	@tasks.loop(time=info_time,reconnect=True)
 	async def audit_members(self):
 		logging.info('Task audit_members started')
 		query="""{game_info{radiation{global,north_america,south_america,europe,africa,asia,australia,antarctica}}
 
-				alliances(id:11189){
+				alliances(id:14000){
   					data{
 					color
 					nations{
@@ -250,7 +250,7 @@ class Bot_bg_Tasks:
 	
 	async def spies_checker(self):
 		query="""{
-				alliances(id:11189){
+				alliances(id:14000){
   					data{
 					nations{
 						spies,discord_id,nation_name,id,central_intelligence_agency,vacation_mode_turns,alliance_position
