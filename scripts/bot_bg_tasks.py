@@ -23,39 +23,12 @@ class Bot_bg_Tasks:
 		#self.scheduler.add_job(self.send_spy_alerts, trigger='cron', hour=2, minute=0,timezone=dt.timezone.utc)
 		self.scheduler.add_job(self.inactivity_checker,trigger='cron',hour=15, minute=30,timezone=dt.timezone.utc)
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
-		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
+		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=4092f2aae7b1caef283d'
 
 		self.audit_members.add_exception_type(OperationalError,ConnectTimeout)
 		self.audit_members.start()
 		self.scheduler.start()
 		pass
-
-	async def inactivity_checker(self):
-		query="""{
-				alliances(id:14000){
-  					data{
-					nations{
-						last_active
-					} }
-				} }"""
-		async with httpx.AsyncClient() as client:
-			fetchdata=await client.post(self.whitlisted_api_link,json={'query':query},timeout=None)
-			fetchdata = fetchdata.json()["data"]
-		
-		alert_text=""
-		for nation in fetchdata:
-			inactive_days = time_converter(dt.datetime.strptime(nation["last_active"].split('+')[0],'%Y-%m-%dT%H:%M:%S')).split('d')[0]
-			if int(inactive_days)>2:
-				discord_id = await self.member_info(nation)
-				if discord_id!=None:
-					discord_id = f"<@{discord_id}>"
-				else:
-					discord_id = f"[{nation['nation_name']}](<https://politicsandwar.com/nation/id={nation['id']}>)"
-				alert_text=f"{alert_text}{discord_id} "
-
-		if alert_text!="":
-			await self.channel.send(f"Today's Couch Potatoes!!!\n{alert_text}",allowed_mentions=AllowedMentions(users=False))	
-		logging.info("check done")	
 
 	@tasks.loop(time=info_time,reconnect=True)
 	async def audit_members(self):
