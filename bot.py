@@ -863,6 +863,7 @@ async def war(ctx:commands.Context, *,flags:RaidFlags):
 		emb.description='Usage : `;register <nation id|nation link>`'
 		await ctx.send(content="You must be registered to use this command",embed=emb)
 
+@commands.is_owner()
 @client.command()
 async def create_view(ctx:commands.Context,*,roles):
 	roles = roles.split(' ')
