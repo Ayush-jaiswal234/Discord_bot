@@ -269,7 +269,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 client=commands.AutoShardedBot(command_prefix=os.getenv('command_prefix'),help_command=None,intents=intents)
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
-client.add_check(is_guild)
+#client.add_check(is_guild)
 client.setup_hook = setup_hook
 client.updater= db_tasks()
 
@@ -864,7 +864,6 @@ async def war(ctx:commands.Context, *,flags:RaidFlags):
 		await ctx.send(content="You must be registered to use this command",embed=emb)
 
 @client.command()
-@commands.has_any_role('trade tester',1082777828505948190,1250404714902716436,1082777665733414942)
 async def create_view(ctx:commands.Context,*,roles):
 	roles = roles.split(' ')
 	guild = ctx.guild
