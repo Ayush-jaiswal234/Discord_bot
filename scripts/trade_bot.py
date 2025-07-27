@@ -10,7 +10,7 @@ from json import JSONDecodeError
 
 class trade_watcher:
 	def __init__(self,client) -> None:
-		self.channel = client.get_channel(1254619896290213888) # wap channel:  1254619896290213888,715222394318356541
+		self.channel = client.get_channel(1367778031439057076) # wap channel:  1254619896290213888,715222394318356541
 		self.kit = pnwkit.QueryKit("2b2db3a2636488")
 		self.track_ids = []
 		self.result = {}
@@ -42,14 +42,20 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 			condition1 = subscribe_data['price']>self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']
 			profit=-profit
 			profit_percent = -profit_percent
-		if condition1 and profit>=5000000 and profit_percent>0.022:
-			role ="1254752332273418301"
+		if condition1 and profit>=100000000 and profit_percent>0.022:
+			role ="1397956409676529664"
 			await self.send_message(role,type_of_trade,profit,subscribe_data)
-		elif condition1 and profit>=1000000 and profit<5000000 and profit_percent>0.033: 
-			role ="1258312874137223229"
+		elif condition1 and profit>=50000000 and profit<100000000 and profit_percent>0.033: 
+			role = "1399011324465254461"
+			await self.send_message(role,type_of_trade,profit,subscribe_data)      
+		elif condition1 and profit>=20000000 and profit<50000000 and profit_percent>0.033: 
+			role ="1399011150363885630"
+			await self.send_message(role,type_of_trade,profit,subscribe_data)      
+		elif condition1 and profit>=5000000 and profit<20000000 and profit_percent>0.033: 
+			role ="1399011479478337690"
 			await self.send_message(role,type_of_trade,profit,subscribe_data)
-		elif profit>100000 and profit<1000000 and profit_percent>0.044:
-			role ="1258312933427908725"
+		elif profit>1000000 and profit<5000000 and profit_percent>0.044:
+			role ="1399011571572936764"
 			await self.send_message(role,type_of_trade,profit,subscribe_data)      
 			
 

@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations_with_replacement
 from commands.role_view import MyPersistentView
+from commands.best_manu_view import ManuPersistentView
 from scripts.trade_bot import trade_watcher
 from dotenv import load_dotenv
 import web_flask
@@ -240,7 +241,7 @@ async def monitor_targets(war_range,alliance_search,loot,search_only=False):
 def is_guild(ctx):
 	if ctx.guild is None:
 		return False
-	elif ctx.guild.id == 1082151511892693055:
+	elif ctx.guild.id in [1082151511892693055,1367766815941328907]:
 		wap_role_ids = {1146498346245181520, 1082777885372330064,1090430905870463058}
 		user_roles = {role.id for role in ctx.author.roles}
 		if wap_role_ids.intersection(user_roles):
@@ -256,8 +257,12 @@ async def setup_hook():
 			views = await cursor.fetchall()
 	for view in views:
 		guild = await client.fetch_guild(view[0])
-		role =  guild.get_role(view[1])	
-		client.add_view(MyPersistentView(role),message_id= view[2])
+		roles = view[1].split(',')
+		if roles:
+			roles = [guild.get_role(int(role)) for role in roles]
+			client.add_view(MyPersistentView(roles),message_id= view[2])
+		else:
+			client.add_view(ManuPersistentView(),message_id= view[2])
 
 graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
 intents = discord.Intents.default()	
@@ -860,15 +865,28 @@ async def war(ctx:commands.Context, *,flags:RaidFlags):
 
 @client.command()
 @commands.has_any_role('trade tester',1082777828505948190,1250404714902716436,1082777665733414942)
-async def create_view(ctx:commands.Context,role:discord.Role):
+async def create_view(ctx:commands.Context,*,roles):
+	roles = roles.split(' ')
+	guild = ctx.guild
+	print(roles)
+	role_objects = [guild.get_role(int(role[3:-1])) for role in roles]
+	view = MyPersistentView(role_objects)
+	message = await ctx.send(view=view)
+	roles = ','.join([role[3:-1] for role in roles])
+	async with aiosqlite.connect('pnw.db') as db:
+		await db.execute(f"insert into persistent_views values (?,?,?)",(guild.id,roles,message.id))
+		await db.commit()
+
+@client.command()
+async def best_manu(ctx:commands.Context):
 	emb = discord.Embed()
-	emb.title = 'Role Management'
-	emb.description = f"Press the button below to add or remove the role <@&{role.id}>"	
+	emb.title = 'Best Manu'
+	emb.description = f"Why your lazy ass can't find the best manu yourself"	
 	emb.color = discord.Color.blue()
-	view = MyPersistentView(role)
+	view = ManuPersistentView()
 	message = await ctx.send(embed=emb,view=view)
 	async with aiosqlite.connect('pnw.db') as db:
-		await db.execute(f"insert into persistent_views values ({ctx.guild.id},{role.id},{message.id})")
+		await db.execute(f"insert into persistent_views values ({ctx.guild.id},'',{message.id})")
 		await db.commit()
 
 @commands.is_owner()

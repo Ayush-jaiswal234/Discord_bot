@@ -50,6 +50,26 @@ def continent(number):
 	return switcher.get(number)
 pass
 
+def continent_raws(number):
+	switcher={
+	1:'coal,iron,uranium',
+	2:'oil,bauxite,lead',
+	3:'coal,iron,lead',
+	4:'oil,bauxite,uranium',
+	5:'oil,iron,uranium',
+	6:'coal,bauxite,lead',
+	7:'coal,oil,uranium',
+	"na":"coal,iron,uranium",
+	"sa":"oil,bauxite,lead",
+	"eu":"coal,iron,lead",
+	"af":"oil,bauxite,uranium",
+	"as":"oil,iron,uranium",
+	"au":"coal,bauxite,lead",
+	"an":"coal,oil,uranium"
+	}
+	return switcher.get(number)
+pass
+
 def color(number):
 	switcher={
 	0:'Beige',
@@ -88,7 +108,8 @@ async def get(search_element,_id,search_using='discord_id'):
 	async with aiosqlite.connect('pnw.db') as db:
 		async with db.execute(f'select {search_element} from all_nations_data inner join registered_nations on registered_nations.nation_id =all_nations_data.nation_id where {search_using}="{_id}"') as cursor:
 			value = await cursor.fetchone()
-	value = value[0] if value != None else value
+	if value and len(value)==1:
+		value = value[0]
 	return value			
 pass
 

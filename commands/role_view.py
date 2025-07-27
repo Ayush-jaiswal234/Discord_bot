@@ -1,22 +1,34 @@
 import discord
 
+class TradeSelect(discord.ui.Select):
+    def __init__(self,roles):
+        placeholder = "What's the price to ping you?"
+        print(roles)
+        options = [discord.SelectOption(label=role.name,value=str(role.id)) for role in roles]
+        super().__init__(placeholder=placeholder, min_values=0,max_values=len(options),options=options,custom_id="Trade_Role_Selecter")
+        self.roles = roles
+
+    async def callback(self, interaction):
+        user = interaction.user
+        added_role = []
+        removed_role = []
+
+        for role in self.roles:
+            if str(role.id) in self.values and role not in user.roles:
+                await user.add_roles(role)
+                added_role.append(role.name)
+            elif role in user.roles and str(role.id) not in self.values: 
+                await user.remove_roles(role)
+                removed_role.append(role.name)   
+        
+        response = ""
+        if added_role:
+            response = f"{response}Roles added:\n{added_role}\n"
+        if removed_role:
+            response = f"{response}Roles removed:\n{removed_role}"
+        await interaction.response.send_message(response,ephemeral= True)
+
 class MyPersistentView(discord.ui.View):
-    def __init__(self,role):
+    def __init__(self,roles):
         super().__init__(timeout=None)
-        self.role = role
-
-    @discord.ui.button(label="Get Role", custom_id="add", style=discord.ButtonStyle.blurple)
-    async def get_role_callback(self, interaction, button):
-        if self.role not in interaction.user.roles:
-            await interaction.user.add_roles(self.role)
-            await interaction.response.send_message(f"<@&{self.role.id}> role has been added!", ephemeral=True)
-        else:
-            await interaction.response.send_message(f"You already have the role <@&{self.role.id}>.", ephemeral=True)    
-
-    @discord.ui.button(label="Remove role", custom_id="remove", style=discord.ButtonStyle.blurple)
-    async def remove_role_callback(self, interaction, button):
-        if self.role in interaction.user.roles:
-            await interaction.user.remove_roles(self.role)
-            await interaction.response.send_message(f"<@&{self.role.id}> role has been removed!", ephemeral=True)
-        else:
-            await interaction.response.send_message(f"You don't have the role <@&{self.role.id}>.", ephemeral=True)  
+        self.add_item(TradeSelect(roles))
