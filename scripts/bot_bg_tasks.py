@@ -59,8 +59,9 @@ class Bot_bg_Tasks:
 		data_dict["raiders_buildings"]={"barracks":5,"factory":0,"hangar":0,"drydock":0}
 		data_dict["color"]=fetchdata["color"]
 		block_messages = ["You shouldn't have blocked me you silly baka!!💢","Why did you block me you absolute fucking retard?!?!\nYou unblock me RIGHT MEOW you fucking idiot or else I'm coming to your house!","Let me in your DMs, or Shinji will shit in your mailbox."]
+		no_alerts = await self.alertless()
 		for nation in fetchdata["nations"]:
-			if nation["alliance_position"]!="APPLICANT" and nation["vacation_mode_turns"]==0:
+			if nation["alliance_position"]!="APPLICANT" and nation["vacation_mode_turns"]==0 and int(nation["id"]) not in no_alerts:
 				alert_required,message = await self.alert_checker(nation,data_dict)	
 				
 				if alert_required:
@@ -88,7 +89,13 @@ class Bot_bg_Tasks:
 			discord_id = discord_id[0]
 		
 		return discord_id
-			
+
+	async def alertless(self):
+		async with aiosqlite.connect('pnw.db') as db:	
+			async with db.execute('select nation_id from stop_dms') as cursor:
+				no_alerts = await cursor.fetchall()
+			no_alerts = [row[0] for row in no_alerts]		
+		return no_alerts
 
 	async def alert_checker(self,nation,data_dict):
 		alert_required = False

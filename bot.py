@@ -1021,37 +1021,40 @@ async def tiering(ctx,coalition_1,coalition_2,filters=None):
 		else:
 			classify_nations(alliance, coalition_2_nation_list)
 
-	tier_ranges = [
-		(1, 10, 'c1-10'),
-		(11, 15, 'c11-15'),
-		(16, 20, 'c16-20'),
-		(21, 25, 'c21-25'),
-		(26, 30, 'c26-30'),
-		(31, 35, 'c31-35'),
-		(36, 40, 'c36-40'),
-		(41, 45, 'c41-45'),
-		(46, 50, 'c46-50'),
-		(51, float('inf'), 'c51+'),
-	]
 
-	def count_tiers(tier_list):
-		tiers = {tier[2]: 0 for tier in tier_ranges}  # Initialize tier counts
-		for cities in tier_list:
-			for lower, upper, tier_name in tier_ranges:
-				if lower <= cities <= upper:
-					tiers[tier_name] += 1
-					break
-		return tiers
+	def count_cities(city_list):
+		city_counts = {}
+		for cities in city_list:
+			if cities not in city_counts:
+				city_counts[cities] = 0
+			city_counts[cities] += 1
+		return city_counts
 
-	coalition_1_tiers = count_tiers(coalition_1_nation_list)
-	coalition_2_tiers = count_tiers(coalition_2_nation_list)		
+	coalition_1_tiers = count_cities(coalition_1_nation_list)
+	coalition_2_tiers = count_cities(coalition_2_nation_list)		
 	sheetID=sheets.create('Tier Chart',[{"properties":{"sheetId":0,'title':'Tiers'}}])
-	values = [['',*list(coalition_1_tiers.keys()),'Total'],['Coalition 1',*list(coalition_1_tiers.values()),len(coalition_1_nation_list)],['Coalition 2',*list(coalition_2_tiers.values()),len(coalition_2_nation_list)]]
-	rules_dict_list = [{"startRowIndex": 1,"endRowIndex": 2,"userEnteredValue":"=GT(B2,B3)","backgroundColor":{"green":1}},
-	{"startRowIndex": 1,"endRowIndex": 2,"userEnteredValue":"=LTE(B2,B3)","backgroundColor":{"red":1}},
-	{"startRowIndex": 2,"endRowIndex": 3,"userEnteredValue":"=GT(B3,B2)","backgroundColor":{"green":1}},
-	{"startRowIndex": 2,"endRowIndex": 3,"userEnteredValue":"=LTE(B3,B2)","backgroundColor":{"red":1}}]
-	sheets.write_ranges(sheetID,f'Tiers!A1:L3',values)
+	all_city_values = sorted(set(coalition_1_tiers.keys()) | set(coalition_2_tiers.keys()))
+
+	# Build values for sheet
+	values = [["City", "Coalition 1", "Coalition 2"]]
+	for city in all_city_values:
+		values.append([
+			city,
+			coalition_1_tiers.get(city, 0),
+			coalition_2_tiers.get(city, 0)
+		])
+
+	# Add total row
+	values.append([
+		"Total",
+		len(coalition_1_nation_list),
+		len(coalition_2_nation_list)
+	])
+	rules_dict_list = [{"startColumnIndex": 1,"endColumnIndex": 2,"userEnteredValue":"=GT(B2,C2)","backgroundColor":{"green":1}},
+	{"startColumnIndex": 1,"endColumnIndex": 2,"userEnteredValue":"=LTE(B2,C2)","backgroundColor":{"red":1}},
+	{"startColumnIndex": 2,"endColumnIndex": 3,"userEnteredValue":"=GT(C2,B2)","backgroundColor":{"green":1}},
+	{"startColumnIndex": 2,"endColumnIndex": 3,"userEnteredValue":"=LTE(C2,B2)","backgroundColor":{"red":1}}]
+	sheets.write_ranges(sheetID, f'Tiers!A1:C{len(values)}', values)
 	
 	rules=[]
 	for rules_dict in rules_dict_list:
@@ -1061,10 +1064,10 @@ async def tiering(ctx,coalition_1,coalition_2,filters=None):
 						"ranges": [
 							{
 								"sheetId": 0,  
-								"startRowIndex": rules_dict['startRowIndex'],
-								"endRowIndex": rules_dict['endRowIndex'], 
-								"startColumnIndex": 1,
-								"endColumnIndex": 11
+								"startRowIndex": 1,
+								"endRowIndex": len(values), 
+								"startColumnIndex": rules_dict["startColumnIndex"],
+								"endColumnIndex": rules_dict["endColumnIndex"]
 							}
 						],
 						"booleanRule": {
@@ -1118,6 +1121,18 @@ async def aa_stalker(alliance_ids,filters={'include_vm':False}):
 		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
 		fetchdata = fetchdata.json()['data']['alliances']['data']
 	return fetchdata
+
+@client.hybrid_command(name='stopdailyalerts',description="Stops alert dms",with_app_command=True)
+async def stopdailyalerts(ctx,nation_id,value):
+	async with aiosqlite.connect('pnw.db') as db:
+		if int(value):
+			data_to_be_inserted=("insert or ignore into stop_dms values(%s,%s)") % (nation_id,1)
+			await ctx.send('Alerts disabled')
+		else:
+			data_to_be_inserted = ("delete from stop_dms where nation_id=%s") % (nation_id)
+			await ctx.send('Alerts enabled')
+		await db.execute(data_to_be_inserted)
+		await db.commit()	
 
 if __name__=='__main__':
 	web_flask.run()
