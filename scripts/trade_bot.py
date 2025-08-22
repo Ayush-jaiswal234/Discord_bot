@@ -59,8 +59,9 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 					roles_to_ping = [r[3] for r in thresholds[idx:]]
 					break
 			
-		role_mentions = ",".join([f"<@&{r}>" for r in roles_to_ping])
-		await self.send_message(role_mentions, type_of_trade, profit, subscribe_data)
+			role_mentions = ",".join([f"<@&{r}>" for r in roles_to_ping])
+			if roles_to_ping:
+				await self.send_message(role_mentions, type_of_trade, profit, subscribe_data)
 		
 	async def check_the_rss(self,subscribe_data):
 		subscribe_data = subscribe_data.to_dict()
