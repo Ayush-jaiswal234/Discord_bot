@@ -23,7 +23,7 @@ class trade_watcher:
 		past_tense = 'sold'
 		if type_of_trade== 'buy':
 			past_tense ='bought'
-		await self.channel.send(f"""<@&{role}> 
+		await self.channel.send(f"""{role} 
 **{subscribe_data['offer_amount']:,} {subscribe_data['offer_resource']} is being {past_tense} for ${subscribe_data['price']:,}**
 Last Sell price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']:,}
 Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_offer']['price']:,}
@@ -42,23 +42,26 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 			condition1 = subscribe_data['price']>self.result[f'{subscribe_data["offer_resource"]}']['best_sell_offer']['price']
 			profit=-profit
 			profit_percent = -profit_percent
-		if condition1 and profit>=100000000 and profit_percent>0.022:
-			role ="1397956409676529664"
-			await self.send_message(role,type_of_trade,profit,subscribe_data)
-		elif condition1 and profit>=50000000 and profit<100000000 and profit_percent>0.033: 
-			role = "1399011324465254461"
-			await self.send_message(role,type_of_trade,profit,subscribe_data)      
-		elif condition1 and profit>=20000000 and profit<50000000 and profit_percent>0.033: 
-			role ="1399011150363885630"
-			await self.send_message(role,type_of_trade,profit,subscribe_data)      
-		elif condition1 and profit>=5000000 and profit<20000000 and profit_percent>0.033: 
-			role ="1399011479478337690"
-			await self.send_message(role,type_of_trade,profit,subscribe_data)
-		elif profit>1000000 and profit<5000000 and profit_percent>0.044:
-			role ="1399011571572936764"
-			await self.send_message(role,type_of_trade,profit,subscribe_data)      
-			
+		thresholds = [
+			(100_000_000, float("inf"), 0.022, "1397956409676529664"),  # 100m+
+			(50_000_000, 100_000_000, 0.033, "1399011324465254461"),   # 50m+
+			(20_000_000, 50_000_000, 0.033, "1399011150363885630"),    # 20m+
+			(5_000_000, 20_000_000, 0.033, "1399011479478337690"),     # 5m+
+			(1_000_000, 5_000_000, 0.044, "1399011571572936764"),      # 1m+
+		]
 
+		if condition1:
+			roles_to_ping = []
+			for profit_min, profit_max, percent_min, role_id in thresholds:
+				if profit >= profit_min and profit < profit_max and profit_percent > percent_min:
+					# include this role and ALL lower roles
+					idx = thresholds.index((profit_min, profit_max, percent_min, role_id))
+					roles_to_ping = [r[3] for r in thresholds[idx:]]
+					break
+			
+		role_mentions = ",".join([f"<@&{r}>" for r in roles_to_ping])
+		await self.send_message(role_mentions, type_of_trade, profit, subscribe_data)
+		
 	async def check_the_rss(self,subscribe_data):
 		subscribe_data = subscribe_data.to_dict()
 		if subscribe_data['accepted']==0:
