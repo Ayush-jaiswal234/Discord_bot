@@ -100,7 +100,7 @@ class Bot_bg_Tasks:
 	async def alert_checker(self,nation,data_dict):
 		alert_required = False
 		alert_text = ""
-		war = False
+		war = True
 		if nation["color"]!=data_dict["color"] and nation["color"]!="beige":
 			alert_required = True
 			alert_text = f"{alert_text}**Color:**\n```Please change your color {data_dict['color']}.```\n"
