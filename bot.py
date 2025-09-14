@@ -904,6 +904,7 @@ async def sync_slash(ctx):
 	await ctx.send('slash commands updated')
 
 @client.command()
+@commands.has_any_role(1367769251443642488,1373425328587931700,1374933029394317453,454648130290319382)
 async def force_register(ctx,user:discord.User,link):
 	if link.startswith('http'):
 		nation_id=int(link[37:])

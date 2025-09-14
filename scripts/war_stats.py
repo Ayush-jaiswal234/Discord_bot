@@ -22,7 +22,7 @@ async def get_slots_data(allies_data,enemies_data):
     
     fetchdata= {key:values for d in results for key,values in d.items()}
     values=[]
-    connection=sqlite3.connect('politics and war.db')
+    connection=sqlite3.connect('pnw.db')
     cursor=connection.cursor()
     for index, row in allies_data.iterrows():
         nation_key=re.sub("[- 0-9]","_",row['nation'])
@@ -66,7 +66,7 @@ async def war_vis_sheet(allies,enemies,spreadsheets,sheetID):
         enemies_search_text = f'{search_text} = {enemies[0]}'
     else:
         enemies_search_text = f'{search_text} in {enemies}'	
-    connection=sqlite3.connect('politics and war.db')
+    connection=sqlite3.connect('pnw.db')
     allies_data=pd.read_sql_query(allies_search_text,connection)
     allies_data['nation']=allies_data['nation'].apply(lambda x: x.strip("'"))
     enemies_data=pd.read_sql_query(enemies_search_text,connection)
