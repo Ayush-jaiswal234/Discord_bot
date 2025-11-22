@@ -2,7 +2,7 @@ from datetime import datetime,timedelta
 import sqlite3
 
 def update_subscriptions(server_id,command_name,date_time):
-	connection=sqlite3.connect('politics and war.db')
+	connection=sqlite3.connect('pnw.db')
 	cursor=connection.cursor()
 	days=date_time.find('d')
 	hours=date_time.find('h')
@@ -29,7 +29,7 @@ def update_subscriptions(server_id,command_name,date_time):
 pass
 
 def check_subscriptions(server_id,command_name):
-	connection=sqlite3.connect('politics and war.db')
+	connection=sqlite3.connect('pnw.db')
 	cursor=connection.cursor()
 	search_subs=("select * from subscriptions where server_id=%s and command_name='%s'") %(server_id,command_name)
 	cursor.execute(search_subs)
