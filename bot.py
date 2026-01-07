@@ -1134,6 +1134,36 @@ async def stopdailyalerts(ctx,nation_id,value):
 		await db.execute(data_to_be_inserted)
 		await db.commit()	
 
+@client.hybrid_command(name='production_efficiency',description="Stops alert dms",with_app_command=True)
+async def production_efficiency(ctx):
+	production_per_day = {"munitions":{"production":21.6,"usage":["lead",6],"op_cost":3500},
+					   "gasoline":{"production":12,"usage":["oil",6],"op_cost":4000},
+					   "aluminum":{"production":12.24,"usage":["bauxite",4.08],"op_cost":2500},
+					   "steel":{"production":12.24,"usage":["iron","coal",4.08],"op_cost":4000}}
+	raw_op_cost = {"coal":400,"oil":600,"uranium":5000,"iron":1600,"lead":1500,"bauxite":1600}
+	async with aiosqlite.connect('pnw.db') as db:
+		db.row_factory =aiosqlite.Row
+		prices = await get_prices(db)
+		prices = dict(prices)
+	prices.pop('food')
+	profitability = []
+	for rss in prices.keys():
+		if rss not in production_per_day.keys():
+			if not rss == 'uranium':
+				profitability.append([rss.capitalize(),3*10*1.5*prices[rss]-10*raw_op_cost[rss]])
+			else:
+				profitability.append([rss.capitalize(), 12*5*1.5*prices[rss]-5*raw_op_cost[rss]])
+		else:
+			production_info = production_per_day[rss]
+			if not rss == 'steel':
+				profitability.append([rss.capitalize() ,production_info["production"]*5*1.5*prices[rss]-production_info["usage"][1]*prices[production_info["usage"][0]]-production_info["op_cost"]*5])
+			else:
+				profitability.append([rss.capitalize(), production_info["production"]*5*1.5*prices[rss]-production_info["usage"][2]*prices[production_info["usage"][0]]-production_info["usage"][2]*prices[production_info["usage"][1]]-production_info["op_cost"]*5])
+	profitability.sort(key=lambda x: x[1], reverse=True)
+	profit_text = "\n".join([f" {i[0]:<9}\t\t{round(i[1],2):,}" for i in profitability])
+	profit_text = f'```js\nResource \t Profit Per Day🤑🤑🤑 \n{profit_text}```'		
+	await ctx.send(profit_text)
+
 if __name__=='__main__':
 	web_flask.run()
 	client.run(os.getenv('DISCORD_TOKEN'))		
