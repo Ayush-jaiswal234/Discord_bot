@@ -1134,7 +1134,7 @@ async def stopdailyalerts(ctx,nation_id,value):
 		await db.execute(data_to_be_inserted)
 		await db.commit()	
 
-@client.hybrid_command(name='production_efficiency',description="Stops alert dms",with_app_command=True)
+@client.hybrid_command(name='productionefficiency',description="Gives the profitablilty of producing each resource",with_app_command=True)
 async def production_efficiency(ctx):
 	production_per_day = {"munitions":{"production":21.6,"usage":["lead",6],"op_cost":3500},
 					   "gasoline":{"production":12,"usage":["oil",6],"op_cost":4000},
