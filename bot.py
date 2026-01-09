@@ -13,6 +13,7 @@ from itertools import combinations_with_replacement
 from commands.role_view import MyPersistentView
 from commands.best_manu_view import ManuPersistentView
 from scripts.trade_bot import trade_watcher
+from scripts.live_beige import beige_watcher
 from dotenv import load_dotenv
 import web_flask
 from math import ceil
@@ -278,6 +279,7 @@ async def on_ready():
 	logging.info('Bot is ready')
 	client.updater.run()
 	start_trade = trade_watcher(client=client)
+	start_beige = beige_watcher(client=client)
 	Bot_bg_Tasks(client)
 	
 	await start_trade.start()
