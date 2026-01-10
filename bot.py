@@ -191,10 +191,11 @@ async def loot_calculator(nation_id):
 		db.row_factory =aiosqlite.Row
 		async with db.execute(f'select * from loot_data where nation_id={nation_id}') as cursor:
 			loot = await cursor.fetchone()
-			loot = list(loot)
+			
 		async with db.execute(f'select war_policy from all_nations_data where nation_id ={nation_id}') as cursor:	
 			war_policy = await cursor.fetchone()
 	if loot!=None:
+		loot = list(loot)
 		policy_modifer = 1 
 		if war_policy['war_policy'] ==5:
 			policy_modifer = 1.4
@@ -285,7 +286,7 @@ async def on_ready():
 	Bot_bg_Tasks(client)
 	
 	await start_trade.start()
-	await start_beige.start()
+	#await start_beige.start()
 	await client.change_presence(status=discord.Status.online, activity=activity)
 	await client.load_extension("commands.help")
 	await client.load_extension("commands.nation_audit")
