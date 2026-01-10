@@ -17,6 +17,7 @@ from scripts.live_beige import beige_watcher
 from dotenv import load_dotenv
 import web_flask
 from math import ceil
+import pnwkit
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.basicConfig(filename='log.txt',	level=logging.INFO) #	
@@ -273,6 +274,7 @@ activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 #client.add_check(is_guild)
 client.setup_hook = setup_hook
 client.updater= db_tasks()
+client.kit = pnwkit.QueryKit("2b2db3a2636488")
 
 @client.event
 async def on_ready():
@@ -283,6 +285,7 @@ async def on_ready():
 	Bot_bg_Tasks(client)
 	
 	await start_trade.start()
+	await start_beige.start()
 	await client.change_presence(status=discord.Status.online, activity=activity)
 	await client.load_extension("commands.help")
 	await client.load_extension("commands.nation_audit")

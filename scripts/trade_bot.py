@@ -11,7 +11,7 @@ from json import JSONDecodeError
 class trade_watcher:
 	def __init__(self,client) -> None:
 		self.channel = client.get_channel(1367778031439057076) # wap channel:  1254619896290213888,715222394318356541
-		self.kit = pnwkit.QueryKit("2b2db3a2636488")
+		self.kit = client.kit
 		self.track_ids = []
 		self.result = {}
 		self.embed = discord.Embed()

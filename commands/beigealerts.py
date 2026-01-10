@@ -6,6 +6,7 @@ from scripts import nation_data_converter
 from bot import loot_calculator,last_bank_rec
 from web_flask import beige_link
 import pnwkit,logging,httpx
+from discord.errors import Forbidden
 
 class beige_alerts(commands.Cog):
 	def __init__(self,bot,):
@@ -56,7 +57,7 @@ class beige_alerts(commands.Cog):
 		
 		await ctx.send(f"Alerts have been set. Use this link to plan when you need to be online:\n{unique_link}",ephemeral=True)
 
-	@commands.hybrid_command(name='stopalerts',with_app_command=True,description='Stops all alerts in the channel')
+	@commands.hybrid_command(name='stopalerts',with_app_command=True,description='Stops beige alert dms for the user')
 	async def stopalerts(self,ctx:commands.context):
 
 		async with aiosqlite.connect('pnw.db') as db:
@@ -208,7 +209,13 @@ class beige_alerts(commands.Cog):
 		for user in user_info:
 			if nation_data['score']>user['score']*0.75 and nation_data['score']<user['score']*2.5:
 				if await self.is_alert_needed(nation_data,user):
-					await self.send_alert(user,[nation_data])
-
+					try:
+						print(user)
+						await self.send_alert(user,[nation_data])
+					except Forbidden:
+						async with aiosqlite.connect('pnw.db') as db:
+							await db.execute(f'delete from beige_alerts where user_id ={user}')
+							await db.commit()
+					
 async def setup(bot):
     await bot.add_cog(beige_alerts(bot))

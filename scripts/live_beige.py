@@ -1,4 +1,3 @@
-import pnwkit
 from discord.ext import tasks
 import aiosqlite
 from scripts import nation_data_converter
@@ -7,8 +6,8 @@ import discord
 
 class beige_watcher:
 	def __init__(self,client) -> None:
-		self.channel = client.get_channel(1367778031439057076) # wap channel:  1254619896290213888,715222394318356541
-		self.kit = pnwkit.QueryKit("2b2db3a2636488")
+		self.channel = client.get_channel(1252962648174362674) # wap channel:  1254619896290213888,715222394318356541
+		self.kit = client.kit
 		self.nation_list = []
 		self.result = {}
 		self.embed = discord.Embed()

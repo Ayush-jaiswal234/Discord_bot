@@ -221,6 +221,7 @@ class Bot_bg_Tasks:
 		
 		for rss,revenue in raws_rev.items():
 			if revenue<0:
+				logging.info(f"{rss,type(rss),revenue,type(revenue)} something to do with these")
 				if nation[rss]<-revenue*3:
 					alert_text = f"{alert_text}**{rss.capitalize()}:**\n```You only have {nation[rss]} {rss} remaining which will last for {round(abs(nation[rss]/revenue),2)} days.```\n"
 					alert_required = True								
