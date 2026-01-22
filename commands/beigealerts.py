@@ -13,7 +13,7 @@ class beige_alerts(commands.Cog):
 		self.bot = bot
 		self.updater = bot.updater
 		self.safe_aa = []
-		self.kit = pnwkit.QueryKit("2b2db3a2636488")
+		self.kit = pnwkit.QueryKit("fb46570337e1dcdbb0d2")
 		self.check_for_beigealerts.add_exception_type(KeyError)
 		self.check_for_beigealerts.start()
 
@@ -112,7 +112,7 @@ class beige_alerts(commands.Cog):
 				}}
 			}} }}"""
 			async with httpx.AsyncClient() as client:
-				fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+				fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
 				fetchdata = fetchdata.json()['data']['nations']['data']
 			
 			for i in range(len(beige_data)):

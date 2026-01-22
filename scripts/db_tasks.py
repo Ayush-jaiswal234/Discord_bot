@@ -11,7 +11,7 @@ from json.decoder import JSONDecodeError
 class db_tasks:
 
 	def __init__(self) -> None:
-		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
+		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
 
 		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError,RemoteProtocolError)
@@ -29,7 +29,7 @@ class db_tasks:
 
 	@tasks.loop(minutes=5,reconnect=True)
 	async def update_nation_data(self):
-		request_url='https://politicsandwar.com/api/v2/nations/819fd85fdca0a686bfab/&min_score=20'
+		request_url='https://politicsandwar.com/api/v2/nations/2bfb8817f934b00c5eb6/&min_score=20'
 		async with httpx.AsyncClient() as client:
 			nationdata= await client.get(request_url,timeout=20)
 			nationdata=nationdata.json()

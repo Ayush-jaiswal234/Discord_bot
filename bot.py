@@ -81,13 +81,13 @@ async def last_bank_rec(nation_list):
 		for nation in nation_list:
 			if len(query)>9900:
 				query=f"{{ {query} }}"
-				fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+				fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
 				results.append(fetchdata.json()['data'])
 				query=''
 			query=f"""{query}i{i}:bankrecs(sid:{nation[0]},orderBy:{{column:DATE,order:DESC}},first:1,rtype:2){{data{{date}}}}"""
 			i+=1	
 		query=f"{{ {query} }}"
-		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
 		results.append(fetchdata.json()['data'])	
 	fetchdata= {key:values for d in results for key,values in d.items()}
 	bankdata=[]	
@@ -267,7 +267,7 @@ async def setup_hook():
 		else:
 			client.add_view(ManuPersistentView(),message_id= view[2])
 
-graphql_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
+graphql_link='https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6'
 intents = discord.Intents.default()	
 intents.message_content = True
 client=commands.AutoShardedBot(command_prefix=os.getenv('command_prefix'),help_command=None,intents=intents)
@@ -275,7 +275,7 @@ activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 #client.add_check(is_guild)
 client.setup_hook = setup_hook
 client.updater= db_tasks()
-client.kit = pnwkit.QueryKit("2b2db3a2636488")
+client.kit = pnwkit.QueryKit("fb46570337e1dcdbb0d2")
 
 @client.event
 async def on_ready():
@@ -818,7 +818,7 @@ async def war(ctx:commands.Context, *,flags:RaidFlags):
 		}} }}"""
 		results=[]
 		async with httpx.AsyncClient() as client:
-			fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':page_query})
+			fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':page_query})
 			fetchdata =fetchdata.json()['data']['nations']
 			results.extend(fetchdata['data'])
 			page_size = fetchdata['paginatorInfo']['lastPage']
@@ -842,7 +842,7 @@ async def war(ctx:commands.Context, *,flags:RaidFlags):
 							ships
 						}}
 							}} }}"""
-					fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+					fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
 					results.extend(fetchdata.json()['data']['nations']['data'])
 		sheets_data = []
 		for nations in results:
@@ -1009,7 +1009,7 @@ async def tiering(ctx,coalition_1,coalition_2,filters=None):
 					}}
 				}} }}"""
 	async with httpx.AsyncClient() as client:
-		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
 		fetchdata = fetchdata.json()['data']['alliances']['data']
 	coalition_1_ids = coalition_1.split(',')	
 	coalition_1_nation_list,coalition_2_nation_list = [],[]
@@ -1124,7 +1124,7 @@ async def aa_stalker(alliance_ids,filters={'include_vm':False}):
 				}}
 			}} }}"""
 	async with httpx.AsyncClient() as client:
-		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
 		fetchdata = fetchdata.json()['data']['alliances']['data']
 	return fetchdata
 

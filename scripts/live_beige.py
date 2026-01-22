@@ -70,7 +70,7 @@ class beige_watcher:
 						}} 
 						bankrecs(sid:{nation_data.id},orderBy:{{column:DATE,order:DESC}},first:1,rtype:2){{data{{date}}}} }}"""
 				async with httpx.AsyncClient() as client:
-					fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+					fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
 					citydata = fetchdata.json()['data']['nations']['data'][0]
 					bankdata = fetchdata.json()['data']['bankrecs']['data']
 				

@@ -11,7 +11,7 @@ async def spy_target_finder(att_ids,def_ids):
 				}} }}"""
 	
 	async with httpx.AsyncClient() as client:
-		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
 		fetchdata = fetchdata.json()['data']['alliances']['data']
 	attackers= []
 	defenders = []

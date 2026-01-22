@@ -12,12 +12,12 @@ async def get_slots_data(allies_data,enemies_data):
             query=f"""{query} {re.sub("[- 0-9]","_",rows[2])}:wars(defid:{rows[1]}){{data{{att_id}}}}"""
         else:
            query=f"{{ {query} }}"
-           fetchdata=requests.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+           fetchdata=requests.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
            results.append(fetchdata.json()['data'])
            query=''
            query=f"""{query} {re.sub("[- 0-9]","_",rows[2])}:wars(defid:{rows[1]}){{data{{att_id}}}}"""     
     query=f"{{ {query} }}"
-    fetchdata=requests.post('https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab',json={'query':query})
+    fetchdata=requests.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
     results.append(fetchdata.json()['data'])
     
     fetchdata= {key:values for d in results for key,values in d.items()}

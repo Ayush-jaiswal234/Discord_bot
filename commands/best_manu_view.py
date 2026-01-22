@@ -12,7 +12,7 @@ async def get_prices():
 pass
 
 async def mods_data(nation_id):
-	api_v3_link='https://api.politicsandwar.com/graphql?api_key=819fd85fdca0a686bfab'
+	api_v3_link='https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6'
 	query=f"""{{
 			nations(id:{nation_id}){{
 				data{{
