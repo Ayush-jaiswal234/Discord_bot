@@ -121,6 +121,7 @@
         <form id="spyform">
             <input type="text" id="attids" placeholder="Enter Attacking Alliance IDs (comma-separated)">
             <input type="text" id="defids" placeholder="Enter Defending Alliance IDs (comma-separated)">
+            <input type="text" id="password" placeholder="If you know you know">
             <button type="submit">Fetch</button>
         </form>
         <div class="checkboxes">
@@ -226,19 +227,23 @@
     
                 const attids = $("#attids").val().trim(); // Fetch attacking alliance IDs
                 const defids = $("#defids").val().trim(); // Fetch defending alliance IDs
+                const password = $("#password").val().trim();
                 const empty_rows = $("#empty_rows").prop("checked");
                 if (!attids && !defids) {
                     alert("Please enter at least one Alliance ID for either attackers or defenders.");
                     return;
                 }
-    
+                if (!password){
+                    alert("You don't know");
+                    return;
+                }
                 // Send data to Flask using POST request
                 $.ajax({
                     url: "/spysheet",
                     type: "POST",
                     contentType: "application/json",
                     dataType: "json",
-                    data: JSON.stringify({ attids: attids, defids: defids, empty_rows: empty_rows }),
+                    data: JSON.stringify({ attids: attids, defids: defids, empty_rows: empty_rows, password:password }),
                     success: function (response) {
                         console.log("Data received from server:", response);
                         $("#targetTable tbody").empty(); // Clear existing table data

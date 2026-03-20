@@ -63,11 +63,15 @@ async def spysheet():
         data = request.get_json()
         att_ids = data.get('attids', '') 
         def_ids = data.get('defids','')
+        password = data.get('password','')
         show_empty_rows = data.get('empty_rows','')
-        fetchdata = await spy_target_finder(att_ids,def_ids)
-        if not show_empty_rows:
-            fetchdata = [data for data in fetchdata if data['top_attackers']]
-        return jsonify(fetchdata)
+        if password=='idontcare12':
+            fetchdata = await spy_target_finder(att_ids,def_ids)
+            if not show_empty_rows:
+                fetchdata = [data for data in fetchdata if data['top_attackers']]
+            return jsonify(fetchdata)
+        else: 
+            return {'response':"I told you, you don't know"}
         
 def run():
     Thread(target=lambda: app.run(host=os.getenv('web_address'), port=5000)).start()
