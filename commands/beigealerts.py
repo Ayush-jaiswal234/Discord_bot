@@ -27,7 +27,7 @@ class beige_alerts(commands.Cog):
 	async def on_ready(self):
 		# Start the watcher after the bot is ready
 		logging.info("Beige watcher started.")
-		#await self.beige_watcher()
+		await self.beige_watcher()
 		
 
 	async def flags_parser(self,all_nations,alliances):
