@@ -78,8 +78,8 @@ class beige_alerts(commands.Cog):
 
 	@tasks.loop(minutes=2.5,reconnect=True)
 	async def check_for_beigealerts(self):
-		#now_time = datetime.now(timezone.utc).time()
-		#if now_time.hour % 2 == 1 and now_time.minute >= 50 and (now_time.minute + now_time.second / 60) <= 52.5:
+		now_time = datetime.now(timezone.utc).time()
+		if now_time.hour % 2 == 1 and now_time.minute >= 50 and (now_time.minute + now_time.second / 60) <= 52.5:
 			async with aiosqlite.connect("pnw.db") as db:
 				db.row_factory = aiosqlite.Row
 				async with db.execute("""
