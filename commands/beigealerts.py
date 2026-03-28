@@ -138,7 +138,6 @@ class beige_alerts(commands.Cog):
 				await self.send_alert(user,targets)
 
 	async def send_alert(self,user,targets):
-		user = user['user_id']
 		try:
 			dm_channel = await self.bot.get_user(user) 
 		except:
