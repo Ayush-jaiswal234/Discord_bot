@@ -12,7 +12,6 @@ class beige_alerts(commands.Cog):
 	def __init__(self,bot,):
 		self.bot = bot
 		self.updater = bot.updater
-		self.safe_aa = []
 		self.kit = pnwkit.QueryKit("fb46570337e1dcdbb0d2")
 		self.check_for_beigealerts.add_exception_type(KeyError)
 		self.check_for_beigealerts.start()
@@ -30,17 +29,14 @@ class beige_alerts(commands.Cog):
 		#await self.beige_watcher()
 		
 
-	async def flags_parser(self,all_nations,alliances):
+	async def flags_parser(self,alliances,all_nations=1):
 		
-		if alliances== 'Default' and all_nations==0:	
-			date=datetime.now(timezone.utc).replace(microsecond=0)
-			date = date -timedelta(days=10)
-			alliance_search =  f"and (alliance_id not in {self.safe_aa} or (alliance_id in {self.safe_aa} and (alliance_position=1 or date(last_active)<'{date}')))"	
-		elif all_nations==1:
-			alliance_search = ""
-		else:
+		if all_nations!=1:
 			alliance_id = tuple(alliances.split(','))
 			alliance_search = f"and alliance_id in {alliance_id}" if len(alliance_id)>1 else f"and alliance_id = {alliance_id[0]}"
+			
+		else:
+			alliance_search = ""
 
 		return alliance_search
 
@@ -50,7 +46,7 @@ class beige_alerts(commands.Cog):
 			await db.execute(f"INSERT OR REPLACE INTO beige_alerts values {(ctx.author.id,int(flags.all_nations),str(flags.alliances),flags.loot,flags.time)}")
 			await db.commit()
 		
-		alliance_search = await self.flags_parser(flags.all_nations,flags.alliances)
+		alliance_search = await self.flags_parser(flags.alliances,flags.all_nations)
 		self.updater.update_nation_data.change_interval(minutes=2.5)
 		endpoint = f"{ctx.author.id}"	
 		unique_link = beige_link(endpoint, [alliance_search,flags.loot])
@@ -68,28 +64,24 @@ class beige_alerts(commands.Cog):
 
 	async def is_alert_needed(self, target,user):
 		if not bool(user['all_nations']):
-			if user['alliances'] != "Default":  
-				if str(target['alliance_id']) not in (user['alliances'].split(',')):
-					return False
-			else:
-				if target['alliance_id'] in self.safe_aa:
-					return False
+			print('all_nations prob')
+			if str(target['alliance_id']) not in (user['alliances'].split(',')):
+				print('id mismatch')
+				return False
+
 		
 		if user['loot']>int(target['loot']):
+			print('loot problem')
 			return False
 		
 		return True
 
 	@tasks.loop(minutes=2.5,reconnect=True)
 	async def check_for_beigealerts(self):
-		now_time = datetime.now(timezone.utc).time()
-		if now_time.hour % 2 == 1 and now_time.minute >= 50 and (now_time.minute + now_time.second / 60) <= 52.5:
+		#now_time = datetime.now(timezone.utc).time()
+		#if now_time.hour % 2 == 1 and now_time.minute >= 50 and (now_time.minute + now_time.second / 60) <= 52.5:
 			async with aiosqlite.connect("pnw.db") as db:
 				db.row_factory = aiosqlite.Row
-				async with db.execute('select * from safe_aa') as cursor:
-					safe_aa = await cursor.fetchall()
-				safe_aa = tuple([x[0] for x in safe_aa])
-				self.safe_aa = safe_aa
 				async with db.execute("""
 					SELECT all_nations_data.nation_id, all_nations_data.nation, all_nations_data.alliance, all_nations_data.alliance_id, all_nations_data.score,all_nations_data.cities, all_nations_data.soldiers, all_nations_data.tanks, all_nations_data.aircraft, all_nations_data.ships, loot_data.war_end_date
 					FROM all_nations_data
@@ -136,9 +128,12 @@ class beige_alerts(commands.Cog):
 				for user in user_info:
 					for target in updated_targets:
 						if target['score']>user['score']*0.75 and target['score']<user['score']*2.5:
+							print(target)
+							print(user['alliances'].split(','))
 							if await self.is_alert_needed(target,user):
 								dm_dict.setdefault(user['user_id'], []).append(target)
-
+								print(dm_dict)
+			
 			for user,targets in dm_dict.items():
 				await self.send_alert(user,targets)
 
