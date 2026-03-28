@@ -17,7 +17,7 @@ class beige_alerts(commands.Cog):
 		self.check_for_beigealerts.start()
 
 	class MonitorFlags(commands.FlagConverter,delimiter= " ",prefix='-'):
-		all_nations: bool = False
+		all_nations: bool = True
 		alliances: str = 'Default'
 		loot: int = 0
 		time: int = 0
@@ -43,9 +43,13 @@ class beige_alerts(commands.Cog):
 	@commands.hybrid_command(name='beigealerts',with_app_command=True,description='Alerts about the targets leaving beige')
 	async def beigealerts(self,ctx:commands.Context,*,flags:MonitorFlags):
 		async with aiosqlite.connect('pnw.db') as db:
+			if flags.alliances != 'Default':
+				flags.all_nations = False
 			await db.execute(f"INSERT OR REPLACE INTO beige_alerts values {(ctx.author.id,int(flags.all_nations),str(flags.alliances),flags.loot,flags.time)}")
 			await db.commit()
 		
+		
+
 		alliance_search = await self.flags_parser(flags.alliances,flags.all_nations)
 		self.updater.update_nation_data.change_interval(minutes=2.5)
 		endpoint = f"{ctx.author.id}"	
