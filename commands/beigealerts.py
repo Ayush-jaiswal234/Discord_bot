@@ -31,7 +31,7 @@ class beige_alerts(commands.Cog):
 
 	async def flags_parser(self,alliances,all_nations=1):
 		
-		if all_nations!=1:
+		if alliances!='Default':
 			alliance_id = tuple(alliances.split(','))
 			alliance_search = f"and alliance_id in {alliance_id}" if len(alliance_id)>1 else f"and alliance_id = {alliance_id[0]}"
 			
@@ -128,11 +128,8 @@ class beige_alerts(commands.Cog):
 				for user in user_info:
 					for target in updated_targets:
 						if target['score']>user['score']*0.75 and target['score']<user['score']*2.5:
-							print(target)
-							print(user['alliances'].split(','))
 							if await self.is_alert_needed(target,user):
 								dm_dict.setdefault(user['user_id'], []).append(target)
-								print(dm_dict)
 			
 			for user,targets in dm_dict.items():
 				await self.send_alert(user,targets)
