@@ -136,7 +136,12 @@ class beige_alerts(commands.Cog):
 								dm_dict.setdefault(user['user_id'], []).append(target)
 			
 			for user,targets in dm_dict.items():
-				await self.send_alert(user,targets)
+				try:
+					await self.send_alert(user,targets)
+				except Forbidden:
+					async with aiosqlite.connect('pnw.db') as db:
+						await db.execute(f'delete from beige_alerts where user_id ={user}')
+						await db.commit()
 
 	async def send_alert(self,user,targets):
 		try:
