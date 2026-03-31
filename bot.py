@@ -632,19 +632,19 @@ async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,options=No
 			att_casualties = def_roll*0.015385*3
 			def_casualties = att_roll*0.009091*3
 			max_causalities = max(min(target_unit_count,target_unit_count*0.75+1000,(att_roll-def_roll*0.5)*35*0.95),0)
-			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/100
+			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/300
 		
 		elif "tanks" in options:
 			att_casualties = def_roll*0.015385*3
 			def_casualties = att_roll*0.009091*3
 			max_causalities = max(min(target_unit_count,target_unit_count*0.75+10,(att_roll-def_roll*0.5)*1.25*0.95),0)
-			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/100
+			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/300
 		
 		elif "ships" in options:
 			att_casualties = def_roll*0.015385*3
 			def_casualties = att_roll*0.009091*3
 			max_causalities = max(min(target_unit_count,target_unit_count*0.5+4,(att_roll-def_roll*0.5)*0.0285 *0.95),0)
-			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/100
+			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/300
 
 		if "b" in options:
 			def_casualties = def_casualties*1.1
