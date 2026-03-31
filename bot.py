@@ -614,7 +614,7 @@ async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldi
 ```Attacker:\n\t-{ats_causalities:,} soldiers\n\t-{att_causalities:,} tanks \n\nDefender:\n\t-{dfs_causalities:,} soldiers\n\t-{dft_causalities:,} tanks```""")
 	
 @client.hybrid_command(name='air',with_app_command=True,description='Simulate a air attack')
-async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,options=None,max_num=1000000):
+async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,options=None,target_unit_count=1000000):
 	
 	att_roll = 0.7 * att_aircraft*3
 	def_roll = 0.7 * def_aircraft*3
@@ -631,19 +631,19 @@ async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,options=No
 		if "soldiers" in options:
 			att_casualties = def_roll*0.015385*3
 			def_casualties = att_roll*0.009091*3
-			max_causalities = max(min(max_num,max_num*0.75+1000,(att_roll-def_roll*0.5)*35*0.95),0)
+			max_causalities = max(min(target_unit_count,target_unit_count*0.75+1000,(att_roll-def_roll*0.5)*35*0.95),0)
 			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/100
 		
 		elif "tanks" in options:
 			att_casualties = def_roll*0.015385*3
 			def_casualties = att_roll*0.009091*3
-			max_causalities = max(min(max_num,max_num*0.75+10,(att_roll-def_roll*0.5)*1.25*0.95),0)
+			max_causalities = max(min(target_unit_count,target_unit_count*0.75+10,(att_roll-def_roll*0.5)*1.25*0.95),0)
 			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/100
 		
 		elif "ships" in options:
 			att_casualties = def_roll*0.015385*3
 			def_casualties = att_roll*0.009091*3
-			max_causalities = max(min(max_num,max_num*0.75+4,(att_roll-def_roll*0.5)*0.0285 *0.95),0)
+			max_causalities = max(min(target_unit_count,target_unit_count*0.5+4,(att_roll-def_roll*0.5)*0.0285 *0.95),0)
 			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[3]*0.4)/100
 
 		if "b" in options:
