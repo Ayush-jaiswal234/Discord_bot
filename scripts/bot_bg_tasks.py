@@ -40,7 +40,7 @@ class Bot_bg_Tasks:
 					data{
 						wars(active:true,status:ACTIVE){
 						
-						att_id,def_id,att_points,def_points,att_alliance_id,def_alliance_id,att_resistance,def_resistance
+						id,att_id,def_id,att_points,def_points,att_alliance_id,def_alliance_id,att_resistance,def_resistance
 						}
 					}
 					} }"""	
@@ -58,7 +58,7 @@ class Bot_bg_Tasks:
 				nation ={'id':war[f'{member}_id']}
 				message = f"You are at max MAPs against <https://politicsandwar.com/nation/id={war[f'{non_member}_id']}>"
 				discord_id = await self.member_info(nation)
-				info_text = f"{war[f'{member}_resistance']} | {war[f'{non_member}_resistance']} [{'DEF' if member=='def' else 'OFF'}](https://politicsandwar.com/nation/id={war[f'{non_member}_id']})\n"
+				info_text = f"{war[f'{member}_resistance']} | {war[f'{non_member}_resistance']} [{'DEF' if member=='def' else 'OFF'}](https://politicsandwar.com/nation/war/timeline/war={war['id']})\n"
 				if discord_id!=None:
 					try:
 						user = await self.bot.get_user(discord_id)

@@ -82,7 +82,6 @@ class beige_alerts(commands.Cog):
 
 		
 		if user['loot']>int(target['loot']):
-			print('loot problem')
 			return False
 		
 		return True
@@ -161,7 +160,7 @@ class beige_alerts(commands.Cog):
 						if await self.is_alert_needed(target,user):
 							target['Demilitarize'] = None
 							if target['score']<user['score']*0.75:
-								target['Demilitarize'] = self.demilitarizer(target,user)
+								target['Demilitarize'] = await self.demilitarizer(target,user)
 							dm_dict.setdefault(user['user_id'], []).append(target)
 			
 			for user,targets in dm_dict.items():
@@ -222,7 +221,7 @@ class beige_alerts(commands.Cog):
 				demili_text = "```js\n" + "\n".join(lines) + "```"
 
 				embed.add_field(
-					name="Military info",
+					name="DeCom info",
 					value=demili_text,
 					inline=False
 				)
