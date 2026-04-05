@@ -18,6 +18,7 @@ class Bot_bg_Tasks:
 	def __init__(self,bot) -> None:
 		self.bot = bot
 		self.channel = bot.get_channel(1377328335297712262)
+		self.milcom_channel = bot.get_channel(1490289630350676019)
 		self.scheduler = AsyncIOScheduler()
 		self.scheduler.add_job(self.spies_checker, trigger='cron',day_of_week='fri', hour=12, minute=00,timezone=dt.timezone.utc)
 		#self.scheduler.add_job(self.send_spy_alerts, trigger='cron', hour=2, minute=0,timezone=dt.timezone.utc)
@@ -27,7 +28,49 @@ class Bot_bg_Tasks:
 		self.audit_members.add_exception_type(OperationalError,ConnectTimeout)
 		self.audit_members.start()
 		self.scheduler.start()
+		self.check_wars.start()
 		pass
+
+	@tasks.loop(hours=2,reconnect=True)
+	async def check_wars(self):
+		query= """{alliances(id:14000){
+					data{
+						wars(active:true,status:ACTIVE){
+						
+						att_id,def_id,att_points,def_points,att_alliance_id,def_alliance_id
+						}
+					}
+					} }"""	
+		async with httpx.AsyncClient() as client:
+			fetchdata=await client.post(self.whitlisted_api_link,json={'query':query},timeout=None)
+			fetchdata = fetchdata.json()["data"]["alliances"]["data"][0]	
+		combined_alert = ""
+		for war in fetchdata['wars']:
+			member = "att" if war['att_alliance_id']=='14000' else "def"
+			non_member = "def" if member=="att" else "att" 
+			if war[f'{member}_points']==12:
+				nation ={'id':war[f'{member}_id']}
+				message = f"at max MAPs against <https://politicsandwar.com/nation/id={war[f'{non_member}_id']}>"
+				discord_id = await self.member_info(nation)
+				if discord_id!=None:
+					try:
+						user = await self.bot.get_user(discord_id)
+					except:
+						logging.info('get_user failed')	
+						user = await self.bot.fetch_user(discord_id)
+					try:
+						await user.send(f'You are {message}')
+					except Forbidden:
+						continue
+					combined_alert += f'<@{discord_id}> is {message}\n'
+				else:
+					combined_alert += f"<https://politicsandwar.com/nation/id={war[f'{member}_id']}> is {message}\n"
+					
+				if len(combined_alert)>1800:
+					await self.milcom_channel.send(combined_alert)
+					combined_alert = ""
+		
+		await self.milcom_channel.send(combined_alert)
 
 	@tasks.loop(time=info_time,reconnect=True)
 	async def audit_members(self):

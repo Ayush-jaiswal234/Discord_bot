@@ -272,9 +272,9 @@ def is_guild(ctx):
 	if ctx.guild is None:
 		return False
 	elif ctx.guild.id in [1082151511892693055,1367766815941328907]:
-		wap_role_ids = {1146498346245181520, 1082777885372330064,1090430905870463058}
+		citadel_roles = {1367775243069947985, 1367767367056097352,1416211245643730984}
 		user_roles = {role.id for role in ctx.author.roles}
-		if wap_role_ids.intersection(user_roles):
+		if citadel_roles.intersection(user_roles):
 			return True
 		else:
 			return False
@@ -325,7 +325,7 @@ async def on_ready():
 async def on_command_error(ctx, error):
 	logging.warning(f"Discord Command Error:{error}")
 	if isinstance(error, commands.CheckFailure):
-		await ctx.send("Greetings Outsider,\nAll commands can only be used in the WAP server\nNOOT NOOT")
+		await ctx.send("Greetings Outsider,\nAll commands can only be used in the Citadel server\nNOOT NOOT")
 	else:
 		raise error
 
