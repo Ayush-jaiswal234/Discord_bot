@@ -9,9 +9,12 @@ from httpx import ConnectTimeout
 from discord.ext import tasks
 import logging,httpx,aiosqlite,random
 from scripts.spy_assigner import spy_target_finder
-from discord import AllowedMentions
+from discord import AllowedMentions,Embed
 
-info_time = dt.time(hour=22,minute=0,tzinfo=dt.timezone.utc) 
+utc = dt.timezone.utc
+
+info_time = dt.time(hour=22,minute=0,tzinfo=utc) 
+tc_times = [dt.time(hour=i,minute=20,tzinfo=utc) for i in range(0,23,2)]
 
 class Bot_bg_Tasks:
 
@@ -31,46 +34,50 @@ class Bot_bg_Tasks:
 		self.check_wars.start()
 		pass
 
-	@tasks.loop(hours=2,reconnect=True)
+	@tasks.loop(time=tc_times,reconnect=True)
 	async def check_wars(self):
 		query= """{alliances(id:14000){
 					data{
 						wars(active:true,status:ACTIVE){
 						
-						att_id,def_id,att_points,def_points,att_alliance_id,def_alliance_id
+						att_id,def_id,att_points,def_points,att_alliance_id,def_alliance_id,att_resistance,def_resistance
 						}
 					}
 					} }"""	
 		async with httpx.AsyncClient() as client:
 			fetchdata=await client.post(self.whitlisted_api_link,json={'query':query},timeout=None)
 			fetchdata = fetchdata.json()["data"]["alliances"]["data"][0]	
-		combined_alert = ""
+		emb = Embed()
+		emb.title = 'War not warring'
+		emb.description =''
+		emb.color = 10038562
 		for war in fetchdata['wars']:
 			member = "att" if war['att_alliance_id']=='14000' else "def"
 			non_member = "def" if member=="att" else "att" 
 			if war[f'{member}_points']==12:
 				nation ={'id':war[f'{member}_id']}
-				message = f"at max MAPs against <https://politicsandwar.com/nation/id={war[f'{non_member}_id']}>"
+				message = f"You are at max MAPs against <https://politicsandwar.com/nation/id={war[f'{non_member}_id']}>"
 				discord_id = await self.member_info(nation)
+				info_text = f"{war[f'{member}_resistance']} | {war[f'{non_member}_resistance']} [{'DEF' if member=='def' else 'OFF'}](https://politicsandwar.com/nation/id={war[f'{non_member}_id']})\n"
 				if discord_id!=None:
 					try:
 						user = await self.bot.get_user(discord_id)
 					except:
-						logging.info('get_user failed')	
 						user = await self.bot.fetch_user(discord_id)
 					try:
-						await user.send(f'You are {message}')
+						await user.send(message)
 					except Forbidden:
 						continue
-					combined_alert += f'<@{discord_id}> is {message}\n'
+					emb.description += f"<@{discord_id}> {info_text}"
 				else:
-					combined_alert += f"<https://politicsandwar.com/nation/id={war[f'{member}_id']}> is {message}\n"
-					
-				if len(combined_alert)>1800:
-					await self.milcom_channel.send(combined_alert)
-					combined_alert = ""
+					emb.description += f"<https://politicsandwar.com/nation/id={war[f'{member}_id']}> {info_text}\n"
+
+				if len(emb.description)>3900:
+					await self.milcom_channel.send(embed=emb)
+					emb.description = ""
+	
 		
-		await self.milcom_channel.send(combined_alert)
+		await self.milcom_channel.send(embed=emb)
 
 	@tasks.loop(time=info_time,reconnect=True)
 	async def audit_members(self):

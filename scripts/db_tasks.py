@@ -10,9 +10,10 @@ from json.decoder import JSONDecodeError
 
 class db_tasks:
 
-	def __init__(self) -> None:
+	def __init__(self,kit) -> None:
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
+		self.kit = kit
 
 		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError,RemoteProtocolError)
 		self.update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,RemoteProtocolError)
@@ -219,3 +220,15 @@ class db_tasks:
 			await db.executemany('INSERT INTO safe_aa (alliance_id) VALUES (?)', [(alliance_id,) for alliance_id in safe_aa])
 			await db.commit()
 		pass			
+
+
+	async def bankrecs(self):
+
+		exclude = ['id','receiver_id','sender_type','receiver_type','banker_id','note','tax_id']
+		subscription = await self.kit.subscribe("bankrec","create",{'sender_type':1,'receiver_type':2,'exclude':exclude},self.bank_update)
+
+	async def bank_update(self,data):
+		print(data.to_dict())
+		async with aiosqlite.connect('pnw.db',timeout=20.0) as db:
+			#await db.execute(f"INSERT OR REPLACE INTO bankrecs VALUES ('{data['date'].strftime("%Y-%m-%dT%H:%M:%S")}',{','.join(list(data.values())[1:])})") 
+			await db.commit()

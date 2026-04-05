@@ -301,8 +301,8 @@ client=commands.AutoShardedBot(command_prefix=os.getenv('command_prefix'),help_c
 activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 #client.add_check(is_guild)
 client.setup_hook = setup_hook
-client.updater= db_tasks()
 client.kit = pnwkit.QueryKit("fb46570337e1dcdbb0d2")
+client.updater= db_tasks(client.kit)
 
 @client.event
 async def on_ready():
