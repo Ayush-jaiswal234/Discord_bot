@@ -127,33 +127,24 @@ async def beige_view(discord_id):
 	async with aiosqlite.connect('pnw.db') as db:
 		db.row_factory = aiosqlite.Row
 		async with db.execute(f"""
-			SELECT  beige_alerts.all_nations,beige_alerts.alliances,beige_alerts.loot,beige_alerts.alert_time,
-					all_nations_data.score
+			SELECT  beige_alerts.all_nations,beige_alerts.alliances,beige_alerts.loot,beige_alerts.downdec,beige_alerts.alert_time,
+					all_nations_data.score,all_nations_data.soldiers, all_nations_data.tanks, all_nations_data.aircraft, all_nations_data.ships,all_nations_data.missiles,all_nations_data.nukes
 					FROM beige_alerts
 					INNER JOIN registered_nations ON beige_alerts.user_id = registered_nations.discord_id
 					INNER JOIN all_nations_data ON registered_nations.nation_id = all_nations_data.nation_id
 					WHERE beige_alerts.user_id={discord_id}""") as cursor:
 			parameters = await cursor.fetchone()    
 	if parameters:
-		if parameters['alliances']== 'Default' and parameters['all_nations']==0:	
-			date=datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
-			date = date -datetime.timedelta(days=10)
-			async with aiosqlite.connect('pnw.db') as db:
-				async with db.execute('select * from safe_aa') as cursor:
-					safe_aa = await cursor.fetchall()
-			safe_aa = tuple([x[0] for x in safe_aa])
-			api_search = safe_aa
-			alliance_search =  f"and (alliance_id not in {safe_aa} or (alliance_id in {safe_aa} and (alliance_position=1 or date(last_active)<'{date}')))"	
-		elif parameters['all_nations']==1:
+		if parameters['all_nations']==1:
 			alliance_search = ""
-			api_search = 0
 		else:
 			alliance_id = tuple(parameters['alliances'].split(','))
 			alliance_search = f"and alliance_id in {alliance_id}" if len(alliance_id)>1 else f"and alliance_id = {alliance_id[0]}"
-			api_search = parameters['alliances'].split(',')
-
-		war_range = f"and score>{parameters['score']*0.75} and score<{parameters['score']*2.5}"
-		list_of_targets = await monitor_targets(war_range,alliance_search,parameters['loot'],search_only=True)
+		if parameters['downdec']==0:
+			war_range = f"and score>{parameters['score']*0.75} and score<{parameters['score']*2.5}"
+		else:
+			war_range =f"and score>{parameters['score']*0.75-int(parameters['downdec'])} and score<{parameters['score']*2.5}"
+		list_of_targets = await monitor_targets(war_range,alliance_search,parameters['loot'],parameters,search_only=True)
 		list_of_targets = [x for x in list_of_targets]
 		template = env.get_template('beige_monitor.html')
 		result = template.render(targets=list_of_targets)

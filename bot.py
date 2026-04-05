@@ -206,8 +206,26 @@ async def loot_calculator(nation_id):
 		return (total_worth,loot)
 	else:
 		return None 
+	
+async def demilitarizer(target,user):
+		score_val = {"nukes":15,"missiles":5,"ships":1,"tanks":0.025,"aircraft":0.3}
+		reduce_score = user["score"]-(target["score"]/0.75)
+		keys = list(score_val.keys())
+		i = 0
+		result = {}
+		while reduce_score>0 and i<len(keys):
+			if user[keys[i]]!=0:
+				no_of_unit = reduce_score/score_val[keys[i]]
+				if no_of_unit<=user[keys[i]]:
+					reduce_score -= ceil(no_of_unit) * score_val[keys[i]]
+					result[keys[i]] = ceil(no_of_unit)
+				else:
+					reduce_score -= user[keys[i]] *score_val[keys[i]]	
+					result[keys[i]] = user[keys[i]]
+			i+=1
+		return result
 
-async def monitor_targets(war_range,alliance_search,loot,search_only=False):
+async def monitor_targets(war_range,alliance_search,loot,user,search_only=False):
 	search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
 	search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','score','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
 	targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where vmode=0 and defensive_wars<>3 and color=0 {war_range} {alliance_search}"
@@ -226,6 +244,8 @@ async def monitor_targets(war_range,alliance_search,loot,search_only=False):
 			beige_amount += target_nation[rss]*0.14*price
 		target_nation["beige_loot"] = round(beige_amount,2)
 	all_targets = [x for x in all_targets if x["beige_loot"]>=loot]	
+	
+
 	if search_only:
 		all_targets.sort(key=lambda x:x["beige_loot"],reverse=True)
 		deposit_data_list=await last_bank_rec([[x["nation_id"],x["nation"]] for x in all_targets])
@@ -237,7 +257,14 @@ async def monitor_targets(war_range,alliance_search,loot,search_only=False):
 			all_targets[x]["war_end_date"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["war_end_date"],"%Y-%m-%dT%H:%M:%S"))
 			all_targets[x]["last_active"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["last_active"],"%Y-%m-%d %H:%M:%S"))																   
 			all_targets[x]["alliance_position"] = nation_data_converter.position(all_targets[x]["alliance_position"])
-		
+			all_targets[x]['demilitarize'] = 'N/A'
+			if user['downdec']!=0:
+				if all_targets[x]['score']<user['score']*0.75:
+					demil_info = await demilitarizer(all_targets[x],user)
+					result =""
+					for k,v in demil_info.items():
+						result += f"<div><strong>{k.capitalize()}:</strong> {v}</div>"
+					all_targets[x]['demilitarize'] = result
 	return all_targets
 
 
@@ -587,22 +614,24 @@ async def ground(ctx: commands.Context, att_soldiers:int,att_tanks:int,def_soldi
 	ats_causalities=np.round(np.average(np.sum(dfsr*0.0084+dftr*0.0092,axis=1)),2)
 	dfs_causalities=np.round(np.average(np.sum(atsr*0.0084+attr*0.0092,axis=1)),2)
 
-	att_causalities=np.round(np.average(np.sum(np.where(outcomes,dfsr*0.0004060606+dftr*0.00066666666,dfsr*0.00043225806+dftr*0.00070967741),axis=1)),2)
-	dft_causalities=np.round(np.average(np.sum(np.where(outcomes,atsr*0.00043225806+attr*0.00070967741,atsr*0.0004060606+attr*0.00066666666),axis=1)),2)
+	att_causalities = 0
+	if att_tanks!= 0:
+		att_causalities=np.round(np.average(np.sum(np.where(outcomes,dfsr*0.0004060606+dftr*0.00066666666,dfsr*0.00043225806+dftr*0.00070967741),axis=1)),2)
 	
-	att_soldiers_modified = att_soldiers ** (3/4)
-	att_tanks_modified = att_tanks ** (3/4)
-	def_soldiers_modified = def_soldiers ** (3/4)
-	def_tanks_modified = def_tanks ** (3/4)
+	
+	dft_causalities = 0
+	if def_tanks!=0:
+		dft_causalities=np.round(np.average(np.sum(np.where(outcomes,atsr*0.00043225806+attr*0.00070967741,atsr*0.0004060606+attr*0.00066666666),axis=1)),2)
 
-	atsr = np.random.randint(int(0.4 * att_soldiers_modified * att_soldiers_multiplier), int((att_soldiers_modified + 1) * att_soldiers_multiplier), size=size)
-	attr = np.random.randint(int(0.4 * att_tanks_modified * 40), int((att_tanks_modified + 1) * 40), size=size)
+		
+	
+	att_modified = (att_soldiers *att_soldiers_multiplier + att_tanks*40) ** (3/4)
+	print(att_modified)
+	def_modified = (def_soldiers*def_soldiers_multiplier + def_tanks*40 + population/400) ** (3/4)
 
-	dfsr = np.random.randint(int(0.4 * def_soldiers_modified * def_soldiers_multiplier), int((def_soldiers_modified + 1) * def_soldiers_multiplier), size=size)
-	dftr = np.random.randint(int(0.4 * def_tanks_modified * 40), int((def_tanks_modified + 1) * 40), size=size)
+	att_army_value = np.random.randint(int(0.4 * att_modified), int((att_modified + 1)), size=size)
 
-	att_army_value = atsr + attr
-	def_army_value = dfsr + dftr
+	def_army_value = np.random.randint(int(0.4 * def_modified), int((def_modified + 1)), size=size)
 
 	win_outcomes=np.greater(att_army_value,def_army_value)
 	wins= np.unique(np.sum(win_outcomes,axis=1),return_counts=True)
@@ -644,7 +673,6 @@ async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,options=No
 			att_casualties = def_roll*0.015385*3
 			def_casualties = att_roll*0.009091*3
 			max_causalities = max(min(target_unit_count,target_unit_count*0.5+4,(att_aircraft-def_aircraft*0.5)*0.0285 *0.95),0)
-			print(max_causalities,wins)
 			def_troops_casualties = (max_causalities*wins[3]+max_causalities*wins[2]*0.7+max_causalities*wins[1]*0.4)/100
 
 		if "b" in options:

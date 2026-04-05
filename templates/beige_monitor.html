@@ -95,6 +95,7 @@
                         <th>Ships</th>
                         <th>Missiles</th>
                         <th>Nukes</th>
+                        <th>Demilitarize</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -117,6 +118,7 @@
                         <td>{{ target.ships }}</td>
                         <td>{{ target.missiles }}</td>
                         <td>{{ target.nukes }}</td>
+                        <td>{{ target.demilitarize | safe }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

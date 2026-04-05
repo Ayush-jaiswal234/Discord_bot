@@ -7,6 +7,7 @@ from bot import loot_calculator,last_bank_rec
 from web_flask import beige_link
 import pnwkit,logging,httpx
 from discord.errors import Forbidden
+from math import ceil
 
 class beige_alerts(commands.Cog):
 	def __init__(self,bot,):
@@ -21,6 +22,7 @@ class beige_alerts(commands.Cog):
 		alliances: str = 'Default'
 		loot: int = 0
 		time: int = 0
+		downdec: int = 0
 
 	@commands.Cog.listener()
 	async def on_ready(self):
@@ -45,7 +47,7 @@ class beige_alerts(commands.Cog):
 		async with aiosqlite.connect('pnw.db') as db:
 			if flags.alliances != 'Default':
 				flags.all_nations = False
-			await db.execute(f"INSERT OR REPLACE INTO beige_alerts values {(ctx.author.id,int(flags.all_nations),str(flags.alliances),flags.loot,flags.time)}")
+			await db.execute(f"INSERT OR REPLACE INTO beige_alerts values {(ctx.author.id,int(flags.all_nations),str(flags.alliances),flags.loot,flags.downdec,flags.time)}")
 			await db.commit()
 		
 		
@@ -67,10 +69,15 @@ class beige_alerts(commands.Cog):
 		await ctx.send("Alerts have been removed for you.")					
 
 	async def is_alert_needed(self, target,user):
+		if user['downdec']==0:
+			if target['score']<user['score']*0.75 and target['score']>user['score']*2.5:
+				return False
+		else:
+			if target['score']<(user['score']*0.75)-user['downdec']:
+				return False
+
 		if not bool(user['all_nations']):
-			print('all_nations prob')
 			if str(target['alliance_id']) not in (user['alliances'].split(',')):
-				print('id mismatch')
 				return False
 
 		
@@ -79,6 +86,26 @@ class beige_alerts(commands.Cog):
 			return False
 		
 		return True
+
+	async def demilitarizer(self,target,user):
+		score_val = {"nukes":15,"missiles":5,"ships":1,"tanks":0.025,"aircraft":0.3}
+		reduce_score = user["score"]-(target["score"]/0.75)
+		keys = list(score_val.keys())
+		i = 0
+		result = {}
+
+		while reduce_score>0 and i<len(keys):
+			if user[keys[i]]!=0:
+				no_of_unit = reduce_score/score_val[keys[i]]
+				if no_of_unit<=user[keys[i]]:
+					reduce_score -= ceil(no_of_unit) * score_val[keys[i]]
+					result[keys[i]] = ceil(no_of_unit)
+				else:
+					reduce_score -= user[keys[i]] *score_val[keys[i]]	
+					result[keys[i]] = user[keys[i]]
+			i+=1
+		return result
+
 
 	@tasks.loop(minutes=2.5,reconnect=True)
 	async def check_for_beigealerts(self):
@@ -94,8 +121,8 @@ class beige_alerts(commands.Cog):
 					beige_data = await cursor.fetchall()
 					beige_data.sort(key=lambda x:x['nation_id'])
 				async with db.execute("""
-					SELECT beige_alerts.user_id, beige_alerts.all_nations,beige_alerts.alliances,beige_alerts.loot,beige_alerts.alert_time,
-							all_nations_data.score
+					SELECT beige_alerts.user_id, beige_alerts.all_nations,beige_alerts.alliances,beige_alerts.loot,beige_alerts.downdec,beige_alerts.alert_time,
+							all_nations_data.score,all_nations_data.soldiers, all_nations_data.tanks, all_nations_data.aircraft, all_nations_data.ships,all_nations_data.missiles,all_nations_data.nukes
 							FROM beige_alerts
 							INNER JOIN registered_nations ON beige_alerts.user_id = registered_nations.discord_id
 							INNER JOIN all_nations_data ON registered_nations.nation_id = all_nations_data.nation_id;""") as cursor:
@@ -131,9 +158,11 @@ class beige_alerts(commands.Cog):
 			if beige_data:
 				for user in user_info:
 					for target in updated_targets:
-						if target['score']>user['score']*0.75 and target['score']<user['score']*2.5:
-							if await self.is_alert_needed(target,user):
-								dm_dict.setdefault(user['user_id'], []).append(target)
+						if await self.is_alert_needed(target,user):
+							target['Demilitarize'] = None
+							if target['score']<user['score']*0.75:
+								target['Demilitarize'] = self.demilitarizer(target,user)
+							dm_dict.setdefault(user['user_id'], []).append(target)
 			
 			for user,targets in dm_dict.items():
 				try:
@@ -149,6 +178,7 @@ class beige_alerts(commands.Cog):
 		except:
 			dm_channel = await self.bot.fetch_user(user)
 		emb_list = []
+		warn = ""
 		for target in targets:
 			embed = discord.Embed()
 			embed.title = f"Target: {target['nation']}"
@@ -173,16 +203,40 @@ class beige_alerts(commands.Cog):
 								f"Aircraft: {target['aircraft']:<8,}"
 								f"Ships: {target['ships']:<8,}```",
 								inline=False)	
-			
+			if target['Demilitarize']:
+				lines = []
+				items = list(target['Demilitarize'].items())
+
+				for i in range(0, len(items), 2):
+					left = items[i]
+					right = items[i + 1] if i + 1 < len(items) else None
+
+					left_str = f"{left[0].capitalize()}: {left[1]:<8,}"
+
+					if right:
+						right_str = f"{right[0].capitalize()}: {right[1]:<8,}"
+						lines.append(f"{left_str}{right_str}")
+					else:
+						lines.append(left_str)
+
+				demili_text = "```js\n" + "\n".join(lines) + "```"
+
+				embed.add_field(
+					name="Military info",
+					value=demili_text,
+					inline=False
+				)
+				warn = "⚠️ Consult with milcom before decomissioning any units ⚠️\n"
+
 			emb_list.append(embed)
 		now = datetime.now(timezone.utc)
 		next_hour = (now + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
 		time_difference = int((next_hour - now).total_seconds())
 		if len(emb_list)<=10:
-			await dm_channel.send(f'These nations are coming out of beige next turn which is in {int(time_difference//60)}m {int(time_difference%60)}s',embeds=emb_list)	
+			await dm_channel.send(f'{warn}These nations are coming out of beige next turn which is in {int(time_difference//60)}m {int(time_difference%60)}s',embeds=emb_list)	
 		else:
 			for i in range(0,len(emb_list),10):
-				await dm_channel.send(f'These nations are coming out of beige next turn which is in {int(time_difference//60)}m {int(time_difference%60)}s',embeds=emb_list[i:i+10])	
+				await dm_channel.send(f'{warn}These nations are coming out of beige next turn which is in {int(time_difference//60)}m {int(time_difference%60)}s',embeds=emb_list[i:i+10])	
 	
 	async def beige_watcher(self):
 		subscription = await self.kit.subscribe("nation","update",{},self.beige_leave_handler)
@@ -209,14 +263,16 @@ class beige_alerts(commands.Cog):
 							INNER JOIN all_nations_data ON registered_nations.nation_id = all_nations_data.nation_id;""") as cursor:
 					user_info = await cursor.fetchall()
 		for user in user_info:
-			if nation_data['score']>user['score']*0.75 and nation_data['score']<user['score']*2.5:
-				if await self.is_alert_needed(nation_data,user):
-					try:
-						await self.send_alert(user,[nation_data])
-					except Forbidden:
-						async with aiosqlite.connect('pnw.db') as db:
-							await db.execute(f'delete from beige_alerts where user_id ={user}')
-							await db.commit()
+			if await self.is_alert_needed(nation_data,user):
+				nation_data['Demilitarize'] = None
+				if nation_data['score']<user['score']*0.75:
+					nation_data['Demilitarize'] = self.demilitarizer(nation_data,user)
+				try:
+					await self.send_alert(user,[nation_data])
+				except Forbidden:
+					async with aiosqlite.connect('pnw.db') as db:
+						await db.execute(f'delete from beige_alerts where user_id ={user}')
+						await db.commit()
 					
 async def setup(bot):
     await bot.add_cog(beige_alerts(bot))
