@@ -70,10 +70,10 @@ class beige_alerts(commands.Cog):
 
 	async def is_alert_needed(self, target,user):
 		if user['downdec']==0:
-			if target['score']<user['score']*0.75 and target['score']>user['score']*2.5:
+			if target['score']<user['score']*0.75 or target['score']>user['score']*2.5:
 				return False
 		else:
-			if target['score']<(user['score']*0.75)-user['downdec']:
+			if target['score']<(user['score']*0.75)-user['downdec'] or target['score']>user['score']*2.5:
 				return False
 
 		if not bool(user['all_nations']):
