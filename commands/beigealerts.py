@@ -3,7 +3,7 @@ import aiosqlite
 from datetime import datetime,timedelta,timezone
 import discord
 from scripts import nation_data_converter
-from bot import loot_calculator,last_bank_rec
+from bot import loot_calculator
 from web_flask import beige_link
 import pnwkit,logging,httpx
 from discord.errors import Forbidden
@@ -113,9 +113,10 @@ class beige_alerts(commands.Cog):
 			async with aiosqlite.connect("pnw.db") as db:
 				db.row_factory = aiosqlite.Row
 				async with db.execute("""
-					SELECT all_nations_data.nation_id, all_nations_data.nation, all_nations_data.alliance, all_nations_data.alliance_id, all_nations_data.score,all_nations_data.cities, all_nations_data.soldiers, all_nations_data.tanks, all_nations_data.aircraft, all_nations_data.ships, loot_data.war_end_date
+					SELECT bankrecs.date,all_nations_data.nation_id, all_nations_data.nation, all_nations_data.alliance, all_nations_data.alliance_id, all_nations_data.score,all_nations_data.cities, all_nations_data.soldiers, all_nations_data.tanks, all_nations_data.aircraft, all_nations_data.ships, loot_data.war_end_date
 					FROM all_nations_data
 					INNER JOIN loot_data on all_nations_data.nation_id = loot_data.nation_id
+					left join bankrecs on all_nations_data.nation_id = bankrecs.nation_id
 					WHERE beige_turns = 1 and defensive_wars<>3 and vmode=0""") as cursor:
 					beige_data = await cursor.fetchall()
 					beige_data.sort(key=lambda x:x['nation_id'])
@@ -126,7 +127,6 @@ class beige_alerts(commands.Cog):
 							INNER JOIN registered_nations ON beige_alerts.user_id = registered_nations.discord_id
 							INNER JOIN all_nations_data ON registered_nations.nation_id = all_nations_data.nation_id;""") as cursor:
 					user_info = await cursor.fetchall()
-			bank_data = await last_bank_rec(beige_data)
 			updated_targets = []
 			query = f"""{{nations(id:{[x['nation_id'] for x in beige_data]},first:500){{
 			data{{
@@ -145,10 +145,10 @@ class beige_alerts(commands.Cog):
 					target['loot'] = int(loot[0])
 				else:
 					target['loot'] = 'No loot info found'	
-				if bank_data[i] not in ['N/A','']:
-					target['last_deposit'] = nation_data_converter.time_converter(datetime.strptime(bank_data[i],'%Y-%m-%dT%H:%M:%S'))
+				if target['date']:
+					target['last_deposit'] = nation_data_converter.time_converter(datetime.strptime(target['date'],'%Y-%m-%dT%H:%M:%S'))
 				else:	
-					target['last_deposit'] = bank_data[i]		
+					target['last_deposit'] = 'No recent deposit'	
 				
 				target['avg_infra'] = round(sum([x['infrastructure'] for x in fetchdata[i]['cities']])/target['cities'],2) 
 				updated_targets.append(target)		

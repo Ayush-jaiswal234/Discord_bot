@@ -225,10 +225,38 @@ class db_tasks:
 	async def bankrecs(self):
 
 		exclude = ['id','receiver_id','sender_type','receiver_type','banker_id','note','tax_id']
-		subscription = await self.kit.subscribe("bankrec","create",{'sender_type':1,'receiver_type':2,'exclude':exclude},self.bank_update)
+		await self.populate_bankrecs()
+		subscription = await self.kit.subscribe("bankrec","create",{'sender_type':1,'receiver_type':2,'exclude':exclude,'metadata':'true'},self.bank_update)
 
 	async def bank_update(self,data):
-		print(data.to_dict())
+		data = data['__dict__']
 		async with aiosqlite.connect('pnw.db',timeout=20.0) as db:
-			#await db.execute(f"INSERT OR REPLACE INTO bankrecs VALUES ('{data['date'].strftime("%Y-%m-%dT%H:%M:%S")}',{','.join(list(data.values())[1:])})") 
+			data['nation_id'] = data.pop('sender_id')
+			data['date'] = data['date'].strftime('%Y-%m-%dT%H:%M:%S')
+			columns = ", ".join(data.keys())
+			placeholders = ", ".join(["?"] * len(data))
+			values = tuple(data.values())
+			query = f"INSERT OR IGNORE INTO bankrecs ({columns}) VALUES ({placeholders})"
+			await db.execute(query, values)
+			await db.commit()
+
+	async def populate_bankrecs(self):
+		exclude = ['id','receiver_id','banker_id','note','tax_id']
+		request_url=f'https://api.politicsandwar.com/subscriptions/v1/snapshot/bankrec?api_key=2bfb8817f934b00c5eb6&exclude={",".join(exclude)}'
+		async with httpx.AsyncClient() as client:
+			nationdata= await client.get(request_url,timeout=20)
+			nationdata=nationdata.json()
+
+		columns = ['date', 'money', 'coal', 'oil', 'uranium', 'iron','bauxite', 'lead', 'gasoline', 'munitions','steel', 'aluminum', 'food', 'sender_id']
+				
+		values_list = [tuple(data[c].split('+')[0] if c == 'date' else data[c] for c in columns) for data in nationdata if data['sender_type']==1 and data['receiver_type']==2 ]
+
+		columns.append('nation_id') 
+		columns.remove('sender_id')
+		placeholders = ", ".join(["?"] * len(columns))
+		query = f"INSERT OR IGNORE INTO bankrecs ({','.join(columns)}) VALUES ({placeholders})"
+		
+		async with aiosqlite.connect('pnw.db',timeout=20.0) as db:
+			await db.execute('delete from bankrecs')		
+			await db.executemany(query, values_list)
 			await db.commit()

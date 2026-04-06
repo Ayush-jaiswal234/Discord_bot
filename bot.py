@@ -35,9 +35,10 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=Non
 	async with aiosqlite.connect('pnw.db') as db:
 		date=datetime.now(timezone.utc).replace(microsecond=0)
 		date = date -timedelta(days=inactivity_time)
+		search_list = ','.join([f'bankrecs.{x}' for x in ['date']])
 		search_list1 = ','.join([f'loot_data.{x}' for x in [ 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
 		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation_id','nation','alliance','alliance_id','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
-		targets_list = f"select {search_list1},{search_list2} from all_nations_data left join loot_data on all_nations_data.nation_id =loot_data.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {beige_turns} and date(last_active)<'{date}'"
+		targets_list = f"select {search_list},{search_list1},{search_list2} from all_nations_data left join loot_data on all_nations_data.nation_id =loot_data.nation_id left join bankrecs on all_nations_data.nation_id = bankrecs.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {beige_turns} and date(last_active)<'{date}'"
 		logging.info(targets_list)
 		db.row_factory =aiosqlite.Row
 		cursor = await db.execute(targets_list)
@@ -57,12 +58,11 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=Non
 		target_nation["beige_loot"] = round(beige_amount,2)
 	all_targets.sort(key=lambda x: (x["beige_loot"] == "No loot found", float(x["beige_loot"]) if x["beige_loot"] != "No loot data" else 0), reverse=True)
 	all_targets=all_targets[:result_size]
-	deposit_data_list=await last_bank_rec([[x["nation_id"],x["nation"]] for x in all_targets])
 	for x in range(len(all_targets)):
-		if deposit_data_list[x]!='N/A':
-			all_targets[x]["last_deposit_date"] = nation_data_converter.time_converter(datetime.strptime(deposit_data_list[x],"%Y-%m-%dT%H:%M:%S"))
+		if all_targets[x]['date']:
+			all_targets[x]["last_deposit_date"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]['date'],"%Y-%m-%dT%H:%M:%S"))
 		else:
-			all_targets[x]["last_deposit_date"] = 'N/A'	
+			all_targets[x]["last_deposit_date"] = 'No recent deposit'	
 		if all_targets[x]["war_end_date"]!=None:
 			all_targets[x]["war_end_date"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["war_end_date"],"%Y-%m-%dT%H:%M:%S"))
 		else: 
@@ -71,33 +71,6 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=Non
 		all_targets[x]["alliance_position"] = nation_data_converter.position(all_targets[x]["alliance_position"])
 	return all_targets
 pass
-
-
-async def last_bank_rec(nation_list):
-	query=''
-	results=[]
-	i=0
-	async with httpx.AsyncClient() as client:
-		for nation in nation_list:
-			if len(query)>9900:
-				query=f"{{ {query} }}"
-				fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
-				results.append(fetchdata.json()['data'])
-				query=''
-			query=f"""{query}i{i}:bankrecs(sid:{nation[0]},orderBy:{{column:DATE,order:DESC}},first:1,rtype:2){{data{{date}}}}"""
-			i+=1	
-		query=f"{{ {query} }}"
-		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
-		results.append(fetchdata.json()['data'])	
-	fetchdata= {key:values for d in results for key,values in d.items()}
-	bankdata=[]	
-	for i in range(len(nation_list)):	
-		nation_data = fetchdata[f"i{i}"]["data"]
-		if not nation_data:
-			bankdata.append('N/A')
-		else:
-			bankdata.append((nation_data[0]['date']).split('+')[0])
-	return bankdata
 
 async def get_prices(db):
 	cursor= await db.execute("select * from trade_prices")
@@ -226,9 +199,10 @@ async def demilitarizer(target,user):
 		return result
 
 async def monitor_targets(war_range,alliance_search,loot,user,search_only=False):
+	search_list = ','.join([f'bankrecs.{x}' for x in ['date']])
 	search_list1 = ','.join([f'loot_data.{x}' for x in ['nation_id', 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
 	search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation','alliance','alliance_id','score','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
-	targets_list = f"select {search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id where vmode=0 and defensive_wars<>3 and color=0 {war_range} {alliance_search}"
+	targets_list = f"select {search_list},{search_list1},{search_list2} from loot_data inner join all_nations_data on loot_data.nation_id =all_nations_data.nation_id left join bankrecs on loot_data.nation_id = bankrecs.nation_id where vmode=0 and defensive_wars<>3 and color=0 {war_range} {alliance_search}"
 	async with aiosqlite.connect('pnw.db') as db:
 		db.row_factory =aiosqlite.Row
 		cursor = await db.execute(targets_list)
@@ -248,12 +222,11 @@ async def monitor_targets(war_range,alliance_search,loot,user,search_only=False)
 
 	if search_only:
 		all_targets.sort(key=lambda x:x["beige_loot"],reverse=True)
-		deposit_data_list=await last_bank_rec([[x["nation_id"],x["nation"]] for x in all_targets])
 		for x in range(len(all_targets)):
-			if deposit_data_list[x]!='N/A':
-				all_targets[x]["last_deposit_date"] = nation_data_converter.time_converter(datetime.strptime(deposit_data_list[x],"%Y-%m-%dT%H:%M:%S"))
+			if all_targets[x]['date']:
+				all_targets[x]["last_deposit_date"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]['date'],"%Y-%m-%dT%H:%M:%S"))
 			else:
-				all_targets[x]["last_deposit_date"] = 'N/A'	
+				all_targets[x]["last_deposit_date"] = 'No recent deposit'	
 			all_targets[x]["war_end_date"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["war_end_date"],"%Y-%m-%dT%H:%M:%S"))
 			all_targets[x]["last_active"] = nation_data_converter.time_converter(datetime.strptime(all_targets[x]["last_active"],"%Y-%m-%d %H:%M:%S"))																   
 			all_targets[x]["alliance_position"] = nation_data_converter.position(all_targets[x]["alliance_position"])
@@ -313,6 +286,7 @@ async def on_ready():
 	Bot_bg_Tasks(client)
 	
 	await start_trade.start()
+	await client.updater.bankrecs()
 	#await start_beige.start()
 	await client.change_presence(status=discord.Status.online, activity=activity)
 	await client.load_extension("commands.help")
