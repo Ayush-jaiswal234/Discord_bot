@@ -153,23 +153,24 @@ class beige_alerts(commands.Cog):
 				target['avg_infra'] = round(sum([x['infrastructure'] for x in fetchdata[i]['cities']])/target['cities'],2) 
 				updated_targets.append(target)		
 			# Loop through each alert and evaluate its conditions
-			dm_dict = {}
 			if beige_data:
 				for user in user_info:
+					targets =[]
 					for target in updated_targets:
 						if await self.is_alert_needed(target,user):
 							target['Demilitarize'] = None
 							if target['score']<user['score']*0.75:
 								target['Demilitarize'] = await self.demilitarizer(target,user)
-							dm_dict.setdefault(user['user_id'], []).append(target)
+							targets.append(target)
+					try:
+						await self.send_alert(user['user_id'],targets)
+					except Forbidden:
+						async with aiosqlite.connect('pnw.db') as db:
+							await db.execute(f'delete from beige_alerts where user_id ={user}')
+							await db.commit()
 			
-			for user,targets in dm_dict.items():
-				try:
-					await self.send_alert(user,targets)
-				except Forbidden:
-					async with aiosqlite.connect('pnw.db') as db:
-						await db.execute(f'delete from beige_alerts where user_id ={user}')
-						await db.commit()
+
+				
 
 	async def send_alert(self,user,targets):
 		try:

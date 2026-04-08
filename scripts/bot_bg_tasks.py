@@ -120,7 +120,6 @@ class Bot_bg_Tasks:
 						try:
 							user = await self.bot.get_user(discord_id)
 						except:
-							logging.info('get_user failed')	
 							user = await self.bot.fetch_user(discord_id)
 						try:
 							await user.send(message)

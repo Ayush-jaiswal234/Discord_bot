@@ -225,7 +225,7 @@ class db_tasks:
 	async def bankrecs(self):
 
 		exclude = ['id','receiver_id','sender_type','receiver_type','banker_id','note','tax_id']
-		await self.populate_bankrecs()
+		#await self.populate_bankrecs()
 		subscription = await self.kit.subscribe("bankrec","create",{'sender_type':1,'receiver_type':2,'exclude':exclude,'metadata':'true'},self.bank_update)
 
 	async def bank_update(self,data):
@@ -256,7 +256,7 @@ class db_tasks:
 		placeholders = ", ".join(["?"] * len(columns))
 		query = f"INSERT OR IGNORE INTO bankrecs ({','.join(columns)}) VALUES ({placeholders})"
 		
-		async with aiosqlite.connect('pnw.db',timeout=20.0) as db:
+		async with aiosqlite.connect('pnw.db',timeout=30.0) as db:
 			await db.execute('delete from bankrecs')		
 			await db.executemany(query, values_list)
 			await db.commit()

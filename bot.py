@@ -39,7 +39,6 @@ async def targets(war_range,inactivity_time,aa,beige,beige_turns,result_size=Non
 		search_list1 = ','.join([f'loot_data.{x}' for x in [ 'money', 'food', 'coal', 'oil', 'uranium', 'lead', 'iron', 'bauxite', 'gasoline', 'munitions', 'steel', 'aluminum','war_end_date']])
 		search_list2 = ','.join([f'all_nations_data.{x}' for x in ['nation_id','nation','alliance','alliance_id','cities','beige_turns','soldiers', 'tanks', 'aircraft', 'ships','missiles','nukes','last_active','defensive_wars','alliance_position']])
 		targets_list = f"select {search_list},{search_list1},{search_list2} from all_nations_data left join loot_data on all_nations_data.nation_id =loot_data.nation_id left join bankrecs on all_nations_data.nation_id = bankrecs.nation_id where score>{war_range[0]} and score<{war_range[1]} {beige} and vmode=0 and defensive_wars<>3 {aa} {beige_turns} and date(last_active)<'{date}'"
-		logging.info(targets_list)
 		db.row_factory =aiosqlite.Row
 		cursor = await db.execute(targets_list)
 
@@ -421,7 +420,6 @@ async def raid(ctx:commands.Context, *,flags:RaidFlags):
 		elif flags.result=='web':
 			endpoint = str(ctx.message.author)
 			endpoint = re.sub('[\W_]+', '', endpoint)
-			logging.info([war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns,flags.size])
 			unique_link = web_flask.generate_link(endpoint, [war_range,flags.inactivity_days,flags.alliances,flags.beige,flags.beige_turns,flags.size])
 			await ctx.send(unique_link)
 	else:
@@ -622,7 +620,6 @@ async def air(ctx: commands.Context,att_aircraft:int,def_aircraft:int,options=No
 	att_roll = 0.7 * att_aircraft*3
 	def_roll = 0.7 * def_aircraft*3
 	def_troops_casualties = None
-	logging.info(options)
 	att_casualties,def_casualties=0,0
 	wins = simulate_war(att_aircraft,def_aircraft,3)
 	if options == None:
