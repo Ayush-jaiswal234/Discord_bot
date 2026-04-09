@@ -162,12 +162,13 @@ class beige_alerts(commands.Cog):
 							if target['score']<user['score']*0.75:
 								target['Demilitarize'] = await self.demilitarizer(target,user)
 							targets.append(target)
-					try:
-						await self.send_alert(user['user_id'],targets)
-					except Forbidden:
-						async with aiosqlite.connect('pnw.db') as db:
-							await db.execute(f'delete from beige_alerts where user_id ={user}')
-							await db.commit()
+					if targets:
+						try:
+							await self.send_alert(user['user_id'],targets)
+						except Forbidden:
+							async with aiosqlite.connect('pnw.db') as db:
+								await db.execute(f'delete from beige_alerts where user_id ={user}')
+								await db.commit()
 			
 
 				

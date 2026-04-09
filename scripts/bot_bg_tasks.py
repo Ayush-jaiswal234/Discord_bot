@@ -67,10 +67,10 @@ class Bot_bg_Tasks:
 					try:
 						await user.send(message)
 					except Forbidden:
-						continue
+						emb.description += 'Blocked'
 					emb.description += f"<@{discord_id}> {info_text}"
 				else:
-					emb.description += f"<https://politicsandwar.com/nation/id={war[f'{member}_id']}> {info_text}\n"
+					emb.description += f"<https://politicsandwar.com/nation/id={war[f'{member}_id']}> {info_text}"
 
 				if len(emb.description)>3900:
 					await self.milcom_channel.send(embed=emb)
