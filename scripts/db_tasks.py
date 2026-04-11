@@ -226,7 +226,7 @@ class db_tasks:
 
 		exclude = ['id','receiver_id','sender_type','receiver_type','banker_id','note','tax_id']
 		#await self.populate_bankrecs()
-		subscription = await self.kit.subscribe("bankrec","create",{'sender_type':1,'receiver_type':2,'exclude':exclude,'metadata':'true'},self.bank_update)
+		subscription = await self.kit.subscribe("bankrec","create",{'sender_type':1,'receiver_type':2,'exclude':exclude},self.bank_update) #'metadata':'true'
 
 	async def bank_update(self,data):
 		data = data['__dict__']

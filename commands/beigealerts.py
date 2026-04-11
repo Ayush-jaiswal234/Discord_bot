@@ -133,7 +133,7 @@ class beige_alerts(commands.Cog):
 				cities{{infrastructure}}
 				}}
 			}} }}"""
-			async with httpx.AsyncClient() as client:
+			async with httpx.AsyncClient(timeout=20) as client:
 				fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
 				fetchdata = fetchdata.json()['data']['nations']['data']
 			
@@ -164,6 +164,7 @@ class beige_alerts(commands.Cog):
 							targets.append(target)
 					if targets:
 						try:
+							logging.info(f"{user,{user['user_id']}} is set to recieve beige alerts.")
 							await self.send_alert(user['user_id'],targets)
 						except Forbidden:
 							async with aiosqlite.connect('pnw.db') as db:
