@@ -192,6 +192,7 @@ class beige_alerts(commands.Cog):
 		dm_channel = self.get_user_safe(user)
 		if not dm_channel:
 			logging.info(f'Ran into discord server error for user {user}')
+			return
 		emb_list = []
 		warn = ""
 		for target in targets:
