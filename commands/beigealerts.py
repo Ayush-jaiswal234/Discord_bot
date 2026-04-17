@@ -195,7 +195,7 @@ class beige_alerts(commands.Cog):
 		return None			
 
 	async def send_alert(self,user,targets):
-		dm_channel = self.get_user_safe(user)
+		dm_channel = await self.get_user_safe(user)
 		if not dm_channel:
 			logging.info(f'Ran into discord server error for user {user}')
 			return

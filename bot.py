@@ -434,7 +434,7 @@ async def register(ctx,link):
 	else:
 		nation_id=link
 	
-	async with httpx.AsyncClient() as client:
+	async with httpx.AsyncClient(timeout=20) as client:
 		query= f"{{nations(id:{nation_id}){{ data{{discord}} }} }}"
 		fetchdata = await client.post(graphql_link,json={'query':query})
 		fetchdata = fetchdata.json()['data']['nations']['data'][0]
