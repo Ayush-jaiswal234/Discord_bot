@@ -98,7 +98,7 @@ Last Buy price: ${self.result[f'{subscribe_data["offer_resource"]}']['best_buy_o
 	async def update_trades(self): 
 		query = "{top_trade_info {resources {resource best_buy_offer {price offer_amount}best_sell_offer {price offer_amount}}}}"
 		api_key='fb46570337e1dcdbb0d2'
-		async with httpx.AsyncClient() as httpx_client:
+		async with httpx.AsyncClient(timeout=10) as httpx_client:
 			fetchdata = await httpx_client.post(f'https://api.politicsandwar.com/graphql?api_key={api_key}',json={'query':query})
 		fetchdata=fetchdata.json()['data']['top_trade_info']['resources']
 		for item in fetchdata:
