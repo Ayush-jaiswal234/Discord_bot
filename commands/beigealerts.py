@@ -269,8 +269,8 @@ class beige_alerts(commands.Cog):
 					db.row_factory = aiosqlite.Row
 					async with db.execute(f"""SELECT bankrecs.date,all_nations_data.nation_id, all_nations_data.nation, all_nations_data.alliance, all_nations_data.alliance_id, all_nations_data.score,all_nations_data.cities, all_nations_data.soldiers, all_nations_data.tanks, all_nations_data.aircraft, all_nations_data.ships, loot_data.war_end_date
 					FROM all_nations_data
-					INNER JOIN loot_data where all_nations_data.nation_id={nation_data.id}
-					left join bankrecs on all_nations_data.nation_id = bankrecs.nation_id""") as cursor:
+					LEFT JOIN bankrecs on all_nations_data.nation_id = bankrecs.nation_id
+					INNER JOIN loot_data where all_nations_data.nation_id={nation_data.id}""") as cursor:
 						target =  await cursor.fetchone()
 						target = dict(target)
 					async with db.execute("""
