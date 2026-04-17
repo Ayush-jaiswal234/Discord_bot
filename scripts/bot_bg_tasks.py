@@ -40,7 +40,7 @@ class Bot_bg_Tasks:
 					data{
 						wars(active:true,status:ACTIVE){
 						
-						id,att_id,def_id,att_points,def_points,att_alliance_id,def_alliance_id,att_resistance,def_resistance
+						id,att_id,def_id,att_points,def_points,att_alliance_id,def_alliance_id,att_resistance,def_resistance,att_alliance_position,def_alliance_position
 						}
 					}
 					} }"""	
@@ -54,27 +54,28 @@ class Bot_bg_Tasks:
 		for war in fetchdata['wars']:
 			member = "att" if war['att_alliance_id']=='14000' else "def"
 			non_member = "def" if member=="att" else "att" 
-			if war[f'{member}_points']==12:
-				nation ={'id':war[f'{member}_id']}
-				message = f"You are at max MAPs against <https://politicsandwar.com/nation/id={war[f'{non_member}_id']}>"
-				discord_id = await self.member_info(nation)
-				info_text = f"{war[f'{member}_resistance']} | {war[f'{non_member}_resistance']} [{'DEF' if member=='def' else 'OFF'}](https://politicsandwar.com/nation/war/timeline/war={war['id']})\n"
-				if discord_id!=None:
-					try:
-						user = await self.bot.get_user(discord_id)
-					except:
-						user = await self.bot.fetch_user(discord_id)
-					try:
-						await user.send(message)
-					except Forbidden:
-						emb.description += 'Blocked'
-					emb.description += f"<@{discord_id}> {info_text}"
-				else:
-					emb.description += f"<https://politicsandwar.com/nation/id={war[f'{member}_id']}> {info_text}"
+			if war[f'{member}_alliance_position']!="APPLICANT":
+				if war[f'{member}_points']==12:
+					nation ={'id':war[f'{member}_id']}
+					message = f"You are at max MAPs against <https://politicsandwar.com/nation/id={war[f'{non_member}_id']}>"
+					discord_id = await self.member_info(nation)
+					info_text = f"{war[f'{member}_resistance']} | {war[f'{non_member}_resistance']} [{'DEF' if member=='def' else 'OFF'}](https://politicsandwar.com/nation/war/timeline/war={war['id']})\n"
+					if discord_id!=None:
+						try:
+							user = await self.bot.get_user(discord_id)
+						except:
+							user = await self.bot.fetch_user(discord_id)
+						try:
+							await user.send(message)
+						except Forbidden:
+							emb.description += 'Blocked'
+						emb.description += f"<@{discord_id}> {info_text}"
+					else:
+						emb.description += f"<https://politicsandwar.com/nation/id={war[f'{member}_id']}> {info_text}"
 
-				if len(emb.description)>3900:
-					await self.milcom_channel.send(embed=emb)
-					emb.description = ""
+					if len(emb.description)>3900:
+						await self.milcom_channel.send(embed=emb)
+						emb.description = ""
 	
 		
 		await self.milcom_channel.send(embed=emb)

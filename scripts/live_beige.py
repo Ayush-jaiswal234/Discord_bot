@@ -16,7 +16,7 @@ class beige_watcher:
 	@tasks.loop(minutes=5,reconnect=True)
 	async def get_list_in_beige(self):
 		async with aiosqlite.connect('pnw.db') as db:
-			async with db.execute('select nation_id from all_nations_data where color=0') as cursor:
+			async with db.execute('select nation_id from all_nations_data where beige_turns>0') as cursor:
 				nation_list = await cursor.fetchall()
 		self.nation_list = [i[0] for i in nation_list]
 
