@@ -8,9 +8,9 @@ from web_flask import beige_link
 import pnwkit,logging,httpx
 from discord.errors import Forbidden
 from math import ceil
+import asyncio
 
 utc = timezone.utc
-
 alert_times = [time(hour=i,minute=53,tzinfo=utc) for i in range(1,23,2)]
 
 class beige_alerts(commands.Cog):
@@ -175,13 +175,23 @@ class beige_alerts(commands.Cog):
 							await db.commit()
 			
 
-				
+	async def get_user_safe(self, user_id):
+		user = self.bot.get_user(user_id)
+		if user:
+			return user
+
+		for _ in range(3):  # retry 3 times
+			try:
+				return await self.bot.fetch_user(user_id)
+			except discord.DiscordServerError:
+				await asyncio.sleep(2)
+
+		return None			
 
 	async def send_alert(self,user,targets):
-		try:
-			dm_channel = await self.bot.get_user(user) 
-		except:
-			dm_channel = await self.bot.fetch_user(user)
+		dm_channel = self.get_user_safe(user)
+		if not dm_channel:
+			logging.info(f'Ran into discord server error for user {user}')
 		emb_list = []
 		warn = ""
 		for target in targets:
