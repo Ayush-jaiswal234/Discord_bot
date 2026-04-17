@@ -12,11 +12,13 @@ import asyncio
 
 utc = timezone.utc
 alert_times = [time(hour=i,minute=53,tzinfo=utc) for i in range(1,23,2)]
+tc_times = [time(hour=i,minute=0,second=0,tzinfo=utc) for i in range(0,23,2)]
 
 class beige_alerts(commands.Cog):
 	def __init__(self,bot,):
 		self.bot = bot
 		self.updater = bot.updater
+		self.subscription = None
 		self.kit = pnwkit.QueryKit("fb46570337e1dcdbb0d2")
 		self.check_for_beigealerts.add_exception_type(KeyError)
 		self.check_for_beigealerts.start()
@@ -194,7 +196,7 @@ class beige_alerts(commands.Cog):
 
 		return None			
 
-	async def send_alert(self,user,targets):
+	async def send_alert(self,user,targets,alert='normal'):
 		dm_channel = await self.get_user_safe(user)
 		if not dm_channel:
 			logging.info(f'Ran into discord server error for user {user}')
@@ -253,11 +255,26 @@ class beige_alerts(commands.Cog):
 			emb_list.append(embed)
 		now = datetime.now(timezone.utc)
 		next_hour = (now + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0).timestamp()
+		
+		message = f'These nations are coming out of beige next turn which is <t:{int(next_hour)}:R>'
+		if alert!='normal':
+			message = 'This nation left beige early:'
 		for i in range(0,len(emb_list),10):
-			await dm_channel.send(f'{warn}These nations are coming out of beige next turn which is <t:{int(next_hour)}:R>',embeds=emb_list[i:i+10])	
+			await dm_channel.send(f'{warn}{message}',embeds=emb_list[i:i+10])	
+	
+	
+	@tasks.loop(time=tc_times,reconnect=True)
+	async def disconnect_and_reconnect_beige_watcher(self):
+		await self.subscription.unsubscribe()
+
+		await asyncio.sleep(30)
+		if datetime.now().hour==0:
+			await asyncio.sleep(1800)
+
+		self.subscription = await self.kit.subscribe("nation","update",{},self.beige_leave_handler)
 	
 	async def beige_watcher(self):
-		subscription = await self.kit.subscribe("nation","update",{},self.beige_leave_handler)
+		self.subscription = await self.kit.subscribe("nation","update",{},self.beige_leave_handler)
 
 
 	async def beige_leave_handler(self,nation_data):
@@ -309,7 +326,7 @@ class beige_alerts(commands.Cog):
 							target['Demilitarize'] = await self.demilitarizer(target,user)
 						try:
 							logging.info(f"{user,{user['user_id']}} is set to recieve beige alerts.")
-							await self.send_alert(user['user_id'],[target])
+							await self.send_alert(user['user_id'],[target],alert='left_beige')
 						except Forbidden:
 							async with aiosqlite.connect('pnw.db') as db:
 								await db.execute(f'delete from beige_alerts where user_id ={user}')
