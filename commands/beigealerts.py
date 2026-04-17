@@ -264,7 +264,7 @@ class beige_alerts(commands.Cog):
 		if nation_data.id in self.nation_list:
 			if nation_data.color != 'beige':
 				self.nation_list.remove(nation_data.id)
-				print("we are testing now",nation_data.id)
+				logging.info(f"we are testing now\n{nation_data.id}")
 				async with aiosqlite.connect('pnw.db') as db:
 					db.row_factory = aiosqlite.Row
 					async with db.execute(f"""SELECT bankrecs.date,all_nations_data.nation_id, all_nations_data.nation, all_nations_data.alliance, all_nations_data.alliance_id, all_nations_data.score,all_nations_data.cities, all_nations_data.soldiers, all_nations_data.tanks, all_nations_data.aircraft, all_nations_data.ships, loot_data.war_end_date
