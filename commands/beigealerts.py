@@ -267,13 +267,13 @@ class beige_alerts(commands.Cog):
 	@tasks.loop(time=tc_times,reconnect=True)
 	async def disconnect_and_reconnect_beige_watcher(self):
 		await self.subscription.unsubscribe()
-		print("Unsubscribed at", datetime.now(timezone.utc))
+		logging.info("Unsubscribed at", datetime.now(timezone.utc))
 		await asyncio.sleep(30)
 		if datetime.now(timezone.utc).hour==0:
 			await asyncio.sleep(1800)
 
 		self.subscription = await self.kit.subscribe("nation","update",{"include":["color","id"]},self.beige_leave_handler)
-		print("Resubscribed at", datetime.now(timezone.utc))
+		logging.info("Resubscribed at", datetime.now(timezone.utc))
 
 	async def beige_watcher(self):
 		self.subscription = await self.kit.subscribe("nation","update",{"include":["color","id"]},self.beige_leave_handler)
@@ -328,7 +328,7 @@ class beige_alerts(commands.Cog):
 							target['Demilitarize'] = await self.demilitarizer(target,user)
 						try:
 							logging.info(f"{user,{user['user_id']}} is set to recieve beige alerts.")
-							await self.send_alert(519495083964366857,[target],alert='left_beige')
+							await self.send_alert(user['user_id'],[target],alert='left_beige')
 						except Forbidden:
 							async with aiosqlite.connect('pnw.db') as db:
 								await db.execute(f'delete from beige_alerts where user_id ={user}')
