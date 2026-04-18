@@ -290,7 +290,7 @@ class beige_alerts(commands.Cog):
 					FROM all_nations_data
 					LEFT JOIN bankrecs on all_nations_data.nation_id = bankrecs.nation_id
 					INNER JOIN loot_data on all_nations_data.nation_id = loot_data.nation_id
-					where all_nations_data.nation_id={nation_data.id} =""") as cursor:
+					where all_nations_data.nation_id={nation_data.id}""") as cursor:
 						target =  await cursor.fetchone()
 						target = dict(target)
 					async with db.execute("""
