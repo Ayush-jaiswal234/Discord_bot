@@ -7,6 +7,7 @@ from googleapiclient.http import MediaFileUpload
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from json.decoder import JSONDecodeError
+from scripts.event_bus import bus
 
 class db_tasks:
 
@@ -14,6 +15,7 @@ class db_tasks:
 		self.api_v3_link='https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6'
 		self.whitlisted_api_link = 'https://api.politicsandwar.com/graphql?api_key=871c30add7e3a29c8f07'
 		self.kit = kit
+		self.bus = bus
 
 		self.update_nation_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,JSONDecodeError,RemoteProtocolError)
 		self.update_loot_data.add_exception_type(OperationalError,KeyError,ReadTimeout,ConnectTimeout,RemoteProtocolError)
@@ -42,6 +44,7 @@ class db_tasks:
 			await db.execute('delete from all_nations_data')
 			await db.executemany(f'''INSERT INTO all_nations_data VALUES ({','.join(['?' for x in range(0,len(list_of_values[0]))])})''', list_of_values)   
 			await db.commit()
+		self.bus.emit('nation_data_updated')
 	pass
 
 	@tasks.loop(minutes=2,reconnect=True)

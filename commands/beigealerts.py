@@ -3,6 +3,7 @@ import aiosqlite
 from datetime import datetime,timedelta,timezone,time
 import discord
 from scripts import nation_data_converter
+from scripts.event_bus import bus
 from bot import loot_calculator
 from web_flask import beige_link
 import pnwkit,logging,httpx
@@ -17,12 +18,15 @@ tc_times = [time(hour=i,minute=0,second=0,tzinfo=utc) for i in range(0,23,2)]
 class beige_alerts(commands.Cog):
 	def __init__(self,bot,):
 		self.bot = bot
-		self.updater = bot.updater
+		self.bus = bus
 		self.subscription = None
+		self.nation_list = []
 		self.kit = pnwkit.QueryKit("fb46570337e1dcdbb0d2")
 		self.check_for_beigealerts.add_exception_type(KeyError)
 		self.check_for_beigealerts.start()
+		self.bus.connect('nation_data_updated',self.get_list_in_beige)
 		self.get_list_in_beige.start()
+		self.disconnect_and_reconnect_beige_watcher.start()
 
 	class MonitorFlags(commands.FlagConverter,delimiter= " ",prefix='-'):
 		all_nations: bool = True
@@ -37,7 +41,6 @@ class beige_alerts(commands.Cog):
 		logging.info("Beige watcher started.")
 		await self.beige_watcher()
 
-	@tasks.loop(minutes=5,reconnect=True)
 	async def get_list_in_beige(self):
 		async with aiosqlite.connect('pnw.db') as db:
 			async with db.execute('select nation_id from all_nations_data where beige_turns>0 and defensive_wars<>3') as cursor:
@@ -66,7 +69,6 @@ class beige_alerts(commands.Cog):
 		
 
 		alliance_search = await self.flags_parser(flags.alliances,flags.all_nations)
-		self.updater.update_nation_data.change_interval(minutes=2.5)
 		endpoint = f"{ctx.author.id}"	
 		unique_link = beige_link(endpoint, [alliance_search,flags.loot])
 		
@@ -267,7 +269,7 @@ class beige_alerts(commands.Cog):
 	async def disconnect_and_reconnect_beige_watcher(self):
 		await self.subscription.unsubscribe()
 		print("Unsubscribed at", datetime.now(timezone.utc))
-		await asyncio.sleep(33)
+		await asyncio.sleep(30)
 		if datetime.now(timezone.utc).hour==0:
 			await asyncio.sleep(1800)
 
