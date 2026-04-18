@@ -94,9 +94,9 @@ class beige_alerts(commands.Cog):
 			if str(target['alliance_id']) not in (user['alliances'].split(',')):
 				return False
 
-		
-		if user['loot']>int(target['loot']):
-			return False
+		if target['loot']!='No loot info found':
+			if user['loot']>int(target['loot']):
+				return False
 		
 		return True
 
@@ -127,7 +127,7 @@ class beige_alerts(commands.Cog):
 			async with db.execute("""
 				SELECT bankrecs.date,all_nations_data.nation_id, all_nations_data.nation, all_nations_data.alliance, all_nations_data.alliance_id, all_nations_data.score,all_nations_data.cities, all_nations_data.soldiers, all_nations_data.tanks, all_nations_data.aircraft, all_nations_data.ships, loot_data.war_end_date
 				FROM all_nations_data
-				INNER JOIN loot_data on all_nations_data.nation_id = loot_data.nation_id
+				LEFT JOIN loot_data on all_nations_data.nation_id = loot_data.nation_id
 				left join bankrecs on all_nations_data.nation_id = bankrecs.nation_id
 				WHERE beige_turns = 1 and defensive_wars<>3 and vmode=0""") as cursor:
 				beige_data = await cursor.fetchall()
@@ -272,6 +272,7 @@ class beige_alerts(commands.Cog):
 		if datetime.now(timezone.utc).hour==0:
 			await asyncio.sleep(1800)
 
+		await bus.emit('update_nations')
 		self.subscription = await self.kit.subscribe("nation","update",{"include":["color","id"]},self.beige_leave_handler)
 		logging.info("Resubscribed at", datetime.now(timezone.utc))
 
@@ -283,15 +284,18 @@ class beige_alerts(commands.Cog):
 		if nation_data.id in self.nation_list:
 			if nation_data.color != 'beige':
 				self.nation_list.remove(nation_data.id)
-				logging.info(f"we are testing now\n{nation_data.id}")
+				logging.info(f"{nation_data.id} left beige early")
 				async with aiosqlite.connect('pnw.db') as db:
 					db.row_factory = aiosqlite.Row
 					async with db.execute(f"""SELECT bankrecs.date,all_nations_data.nation_id, all_nations_data.nation, all_nations_data.alliance, all_nations_data.alliance_id, all_nations_data.score,all_nations_data.cities, all_nations_data.soldiers, all_nations_data.tanks, all_nations_data.aircraft, all_nations_data.ships, loot_data.war_end_date
 					FROM all_nations_data
 					LEFT JOIN bankrecs on all_nations_data.nation_id = bankrecs.nation_id
-					INNER JOIN loot_data on all_nations_data.nation_id = loot_data.nation_id
+					LEFT JOIN loot_data on all_nations_data.nation_id = loot_data.nation_id
 					where all_nations_data.nation_id={nation_data.id}""") as cursor:
 						target =  await cursor.fetchone()
+						if not target:
+							logging.info('target is none')
+							return
 						target = dict(target)
 					async with db.execute("""
 				SELECT beige_alerts.user_id, beige_alerts.all_nations,beige_alerts.alliances,beige_alerts.loot,beige_alerts.downdec,beige_alerts.alert_time,
