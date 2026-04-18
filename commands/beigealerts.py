@@ -117,6 +117,8 @@ class beige_alerts(commands.Cog):
 					reduce_score -= user[keys[i]] *score_val[keys[i]]	
 					result[keys[i]] = user[keys[i]]
 			i+=1
+		if reduce_score>0:
+			result['Note'] = 'Target too low, change downdec'
 		return result
 
 
@@ -270,7 +272,7 @@ class beige_alerts(commands.Cog):
 		logging.info(f"Unsubscribed at {datetime.now(timezone.utc).strftime('%H:%M:%S')}" )
 		await asyncio.sleep(30)
 		if datetime.now(timezone.utc).hour==0:
-			await asyncio.sleep(1800)
+			await asyncio.sleep(600)
 
 		await bus.emit('update_nations')
 		self.subscription = await self.kit.subscribe("nation","update",{"include":["color","id"]},self.beige_leave_handler)
