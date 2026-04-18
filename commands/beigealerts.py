@@ -267,7 +267,7 @@ class beige_alerts(commands.Cog):
 	async def disconnect_and_reconnect_beige_watcher(self):
 		await self.subscription.unsubscribe()
 
-		await asyncio.sleep(30)
+		await asyncio.sleep(33)
 		if datetime.now().hour==0:
 			await asyncio.sleep(1800)
 
@@ -298,12 +298,12 @@ class beige_alerts(commands.Cog):
 						INNER JOIN all_nations_data ON registered_nations.nation_id = all_nations_data.nation_id;""") as cursor:
 						user_info = await cursor.fetchall()
 
-				query = f"""{{nations(id:{nation_data.id},first:500){{
+				query = f"""{{nations(id:{nation_data.id}){{
 						data{{
 							cities{{infrastructure}}
 							}}
 						}}  }}"""
-				async with httpx.AsyncClient(timeout=10) as client:
+				async with httpx.AsyncClient(timeout=20) as client:
 					fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
 					citydata = fetchdata.json()['data']['nations']['data'][0]
 				
@@ -320,7 +320,7 @@ class beige_alerts(commands.Cog):
 				target['avg_infra'] = round(sum([x['infrastructure'] for x in citydata['cities']])/target['cities'],2) 
 				
 				for user in user_info:
-					if await self.is_alert_needed(target,user) and user['user_id']==519495083964366857:
+					if await self.is_alert_needed(target,user):
 						target['Demilitarize'] = None
 						if target['score']<user['score']*0.75:
 							target['Demilitarize'] = await self.demilitarizer(target,user)
