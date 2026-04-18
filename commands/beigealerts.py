@@ -25,7 +25,6 @@ class beige_alerts(commands.Cog):
 		self.check_for_beigealerts.add_exception_type(KeyError)
 		self.check_for_beigealerts.start()
 		self.bus.connect('nation_data_updated',self.get_list_in_beige)
-		self.get_list_in_beige.start()
 		self.disconnect_and_reconnect_beige_watcher.start()
 
 	class MonitorFlags(commands.FlagConverter,delimiter= " ",prefix='-'):

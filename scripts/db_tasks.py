@@ -44,7 +44,7 @@ class db_tasks:
 			await db.execute('delete from all_nations_data')
 			await db.executemany(f'''INSERT INTO all_nations_data VALUES ({','.join(['?' for x in range(0,len(list_of_values[0]))])})''', list_of_values)   
 			await db.commit()
-		self.bus.emit('nation_data_updated')
+		await self.bus.emit('nation_data_updated')
 	pass
 
 	@tasks.loop(minutes=2,reconnect=True)

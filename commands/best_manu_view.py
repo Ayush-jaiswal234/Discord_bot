@@ -19,7 +19,7 @@ async def mods_data(nation_id):
 					arms_stockpile,bauxite_works,emergency_gasoline_reserve,iron_works,uranium_enrichment_program
 				}}
 			}} }}"""
-	async with httpx.AsyncClient() as client:
+	async with httpx.AsyncClient(timeout=10) as client:
 		fetchdata=await client.post(api_v3_link,json={'query':query},timeout=None)
 		fetchdata = fetchdata.json()["data"]['nations']['data'][0]
 
