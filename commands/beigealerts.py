@@ -286,7 +286,10 @@ class beige_alerts(commands.Cog):
 		if nation_data.id in self.nation_list:
 			if nation_data.color != 'beige':
 				self.nation_list.remove(nation_data.id)
-				logging.info(f"{nation_data.id} left beige early with color {nation_data.color} and beige_turns {nation_data.beige_turns}")
+				try:
+					logging.info(f"{nation_data.id} left beige early with color {nation_data.color} and beige_turns {nation_data.beige_turns}")
+				except:
+					logging.info(f"{nation_data.id} left beige early with color {nation_data.color} and missing beige_turns field")
 				async with aiosqlite.connect('pnw.db') as db:
 					db.row_factory = aiosqlite.Row
 					async with db.execute(f"""SELECT bankrecs.date,all_nations_data.nation_id, all_nations_data.nation, all_nations_data.alliance, all_nations_data.alliance_id, all_nations_data.score,all_nations_data.cities, all_nations_data.soldiers, all_nations_data.tanks, all_nations_data.aircraft, all_nations_data.ships, loot_data.war_end_date
