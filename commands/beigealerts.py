@@ -270,9 +270,9 @@ class beige_alerts(commands.Cog):
 	async def disconnect_and_reconnect_beige_watcher(self):
 		await self.subscription.unsubscribe()
 		logging.info(f"Unsubscribed at {datetime.now(timezone.utc).strftime('%H:%M:%S')}" )
-		await asyncio.sleep(30)
+		await asyncio.sleep(600)
 		if datetime.now(timezone.utc).hour==0:
-			await asyncio.sleep(600)
+			await asyncio.sleep(1200)
 
 		await bus.emit('update_nations')
 		self.subscription = await self.kit.subscribe("nation","update",{"include":["color","id"]},self.beige_leave_handler)
