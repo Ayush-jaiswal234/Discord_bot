@@ -238,10 +238,15 @@ class beige_alerts(commands.Cog):
 					left = items[i]
 					right = items[i + 1] if i + 1 < len(items) else None
 
-					left_str = f"{left[0].capitalize()}: {left[1]:<8,}"
-
+					if len(str(left[1]))<8:
+						left_str = f"{left[0].capitalize()}: {left[1]:<8,}"
+					else:
+						left_str = f"{left[0].capitalize()}: {left[1]}"
 					if right:
-						right_str = f"{right[0].capitalize()}: {right[1]:<8,}"
+						if len(str(right[1]))<8:
+							right_str = f"{right[0].capitalize()}: {right[1]:<8,}"
+						else:
+							right_str = f"{right[0].capitalize()}: {right[1]}"
 						lines.append(f"{left_str}{right_str}")
 					else:
 						lines.append(left_str)
