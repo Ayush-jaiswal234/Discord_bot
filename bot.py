@@ -1005,7 +1005,7 @@ async def tiering(ctx,coalition_1,coalition_2,filters=None):
 						}}
 					}}
 				}} }}"""
-	async with httpx.AsyncClient() as client:
+	async with httpx.AsyncClient(timeout=20) as client:
 		fetchdata = await client.post('https://api.politicsandwar.com/graphql?api_key=2bfb8817f934b00c5eb6',json={'query':query})
 		fetchdata = fetchdata.json()['data']['alliances']['data']
 	coalition_1_ids = coalition_1.split(',')	
