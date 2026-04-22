@@ -221,7 +221,7 @@ class beige_alerts(commands.Cog):
 								f"Cities: {target['cities']} \n"
 								f"Average Infra: {target['avg_infra']}\n"
 								f"Last Deposit: {target['last_deposit']}\n"
-								f"Last War Loss: {nation_data_converter.time_converter(datetime.strptime(target['war_end_date'],'%Y-%m-%dT%H:%M:%S'))}```",
+								f"Last War Loss: {nation_data_converter.time_converter(datetime.strptime(target['war_end_date'],'%Y-%m-%dT%H:%M:%S')) if target['war_end_date'] else 'None'}```",
 								inline=False)
 			embed.add_field(name="Military info",
 							value=f"```js\n"
