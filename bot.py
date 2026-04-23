@@ -301,6 +301,16 @@ async def on_command_error(ctx, error):
 
 @commands.is_owner()
 @client.command()
+async def channels(ctx,guild_id:int):
+	channels = client.get_all_channels()
+	for channel in channels:
+		if channel.guild.id==guild_id:
+			if channel.type=='text':
+				print(channel,channel.id,channel.type)
+	
+
+@commands.is_owner()
+@client.command()
 async def guilds(ctx):
 	embed=discord.Embed()
 	embed.title='Servers'

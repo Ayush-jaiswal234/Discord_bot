@@ -59,7 +59,7 @@ class db_tasks:
                						war_policy,advanced_pirate_economy}
 							}
 						}	}"""
-			async with httpx.AsyncClient() as client:
+			async with httpx.AsyncClient(timeout=20.0) as client:
 				fetchdata=await client.post(self.api_v3_link,json={'query':query})
 				fetchdata=fetchdata.json()['data']['wars']['data']
 				for war in fetchdata:
@@ -163,7 +163,7 @@ class db_tasks:
 					food,coal,oil,uranium,lead,iron,bauxite,gasoline,munitions,steel,aluminum
 				} }
 				}"""
-		async with httpx.AsyncClient() as client:
+		async with httpx.AsyncClient(timeout=20.0) as client:
 			fetchdata=await client.post(self.api_v3_link,json={'query':query})
 			fetchdata=fetchdata.json()['data']['tradeprices']['data'][0]
 			logging.info(fetchdata)
