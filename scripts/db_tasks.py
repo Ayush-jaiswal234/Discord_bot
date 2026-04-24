@@ -49,20 +49,21 @@ class db_tasks:
 
 	@tasks.loop(minutes=2,reconnect=True)
 	async def update_loot_data(self):
-		query="""{wars(active:false,first:1000,status:INACTIVE){
-					data{
-						id,end_date,winner_id,att_id,def_id,war_type,att_alliance_position,def_alliance_position
-						attacker{
-									war_policy,advanced_pirate_economy}  
-						defender{
-								war_policy,advanced_pirate_economy}
-						}
-					}	}"""
-		async with httpx.AsyncClient(timeout=20.0) as client:
-			fetchdata=await client.post(self.api_v3_link,json={'query':query})
-			fetchdata=fetchdata.json()['data']['wars']['data']
+		async with aiosqlite.connect('pnw.db',timeout=20.0) as db:		
+			query="""{wars(active:false,first:1000,status:INACTIVE){
+						data{
+							id,end_date,winner_id,att_id,def_id,war_type,att_alliance_position,def_alliance_position
+							attacker{
+										war_policy,advanced_pirate_economy}  
+							defender{
+									war_policy,advanced_pirate_economy}
+							}
+						}	}"""
+			async with httpx.AsyncClient(timeout=20.0) as client:
+				fetchdata=await client.post(self.api_v3_link,json={'query':query})
+				fetchdata=fetchdata.json()['data']['wars']['data']
 		
-		async with aiosqlite.connect('pnw.db',timeout=20.0) as db:	
+		
 			for war in fetchdata:
 				if war['winner_id'] != '0':
 					loser_id= war['def_id'] if war['winner_id']==war['att_id'] else war['att_id']
