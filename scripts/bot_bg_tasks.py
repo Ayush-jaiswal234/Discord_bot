@@ -44,7 +44,7 @@ class Bot_bg_Tasks:
 						}
 					}
 					} }"""	
-		async with httpx.AsyncClient() as client:
+		async with httpx.AsyncClient(timeout=20) as client:
 			fetchdata=await client.post(self.whitlisted_api_link,json={'query':query},timeout=None)
 			fetchdata = fetchdata.json()["data"]["alliances"]["data"][0]	
 		emb = Embed()
@@ -97,7 +97,7 @@ class Bot_bg_Tasks:
 						central_intelligence_agency,arms_stockpile,bauxite_works,emergency_gasoline_reserve,iron_works,mass_irrigation,uranium_enrichment_program,fallout_shelter
 					}}
 				}}"""
-		async with httpx.AsyncClient() as client:
+		async with httpx.AsyncClient(timeout=20) as client:
 			fetchdata=await client.post(self.whitlisted_api_link,json={'query':query},timeout=None)
 			fetchdata = fetchdata.json()["data"]
 		data_dict = {}
@@ -286,7 +286,7 @@ class Bot_bg_Tasks:
 						spies,discord_id,nation_name,id,central_intelligence_agency,vacation_mode_turns,alliance_position
 					} }
 				} }"""
-		async with httpx.AsyncClient() as client:
+		async with httpx.AsyncClient(timeout=20) as client:
 			fetchdata=await client.post(self.whitlisted_api_link,json={'query':query},timeout=None)
 			fetchdata = fetchdata.json()["data"]['alliances']['data'][0]['nations']
 
