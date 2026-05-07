@@ -245,7 +245,7 @@ class db_tasks:
 			columns = ", ".join(data.keys())
 			placeholders = ", ".join(["?"] * len(data))
 			values = tuple(data.values())
-			query = f"INSERT OR IGNORE INTO bankrecs ({columns}) VALUES ({placeholders})"
+			query = f"INSERT OR REPLACE INTO bankrecs ({columns}) VALUES ({placeholders})"
 			await db.execute(query, values)
 			await db.commit()
 

@@ -777,7 +777,7 @@ async def banklootval(ctx:commands.Context,*,message:str):
 		bank_worth = total_loot[0]
 		for x in range(0,len(prices)):
 			bank_worth= bank_worth+(int(total_loot[x+1])*prices[x])	
-		await ctx.send(f'The beige was worth **${beige_worth:,}**. As {percentage}% of the bank was looted, the total estimated bank value is **${bank_worth:,}**')	
+		await ctx.send(f'The beige was worth **${beige_worth:,}**. As {percentage}% of the bank was looted, the total estimated bank value is **${int(bank_worth):,}**')	
 	else:
 		await ctx.send("Please copy the result completely and run the command again.")	
 
@@ -939,10 +939,10 @@ async def range_command(ctx,target,user_nation='Default'):
 	
 	target = await nation_data_converter.nation_id_finder(ctx,target)
 
-	user_nation_stats = await nation_data_converter.get_unregistered('score,cities,nukes,missiles,ships,tanks,aircraft',user_nation,return_row=True)
+	user_nation_stats = await nation_data_converter.get_unregistered('score,cities,nukes,missiles,ships,tanks,aircraft,soldiers',user_nation,return_row=True)
 	user_nation_range = [user_nation_stats["score"]*0.75,user_nation_stats["score"]*2.75]
 	
-	score_val = {"nukes":15,"missiles":5,"tanks":0.025,"aircraft":0.3,"ships":1}
+	score_val = {"nukes":15,"missiles":5,"soldiers":0.0004,"tanks":0.025,"aircraft":0.3,"ships":1}
 	
 	target_nation = await nation_data_converter.get_unregistered('score,nation',target,return_row=True)
 	result = f"To get in range to hit [{target_nation['nation']}](<https://politicsandwar.com/nation/id={target}>):\n"
