@@ -26,7 +26,7 @@ load_dotenv()
 async def update_registered_nations(author_id,author_name,nation_id):
 	async with aiosqlite.connect('pnw.db') as db:
 		data_to_be_inserted=("""insert into registered_nations values(%s,'%s',%s) on conflict(discord_id) do update set user_name='%s',nation_id=%s
-		on conflict(nation_id) do update set discord_id=%s,user_name='%s')""") % (author_id,author_name,nation_id,author_name,nation_id,author_id,author_name)
+		on conflict(nation_id) do update set discord_id=%s,user_name='%s' """) % (author_id,author_name,nation_id,author_name,nation_id,author_id,author_name)
 		await db.execute(data_to_be_inserted)
 		await db.commit()	
 pass	
