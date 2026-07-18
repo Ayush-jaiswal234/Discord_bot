@@ -275,6 +275,8 @@ activity = discord.CustomActivity(name="🐧 NOOT NOOT 🐧 ")
 client.setup_hook = setup_hook
 client.kit = pnwkit.QueryKit("fb46570337e1dcdbb0d2")
 client.updater= db_tasks(client.kit)
+imp_roles_dict = {'Imperator':1367769251443642488,'Immortan':1373425328587931700,'Praetorian':1374933029394317453,'Prophet':1367769335569059850,
+			  'test_server_role':1248240780502630482}
 
 @client.event
 async def on_ready():
@@ -918,7 +920,7 @@ async def sync_slash(ctx):
 	await ctx.send('slash commands updated')
 
 @client.command()
-@commands.has_any_role(1367769251443642488,1373425328587931700,1374933029394317453,454648130290319382,1367769335569059850)
+@commands.has_any_role(*imp_roles_dict.values())
 async def force_register(ctx,user:discord.User,link):
 	if link.startswith('http'):
 		nation_id=int(link[37:])
@@ -1142,7 +1144,7 @@ async def disablereminder_group(ctx: commands.Context):
     if ctx.invoked_subcommand is None:
         await ctx.send("Please specify a reminder you want to disable (daily,targets,resistance)")
 
-@commands.has_any_role(1367769251443642488,1373425328587931700,1374933029394317453,454648130290319382,1367769335569059850)
+@commands.has_any_role(*imp_roles_dict.values())
 @disablereminder_group.command(name='daily',description='Disables daily reminders')
 async def stopdailyalerts(ctx,nation_id):
 	async with aiosqlite.connect('pnw.db') as db:
@@ -1152,7 +1154,7 @@ async def stopdailyalerts(ctx,nation_id):
 	
 	await ctx.send('Daily alerts disabled')
 
-@commands.has_any_role(1367769251443642488,1373425328587931700,1374933029394317453,454648130290319382,1367769335569059850)
+@commands.has_any_role(*imp_roles_dict.values())
 @disablereminder_group.command(name='resistance',description='Disables resistance reminders')
 async def stopresistancealerts(ctx,nation_id):
 	async with aiosqlite.connect('pnw.db') as db:
@@ -1179,7 +1181,7 @@ async def enablereminder_group(ctx: commands.Context):
 @enablereminder_group.command(name='daily',description='Enables daily reminders')
 async def enabledailyalerts(ctx,nation_id):
 	async with aiosqlite.connect('pnw.db') as db:
-		data_to_be_inserted = ("delete from stop_dms where nation_id=%s and  alert=daily") % (nation_id)
+		data_to_be_inserted = ("delete from stop_dms where nation_id=%s and  alert='daily'") % (nation_id)
 		await db.execute(data_to_be_inserted)
 		await db.commit()	
 	
@@ -1188,7 +1190,7 @@ async def enabledailyalerts(ctx,nation_id):
 @enablereminder_group.command(name='resistance',description='Enables resistance reminders')
 async def enableresistancealerts(ctx,nation_id):
 	async with aiosqlite.connect('pnw.db') as db:
-		data_to_be_inserted = ("delete from stop_dms where nation_id=%s and alert=resistance") % (nation_id)
+		data_to_be_inserted = ("delete from stop_dms where nation_id=%s and alert='resistance'") % (nation_id)
 		await db.execute(data_to_be_inserted)
 		await db.commit()	
 	

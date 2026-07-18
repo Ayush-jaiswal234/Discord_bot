@@ -144,7 +144,7 @@ class Bot_bg_Tasks:
 
 	async def alertless(self,value):
 		async with aiosqlite.connect('pnw.db') as db:	
-			async with db.execute(f"select nation_id from stop_dms where alert={value}") as cursor:
+			async with db.execute(f"select nation_id from stop_dms where alert='{value}'") as cursor:
 				no_alerts = await cursor.fetchall()
 			no_alerts = [row[0] for row in no_alerts]		
 		return no_alerts
