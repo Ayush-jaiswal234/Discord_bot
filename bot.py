@@ -1136,17 +1136,63 @@ async def aa_stalker(alliance_ids,filters={'include_vm':False}):
 		fetchdata = fetchdata.json()['data']['alliances']['data']
 	return fetchdata
 
-@client.hybrid_command(name='stopdailyalerts',description="Stops alert dms",with_app_command=True)
-async def stopdailyalerts(ctx,nation_id,value):
+@client.hybrid_group(name='disablereminder',description='Disables reminders')
+async def disablereminder_group(ctx: commands.Context):
+    # This runs if someone types fallback prefix command '!math' without subcommands
+    if ctx.invoked_subcommand is None:
+        await ctx.send("Please specify a reminder you want to disable (daily,targets,resistance)")
+
+@commands.has_any_role(1367769251443642488,1373425328587931700,1374933029394317453,454648130290319382,1367769335569059850)
+@disablereminder_group.command(name='daily',description='Disables daily reminders')
+async def stopdailyalerts(ctx,nation_id):
 	async with aiosqlite.connect('pnw.db') as db:
-		if int(value):
-			data_to_be_inserted=("insert or ignore into stop_dms values(%s,%s)") % (nation_id,1)
-			await ctx.send('Alerts disabled')
-		else:
-			data_to_be_inserted = ("delete from stop_dms where nation_id=%s") % (nation_id)
-			await ctx.send('Alerts enabled')
+		data_to_be_inserted=("insert or ignore into stop_dms values(%s,'%s')") % (nation_id,'daily')
 		await db.execute(data_to_be_inserted)
 		await db.commit()	
+	
+	await ctx.send('Daily alerts disabled')
+
+@commands.has_any_role(1367769251443642488,1373425328587931700,1374933029394317453,454648130290319382,1367769335569059850)
+@disablereminder_group.command(name='resistance',description='Disables resistance reminders')
+async def stopresistancealerts(ctx,nation_id):
+	async with aiosqlite.connect('pnw.db') as db:
+		data_to_be_inserted=("insert or ignore into stop_dms values(%s,'%s')") % (nation_id,'resistance')
+		await db.execute(data_to_be_inserted)
+		await db.commit()	
+	
+	await ctx.send('Resistance alerts disabled')
+
+@disablereminder_group.command(name='beigealerts',description='Stops beige alert dms for the user')
+async def stopalerts(ctx:commands.context):
+	async with aiosqlite.connect('pnw.db') as db:
+		await db.execute(f'delete from beige_alerts where user_id ={ctx.author.id}')
+		await db.commit()
+
+	await ctx.send("Beige alerts have been removed for you.")		
+
+@client.hybrid_group(name='enablereminder',description='Enables reminders')
+async def enablereminder_group(ctx: commands.Context):
+    # This runs if someone types fallback prefix command '!math' without subcommands
+    if ctx.invoked_subcommand is None:
+        await ctx.send("Please specify a reminder you want to disable (daily,targets,resistance)")
+
+@enablereminder_group.command(name='daily',description='Enables daily reminders')
+async def enabledailyalerts(ctx,nation_id):
+	async with aiosqlite.connect('pnw.db') as db:
+		data_to_be_inserted = ("delete from stop_dms where nation_id=%s and  alert=daily") % (nation_id)
+		await db.execute(data_to_be_inserted)
+		await db.commit()	
+	
+	await ctx.send('Daily alerts enabled')
+
+@enablereminder_group.command(name='resistance',description='Enables resistance reminders')
+async def enableresistancealerts(ctx,nation_id):
+	async with aiosqlite.connect('pnw.db') as db:
+		data_to_be_inserted = ("delete from stop_dms where nation_id=%s and alert=resistance") % (nation_id)
+		await db.execute(data_to_be_inserted)
+		await db.commit()	
+	
+	await ctx.send('Resistance alerts enabled')
 
 @client.hybrid_command(name='productionefficiency',description="Gives the profitablilty of producing each resource",with_app_command=True)
 async def production_efficiency(ctx):

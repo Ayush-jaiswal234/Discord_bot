@@ -51,6 +51,7 @@ class Bot_bg_Tasks:
 		emb.title = 'War not warring'
 		emb.description =''
 		emb.color = 10038562
+		no_alerts = await self.alertless('resistance')
 		for war in fetchdata['wars']:
 			member = "att" if war['att_alliance_id']=='14000' else "def"
 			non_member = "def" if member=="att" else "att" 
@@ -65,10 +66,11 @@ class Bot_bg_Tasks:
 							user = await self.bot.get_user(discord_id)
 						except:
 							user = await self.bot.fetch_user(discord_id)
-						try:
-							await user.send(message)
-						except Forbidden:
-							emb.description += 'Blocked'
+						if int(nation["id"]) not in no_alerts:
+							try:
+								await user.send(message)
+							except Forbidden:
+								emb.description += 'Blocked'
 						emb.description += f"<@{discord_id}> {info_text}"
 					else:
 						emb.description += f"<https://politicsandwar.com/nation/id={war[f'{member}_id']}> {info_text}"
@@ -110,7 +112,7 @@ class Bot_bg_Tasks:
 		data_dict["raiders_buildings"]={"barracks":5,"factory":0,"hangar":0,"drydock":0}
 		data_dict["color"]=fetchdata["color"]
 		block_messages = ["You shouldn't have blocked me you silly baka!!💢","Why did you block me you absolute fucking retard?!?!\nYou unblock me RIGHT MEOW you fucking idiot or else I'm coming to your house!","Let me in your DMs, or Shinji will shit in your mailbox."]
-		no_alerts = await self.alertless()
+		no_alerts = await self.alertless('daily')
 		for nation in fetchdata["nations"]:
 			if nation["alliance_position"]!="APPLICANT" and nation["vacation_mode_turns"]==0 and int(nation["id"]) not in no_alerts:
 				alert_required,message = await self.alert_checker(nation,data_dict)	
@@ -140,9 +142,9 @@ class Bot_bg_Tasks:
 		
 		return discord_id
 
-	async def alertless(self):
+	async def alertless(self,value):
 		async with aiosqlite.connect('pnw.db') as db:	
-			async with db.execute('select nation_id from stop_dms') as cursor:
+			async with db.execute(f"select nation_id from stop_dms where alert={value}") as cursor:
 				no_alerts = await cursor.fetchall()
 			no_alerts = [row[0] for row in no_alerts]		
 		return no_alerts

@@ -71,16 +71,7 @@ class beige_alerts(commands.Cog):
 		endpoint = f"{ctx.author.id}"	
 		unique_link = beige_link(endpoint, [alliance_search,flags.loot])
 		
-		await ctx.send(f"Alerts have been set. Use this link to plan when you need to be online:\n{unique_link}",ephemeral=True)
-
-	@commands.hybrid_command(name='stopalerts',with_app_command=True,description='Stops beige alert dms for the user')
-	async def stopalerts(self,ctx:commands.context):
-
-		async with aiosqlite.connect('pnw.db') as db:
-			await db.execute(f'delete from beige_alerts where user_id ={ctx.author.id}')
-			await db.commit()
-
-		await ctx.send("Alerts have been removed for you.")					
+		await ctx.send(f"Alerts have been set. Use this link to plan when you need to be online:\n{unique_link}",ephemeral=True)			
 
 	async def is_alert_needed(self, target,user):
 		if user['downdec']==0:
